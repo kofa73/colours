@@ -1,7 +1,6 @@
 package kofa;
 
 import kofa.maths.Matrix;
-import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.data.Offset;
 
 import static org.assertj.core.api.Assertions.assertThat;

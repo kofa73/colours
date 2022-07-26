@@ -1,4 +1,4 @@
-package colours;
+package kofa.colours;
 
 import kofa.maths.SquareMatrix;
 import org.junit.jupiter.api.Test;
@@ -8,8 +8,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static colours.Converter.*;
 import static kofa.NumericHelper.assertApproximatelyEqual;
+import static kofa.colours.Converter.*;
 
 class ConverterTest {
     private final Converter converter = new Converter();

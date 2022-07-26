@@ -2,7 +2,6 @@ package kofa.maths;
 
 import org.junit.jupiter.api.Test;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static kofa.NumericHelper.assertApproximatelyEqual;
 import static org.assertj.core.api.Assertions.assertThat;
 

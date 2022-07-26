@@ -1,8 +1,6 @@
-package colours;
+package kofa.colours;
 
 import kofa.maths.SquareMatrix;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 public class Converter {
     // http://www.russellcottrell.com/photo/matrixCalculator.htm
