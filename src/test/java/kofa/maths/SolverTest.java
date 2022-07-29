@@ -12,8 +12,8 @@ import static org.assertj.core.api.Assertions.within;
 class SolverTest {
     private static final float PI_FLOAT = (float) PI;
     private static final float SQUARE_OF_PI = (float) (PI * PI);
-    private static final Function<Float, Float> SQUARE_ROOT_ERROR = guess -> guess * guess - SQUARE_OF_PI;
-    private final Solver solver = new Solver(SQUARE_ROOT_ERROR);
+    private static final Function<Float, Float> SQUARE_ERROR = guess -> guess * guess - SQUARE_OF_PI;
+    private final Solver solver = new Solver(SQUARE_ERROR);
 
     @Test
     void solveSuccess() {
@@ -23,7 +23,7 @@ class SolverTest {
         assertThat(solution).isPresent()
                 .get()
                 .satisfies(number -> assertThat(number).isCloseTo(PI_FLOAT, within(threshold)))
-                .satisfies(number -> assertThat(SQUARE_ROOT_ERROR.apply(number)).isCloseTo(0, within(threshold)));
+                .satisfies(number -> assertThat(SQUARE_ERROR.apply(number)).isCloseTo(0, within(threshold)));
     }
 
     @Test
