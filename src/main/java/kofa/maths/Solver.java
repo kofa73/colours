@@ -44,7 +44,7 @@ public class Solver {
                 }
                 current = (high + low) / 2;
             }
-        } while (solution.isEmpty() && iterations < MAX_ITERATIONS);
+        } while (solution.isEmpty() && current != high && current != low && low != high && iterations < MAX_ITERATIONS);
         return solution;
     }
 
