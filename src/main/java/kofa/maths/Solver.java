@@ -9,19 +9,18 @@ import static java.lang.Math.abs;
 public class Solver {
     private static final int MAX_ITERATIONS = 1_000_000;
 
-    private final Function<Float, Float> evaluator;
+    private final Function<Float, Float> errorFunction;
     private float low;
     private float high;
     private float current;
     private float threshold;
-    private int iterations;
 
     /**
-     * @param evaluator the function to evaluate the current guess. Must return > 0 if the guess is too low,
-     *                  0 if the guess is perfect, < 0 if too high
+     * @param errorFunction the function to evaluate the current guess. Must return < 0 if the guess is too low,
+     *                      0 if the guess is perfect, > 0 if too high
      */
-    public Solver(Function<Float, Float> evaluator) {
-        this.evaluator = evaluator;
+    public Solver(Function<Float, Float> errorFunction) {
+        this.errorFunction = errorFunction;
     }
 
     Optional<Float> solve(float lowerBound, float upperBound, float startingPoint, float threshold) {
@@ -31,14 +30,14 @@ public class Solver {
 
     private Optional<Float> doSolve() {
         Optional<Float> solution = Optional.empty();
-        iterations = 0;
+        int iterations = 0;
         do {
             iterations++;
-            float error = evaluator.apply(current);
+            float error = errorFunction.apply(current);
             if (abs(error) <= threshold) {
                 solution = Optional.of(current);
             } else {
-                if (error > 0) {
+                if (error < 0) {
                     low = current;
                 } else {
                     high = current;
@@ -69,9 +68,5 @@ public class Solver {
 
     public float lastValue() {
         return current;
-    }
-
-    public int iterations() {
-        return iterations;
     }
 }
