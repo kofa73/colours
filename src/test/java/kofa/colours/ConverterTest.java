@@ -1,6 +1,6 @@
 package kofa.colours;
 
-import kofa.maths.SquareMatrix;
+import kofa.maths.Matrix3;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -26,13 +26,13 @@ class ConverterTest {
 
     @ParameterizedTest
     @MethodSource("conversionMatrices")
-    void rgb_XYZ_roundtrip(SquareMatrix rgbToXyz, SquareMatrix xyzToRgb) {
+    void rgb_XYZ_roundtrip(Matrix3<RGB, XYZ> rgbToXyz, Matrix3<XYZ, RGB> xyzToRgb) {
         // given
-        var originalRgb = new float[]{12, 34, 56};
+        var originalRgb = new RGB(12, 34, 56);
 
         // when
-        float[] xyz = converter.convert(originalRgb, rgbToXyz);
-        float[] backInRgb = converter.convert(xyz, xyzToRgb);
+        var xyz = converter.convert(originalRgb, rgbToXyz);
+        var backInRgb = converter.convert(xyz, xyzToRgb);
 
         // then
         assertApproximatelyEqual(backInRgb, originalRgb, PRECISE);
@@ -41,14 +41,14 @@ class ConverterTest {
     @Test
     void linear_sRGB_XYZ_Rec2020() {
         // given - some random area average value picked in darktable with linear rec709/sRGB
-        var linear_sRGB = new float[]{89, 115, 177};
+        var linear_sRGB = new RGB(89, 115, 177);
 
         // when
-        float[] xyz = converter.convert(linear_sRGB, LINEAR_SRGB_TO_XYZ);
-        float[] rec2020 = converter.convert(xyz, XYZ_TO_REC2020);
+        var xyz = converter.convert(linear_sRGB, LINEAR_SRGB_TO_XYZ);
+        var rec2020 = converter.convert(xyz, XYZ_TO_REC2020);
 
         // then - same area average value picked in darktable with rec2020
-        float[] expectedRec2020 = new float[] {101, 114, 170};
+        RGB expectedRec2020 = new RGB(101, 114, 170);
         // all integers, so need very rough comparison
         assertApproximatelyEqual(rec2020, expectedRec2020, ROUGH_FOR_INT);
     }
@@ -56,28 +56,28 @@ class ConverterTest {
     @Test
     void linear_sRGB_XYZ_Rec2020_floats() {
         // given - some random area average value picked in darktable with linear rec709/sRGB
-        var linear_sRGB = new float[]{0.089f, 0.115f, 0.177f};
+        var linear_sRGB = new RGB(0.089f, 0.115f, 0.177f);
 
         // when
-        float[] xyz = converter.convert(linear_sRGB, LINEAR_SRGB_TO_XYZ);
-        float[] rec2020 = converter.convert(xyz, XYZ_TO_REC2020);
+        var xyz = converter.convert(linear_sRGB, LINEAR_SRGB_TO_XYZ);
+        var rec2020 = converter.convert(xyz, XYZ_TO_REC2020);
 
         // then - same area average value picked in darktable with rec2020
-        float[] expectedRec2020 = new float[] {0.101f, 0.114f, 0.170f};
+        var expectedRec2020 = new RGB(0.101f, 0.114f, 0.170f);
         // were all integers, so need more lenient comparison
         assertApproximatelyEqual(rec2020, expectedRec2020, LENIENT);
     }
 
     @Test
     void rec2020_XYZ_linear_sRGB() {
-        var linear_sRGB = new float[]{89, 115, 177};
+        var linear_sRGB = new RGB(89, 115, 177);
 
         // when
-        float[] xyz = converter.convert(linear_sRGB, LINEAR_SRGB_TO_XYZ);
-        float[] rec2020 = converter.convert(xyz, XYZ_TO_REC2020);
+        var xyz = converter.convert(linear_sRGB, LINEAR_SRGB_TO_XYZ);
+        var rec2020 = converter.convert(xyz, XYZ_TO_REC2020);
 
         // then - same area average value picked in darktable with rec2020
-        float[] expectedRec2020 = new float[]{101, 114, 170};
+        var expectedRec2020 = new RGB(101, 114, 170);
         // all integers, so need very rough comparison
         assertApproximatelyEqual(rec2020, expectedRec2020, ROUGH_FOR_INT);
     }
@@ -117,9 +117,8 @@ class ConverterTest {
 
     @Test
     void white_roundtrip() {
-        float[] RGB = {1f, 1f, 1f};
-        float[] XYZ_from_RGB_floats = converter.convert(RGB, LINEAR_SRGB_TO_XYZ);
-        XYZ XYZ_from_RGB = new XYZ(XYZ_from_RGB_floats);
+        var RGB = new RGB(1f, 1f, 1f);
+        var XYZ_from_RGB = converter.convert(RGB, LINEAR_SRGB_TO_XYZ);
 
         Luv Luv_from_XYZ = converter.convert_XYZ_to_Luv(XYZ_from_RGB, D65_WHITE_XYZ);
 
@@ -131,14 +130,14 @@ class ConverterTest {
         XYZ XYZ_from_Luv = converter.convert_Luv_to_XYZ(Luv_from_LCH, D65_WHITE_XYZ);
         assertApproximatelyEqual(XYZ_from_Luv, XYZ_from_RGB, PRECISE);
 
-        float[] RGB_from_XYZ = converter.convert(XYZ_from_Luv.toFloats(), XYZ_TO_LINEAR_SRGB);
+        var RGB_from_XYZ = converter.convert(XYZ_from_Luv, XYZ_TO_LINEAR_SRGB);
         assertApproximatelyEqual(RGB_from_XYZ, RGB, PRECISE);
     }
 
     @Test
     void white_roundtrip_D65() {
-        float[] RGB = {1f, 1f, 1f};
-        var XYZ_from_RGB = new XYZ(converter.convert(RGB, LINEAR_SRGB_TO_XYZ));
+        var RGB = new RGB(1f, 1f, 1f);
+        var XYZ_from_RGB = converter.convert(RGB, LINEAR_SRGB_TO_XYZ);
 
         var Luv_from_XYZ_D65 = converter.convert_XYZ_to_Luv_D65(XYZ_from_RGB);
         Luv Luv_from_XYZ = converter.convert_XYZ_to_Luv(XYZ_from_RGB, D65_WHITE_XYZ);
@@ -154,7 +153,7 @@ class ConverterTest {
         var XYZ_from_Luv = converter.convert_Luv_to_XYZ(Luv_from_LCH, D65_WHITE_XYZ);
         assertApproximatelyEqual(XYZ_from_Luv_D65, XYZ_from_Luv, PRECISE);
 
-        var RGB_from_XYZ = converter.convert(XYZ_from_Luv_D65.toFloats(), XYZ_TO_LINEAR_SRGB);
+        var RGB_from_XYZ = converter.convert(XYZ_from_Luv_D65, XYZ_TO_LINEAR_SRGB);
         assertApproximatelyEqual(RGB_from_XYZ, RGB, PRECISE);
     }
 }

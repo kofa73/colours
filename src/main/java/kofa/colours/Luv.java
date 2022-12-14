@@ -1,8 +1,8 @@
 package kofa.colours;
 
-import kofa.maths.FloatVector;
+import kofa.maths.Vector3D;
 
-public record Luv(float L, float u, float v) implements FloatVector {
+public record Luv(float L, float u, float v) implements Vector3D {
     public Luv(float[] floats) {
         this(floats[0], floats[1], floats[2]);
     }
