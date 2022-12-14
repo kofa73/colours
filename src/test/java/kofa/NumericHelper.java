@@ -17,7 +17,7 @@ public class NumericHelper {
         }
     }
 
-    public static void assertApproximatelyEqual(FloatVector actualVector, FloatVector expectedVector, float delta) {
+    public static <V extends FloatVector> void assertApproximatelyEqual(V actualVector, V expectedVector, float delta) {
         assertApproximatelyEqual(actualVector.toFloats(), expectedVector.toFloats(), delta);
     }
 

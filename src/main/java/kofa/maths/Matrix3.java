@@ -4,15 +4,15 @@ import static com.google.common.base.Preconditions.checkState;
 
 public class Matrix3<I extends Vector3D, O extends Vector3D> {
     private final float[][] values;
-    private final Vector3D.Constructor<O> resultConstructor;
+    private final Vector3D.ConstructorFromArray<O> resultConstructor;
     private int fillingRow = 0;
 
-    public Matrix3(Vector3D.Constructor<O> resultConstructor) {
+    public Matrix3(Vector3D.ConstructorFromArray<O> resultConstructor) {
         values = new float[3][3];
         this.resultConstructor = resultConstructor;
     }
 
-    public Matrix3 row(float a, float b, float c) {
+    public Matrix3<I, O> row(float a, float b, float c) {
         checkState(fillingRow < 3, "Already added all 3 rows");
         values[fillingRow][0] = a;
         values[fillingRow][1] = b;

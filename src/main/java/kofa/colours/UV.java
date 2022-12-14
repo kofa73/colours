@@ -11,4 +11,10 @@ public record UV(float u, float v) implements FloatVector {
     public float[] toFloats() {
         return new float[]{u, v};
     }
+
+    @Override
+    public String toString() {
+        return "%s[%f, %f]".formatted(getClass().getSimpleName(), u, v);
+    }
+
 }

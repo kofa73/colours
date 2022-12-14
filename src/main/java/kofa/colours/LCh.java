@@ -11,9 +11,9 @@ public record LCh(float L, float C, float h) implements Vector3D {
     public float[] toFloats() {
         return new float[]{L, C, h};
     }
-//
-//    @Override
-//    public Constructor constructor() {
-//        return LCh::new;
-//    }
+
+    @Override
+    public String toString() {
+        return "%s[%f, %f, %f]".formatted(getClass().getSimpleName(), L, C, h);
+    }
 }

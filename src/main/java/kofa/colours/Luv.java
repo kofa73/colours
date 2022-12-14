@@ -11,4 +11,9 @@ public record Luv(float L, float u, float v) implements Vector3D {
     public float[] toFloats() {
         return new float[]{L, u, v};
     }
+
+    @Override
+    public String toString() {
+        return "%s[%f, %f, %f]".formatted(getClass().getSimpleName(), L, u, v);
+    }
 }
