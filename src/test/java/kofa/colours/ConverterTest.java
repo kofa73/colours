@@ -98,11 +98,11 @@ class ConverterTest {
         var values_LUV = new Luv(32.90281f, 12.9804f, -67.75974f);
 
         // when
-        LCh values_LCH_uv = Converter.convert_Luv_to_LCH_uv(values_LUV);
+        LCh_uv values_LCH_uv = Converter.convert_Luv_to_LCH_uv(values_LUV);
 
         // then
         // 280.84448 degress -> 4.90166086204 radians + wrap-around
-        var expected_LCH_Uv = new LCh(32.90281f, 68.99183f, (float) (4.90166086204f - 2 * Math.PI));
+        var expected_LCH_Uv = new LCh_uv(32.90281f, 68.99183f, (float) (4.90166086204f - 2 * Math.PI));
 
         assertApproximatelyEqual(values_LCH_uv, expected_LCH_Uv, PRECISE);
     }
@@ -111,7 +111,7 @@ class ConverterTest {
     void convert_LCH_uv_to_Luv() {
         // given
         // RGB #663399 -> LCh_uv(32.90281, 68.99183, -280.84448 degrees -> 4.90166086204 radians)
-        var values_LCH_uv = new LCh(32.90281f, 68.99183f, 4.90166086204f);
+        var values_LCH_uv = new LCh_uv(32.90281f, 68.99183f, 4.90166086204f);
 
         // when
         var values_Luv = Converter.convert_LCH_uv_to_Luv(values_LCH_uv);
@@ -129,7 +129,7 @@ class ConverterTest {
 
         Luv Luv_from_XYZ = Converter.convert_XYZ_to_Luv(XYZ_from_RGB, D65_WHITE_XYZ);
 
-        LCh LCH_from_Luv = Converter.convert_Luv_to_LCH_uv(Luv_from_XYZ);
+        LCh_uv LCH_from_Luv = Converter.convert_Luv_to_LCH_uv(Luv_from_XYZ);
 
         Luv Luv_from_LCH = Converter.convert_LCH_uv_to_Luv(LCH_from_Luv);
         assertApproximatelyEqual(Luv_from_LCH, Luv_from_XYZ, PRECISE);

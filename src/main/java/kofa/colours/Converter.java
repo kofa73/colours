@@ -119,16 +119,16 @@ public class Converter {
         return new XYZ(X, Y, Z);
     }
 
-    public static LCh convert_Luv_to_LCH_uv(Luv inputLuv) {
+    public static LCh_uv convert_Luv_to_LCH_uv(Luv inputLuv) {
         float L = inputLuv.L();
         float u = inputLuv.u();
         float v = inputLuv.v();
         float C = length(u, v);
         float H = (float) Math.atan2(v, u);
-        return new LCh(L, C, H);
+        return new LCh_uv(L, C, H);
     }
 
-    public static Luv convert_LCH_uv_to_Luv(LCh inputLCH) {
+    public static Luv convert_LCH_uv_to_Luv(LCh_uv inputLCH) {
         float C = inputLCH.C();
         float h = inputLCH.h();
         float u = (float) (C * Math.cos(h));

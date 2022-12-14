@@ -24,15 +24,6 @@ public abstract class RGB<S extends RGB<S>> implements Vector3D {
         return toXyzMatrix().multipliedBy((S) this);
     }
 
-    public Luv toLuv() {
-        // override if space does not use D65
-        return Converter.convert_XYZ_to_Luv_D65(toXYZ());
-    }
-
-    public LCh toLCh() {
-        return Converter.convert_Luv_to_LCH_uv(toLuv());
-    }
-
     @Override
     public float[] toFloats() {
         return new float[]{r, g, b};

@@ -2,6 +2,7 @@ package kofa;
 
 import kofa.maths.FloatVector;
 import kofa.maths.Matrix;
+import kofa.maths.Vector3D;
 import org.assertj.core.data.Offset;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,4 +32,13 @@ public class NumericHelper {
         );
     }
 
+    public static <V extends Vector3D> void assertApproximatelyEqual(V actualVector, V expectedVector, float delta0, float delta1, float delta2) {
+        float[] actualFloats = actualVector.toFloats();
+        float[] expectedFloats = expectedVector.toFloats();
+        assertSoftly(softly -> {
+            softly.assertThat(actualFloats[0]).isEqualTo(expectedFloats[0], Offset.offset(delta0));
+            softly.assertThat(actualFloats[1]).isEqualTo(expectedFloats[1], Offset.offset(delta1));
+            softly.assertThat(actualFloats[2]).isEqualTo(expectedFloats[2], Offset.offset(delta2));
+        });
+    }
 }
