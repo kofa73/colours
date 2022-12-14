@@ -1,5 +1,6 @@
 package kofa;
 
+import kofa.maths.FloatVector;
 import kofa.maths.Matrix;
 import org.assertj.core.data.Offset;
 
@@ -14,6 +15,10 @@ public class NumericHelper {
 
             assertApproximatelyEqual(resultColumn, expectedColumn, delta);
         }
+    }
+
+    public static void assertApproximatelyEqual(FloatVector actualVector, FloatVector expectedVector, float delta) {
+        assertApproximatelyEqual(actualVector.toFloats(), expectedVector.toFloats(), delta);
     }
 
     public static void assertApproximatelyEqual(float[] actualVector, float[] expectedVector, float delta) {

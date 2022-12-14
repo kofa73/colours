@@ -7,8 +7,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Math.abs;
 
 public class Solver {
-    private static final int MAX_ITERATIONS = 1_000_000;
-
     private final Function<Float, Float> errorFunction;
     private float low;
     private float high;
@@ -30,6 +28,7 @@ public class Solver {
 
     private Optional<Float> doSolve() {
         Optional<Float> solution = Optional.empty();
+        // for safety, if we're oscillating somehow
         int iterations = 0;
         do {
             iterations++;
@@ -44,7 +43,7 @@ public class Solver {
                 }
                 current = (high + low) / 2;
             }
-        } while (solution.isEmpty() && current != high && current != low && low != high && iterations < MAX_ITERATIONS);
+        } while (solution.isEmpty() && current != high && current != low && iterations < 100);
         return solution;
     }
 

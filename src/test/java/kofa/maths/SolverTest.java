@@ -5,39 +5,64 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static java.lang.Math.PI;
+import static java.lang.Math.sqrt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
 class SolverTest {
-    private static final float PI_FLOAT = (float) PI;
-    private static final float SQUARE_OF_PI = (float) (PI * PI);
-    private static final Function<Float, Float> SQUARE_ERROR = guess -> guess * guess - SQUARE_OF_PI;
-    private final Solver solver = new Solver(SQUARE_ERROR);
-
     @Test
     void solveSuccess() {
-        float threshold = 0.0001f;
-        Optional<Float> solution = solver.solve(0, 10, 1, threshold);
+        // given
+        float threshold = 0;
+        // requires 89 iterations in the Solver
+        float evilValue = 1.7023637E38f;
 
+        Function<Float, Float> errorFunction = squareRootError(evilValue);
+        Solver solver = new Solver(errorFunction);
+
+        // when
+        Optional<Float> solution = solver.solve(0, evilValue, 0, threshold);
+
+        // then
         assertThat(solution).isPresent()
                 .get()
-                .satisfies(number -> assertThat(number).isCloseTo(PI_FLOAT, within(threshold)))
-                .satisfies(number -> assertThat(SQUARE_ERROR.apply(number)).isCloseTo(0, within(threshold)));
+                .satisfies(root -> assertThat(root * root).isCloseTo(evilValue, within(threshold)))
+                .satisfies(root -> assertThat(errorFunction.apply(root)).isCloseTo(0, within(threshold)));
     }
 
     @Test
     void solveFailure_solutionOutsideRange() {
-        Optional<Float> solution = solver.solve(0, 1, 1, 0.001f);
+        // given
+        Solver solver = new Solver(squareRootError(10));
 
+        // when
+        Optional<Float> solution = solver.solve(0, 1, 0.5f, 0.001f);
+
+        // then
         assertThat(solution).isEmpty();
     }
 
     @Test
     void solveFailure_solutionNotPreciseEnough() {
-        Optional<Float> solution = solver.solve(0, 10, 1, 0f);
+        // given
+        double value = 123456789012.34567890123f;
+
+        Solver solver = new Solver(doubleBasedSquareRootError(value));
+        Optional<Float> solution = solver.solve(0, (float) value, 1, 0f);
 
         assertThat(solution).isEmpty();
-        assertThat(solver.lastValue()).isCloseTo(PI_FLOAT, within(0.000_001f));
+        assertThat(solver.lastValue()).isCloseTo((float) sqrt(value), within(0.000_001f));
+    }
+
+    private static Function<Float, Float> squareRootError(float value) {
+        return guess -> guess * guess - value;
+    }
+
+    private static Function<Float, Float> doubleBasedSquareRootError(double value) {
+        return guess -> {
+            double error = (double) guess * guess - value;
+            return error == 0 ? 0f :
+                    error > 0 ? 1f : -1f;
+        };
     }
 }
