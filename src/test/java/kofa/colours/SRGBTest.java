@@ -2,12 +2,13 @@ package kofa.colours;
 
 import org.junit.jupiter.api.Test;
 
-import static kofa.NumericHelper.assertApproximatelyEqual;
+import static kofa.NumericAssertions.PRECISE;
+import static kofa.NumericAssertions.assertIsCloseTo;
 
 class SRGBTest {
     @Test
     void roundTrip_XYZ() {
-        var original = new SRGB(0.123f, 0.456f, 0.789f);
-        assertApproximatelyEqual(original, SRGB.from(original.toXYZ()), 1E-5f);
+        var original = new SRGB(0.123, 0.456, 0.789);
+        assertIsCloseTo(original, SRGB.from(original.toXYZ()), PRECISE);
     }
 }

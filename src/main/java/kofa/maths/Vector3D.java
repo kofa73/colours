@@ -1,11 +1,11 @@
 package kofa.maths;
 
-public interface Vector3D extends FloatVector {
+public interface Vector3D extends DoubleVector {
     interface ConstructorFromArray<T> {
-        T createNew(float[] values);
+        T createNew(double[] values);
     }
 
     interface ConstructorFromValues<T> {
-        T createNew(float a, float b, float c);
+        T createNew(double a, double b, double c);
     }
 }

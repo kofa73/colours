@@ -1,15 +1,15 @@
 package kofa.colours;
 
-import kofa.maths.FloatVector;
+import kofa.maths.DoubleVector;
 
-public record UV(float u, float v) implements FloatVector {
-    public UV(float[] floats) {
-        this(floats[0], floats[1]);
+public record UV(double u, double v) implements DoubleVector {
+    public UV(double[] doubles) {
+        this(doubles[0], doubles[1]);
     }
 
     @Override
-    public float[] toFloats() {
-        return new float[]{u, v};
+    public double[] values() {
+        return new double[]{u, v};
     }
 
     @Override

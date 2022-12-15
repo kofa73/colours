@@ -2,26 +2,27 @@ package kofa.colours;
 
 import org.junit.jupiter.api.Test;
 
-import static kofa.NumericHelper.assertApproximatelyEqual;
+import static kofa.NumericAssertions.PRECISE;
+import static kofa.NumericAssertions.assertIsCloseTo;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class LCh_uv_Test {
-    private static final float H_RADIANS = (float) (280.84448f / 360 * 2 * Math.PI);
-    private final LCh_uv lch = new LCh_uv(32.90281f, 68.99183f, H_RADIANS);
+    private static final double H_RADIANS = (280.84448 / 360 * 2 * Math.PI);
+    private final LCh_uv lch = new LCh_uv(32.90281, 68.99183, H_RADIANS);
 
     @Test
-    void toFloats() {
+    void toDoubles() {
         assertThat(
-                lch.toFloats()
-        ).containsExactly(32.90281f, 68.99183f, H_RADIANS);
+                lch.values()
+        ).containsExactly(32.90281, 68.99183, H_RADIANS);
     }
 
     @Test
     void toLuv() {
-        assertApproximatelyEqual(
+        assertIsCloseTo(
                 lch.toLuv(),
-                new Luv(32.90281f, 12.9804f, -67.75974f),
-                1E-5f
+                new Luv(32.90281, 12.9804, -67.75974),
+                PRECISE
         );
     }
 }

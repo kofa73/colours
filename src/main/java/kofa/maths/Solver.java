@@ -7,32 +7,32 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Math.abs;
 
 public class Solver {
-    private final Function<Float, Float> errorFunction;
-    private float low;
-    private float high;
-    private float current;
-    private float threshold;
+    private final Function<Double, Double> errorFunction;
+    private double low;
+    private double high;
+    private double current;
+    private double threshold;
 
     /**
      * @param errorFunction the function to evaluate the current guess. Must return < 0 if the guess is too low,
      *                      0 if the guess is perfect, > 0 if too high
      */
-    public Solver(Function<Float, Float> errorFunction) {
+    public Solver(Function<Double, Double> errorFunction) {
         this.errorFunction = errorFunction;
     }
 
-    Optional<Float> solve(float lowerBound, float upperBound, float startingPoint, float threshold) {
+    Optional<Double> solve(double lowerBound, double upperBound, double startingPoint, double threshold) {
         initParams(lowerBound, upperBound, startingPoint, threshold);
         return doSolve();
     }
 
-    private Optional<Float> doSolve() {
-        Optional<Float> solution = Optional.empty();
+    private Optional<Double> doSolve() {
+        Optional<Double> solution = Optional.empty();
         // for safety, if we're oscillating somehow
         int iterations = 0;
         do {
             iterations++;
-            float error = errorFunction.apply(current);
+            double error = errorFunction.apply(current);
             if (abs(error) <= threshold) {
                 solution = Optional.of(current);
             } else {
@@ -43,11 +43,11 @@ public class Solver {
                 }
                 current = (high + low) / 2;
             }
-        } while (solution.isEmpty() && current != high && current != low && iterations < 100);
+        } while (solution.isEmpty() && current != high && current != low && iterations < 200);
         return solution;
     }
 
-    private void initParams(float lowerBound, float upperBound, float startingPoint, float threshold) {
+    private void initParams(double lowerBound, double upperBound, double startingPoint, double threshold) {
         checkArgument(
                 lowerBound < upperBound,
                 "lowerBound %s must be < upperBound %s",
@@ -65,7 +65,7 @@ public class Solver {
         this.threshold = threshold;
     }
 
-    public float lastValue() {
+    public double lastValue() {
         return current;
     }
 }

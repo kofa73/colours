@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 public class Matrix<M extends Matrix<M>> {
-    private final float[][] values;
+    private final double[][] values;
     private final int nRows;
     private final int nColumns;
     private int fillingRow = 0;
@@ -12,10 +12,10 @@ public class Matrix<M extends Matrix<M>> {
     public Matrix(int nRows, int nColumns) {
         this.nRows = nRows;
         this.nColumns = nColumns;
-        values = new float[nRows][nColumns];
+        values = new double[nRows][nColumns];
     }
 
-    public M row(float... row) {
+    public M row(double... row) {
         checkState(fillingRow < nRows, "Already added all %s rows", nRows);
         checkArgument(row.length == nColumns, "Row length must be %s", nColumns);
         values[fillingRow] = row.clone();
@@ -23,9 +23,9 @@ public class Matrix<M extends Matrix<M>> {
         return (M) this;
     }
 
-    public float[] multipliedBy(float... vector) {
+    public double[] multipliedBy(double... vector) {
         checkArgument(vector.length == nColumns, "Vector must have %s rows", nColumns);
-        var result = new float[nRows];
+        var result = new double[nRows];
         for (int columnIndex = 0; columnIndex < vector.length; columnIndex++) {
             for (int rowIndex = 0; rowIndex < nRows; rowIndex++) {
                 result[rowIndex] += values[rowIndex][columnIndex] * vector[columnIndex];
@@ -38,7 +38,7 @@ public class Matrix<M extends Matrix<M>> {
         checkArgument(this.nColumns == other.nRows, "other matrix should have %s rows", this.nColumns);
         var result = new Matrix<>(this.nRows, other.nColumns);
         for (int resultRowIndex = 0; resultRowIndex < result.nRows; resultRowIndex++) {
-            var resultRow = new float[other.nColumns];
+            var resultRow = new double[other.nColumns];
             for (int resultColumnIndex = 0; resultColumnIndex < other.nColumns; resultColumnIndex++) {
                 resultRow[resultColumnIndex] = dotProduct(this.values[resultRowIndex], other.column(resultRowIndex));
             }
@@ -47,18 +47,18 @@ public class Matrix<M extends Matrix<M>> {
         return result;
     }
 
-    public float[] column(int columnIndex) {
+    public double[] column(int columnIndex) {
         checkArgument(columnIndex < nColumns, "columnIndex %s >= %s", columnIndex, nColumns);
-        var columnValues = new float[nRows];
+        var columnValues = new double[nRows];
         for (int rowIndex = 0; rowIndex < nRows; rowIndex++) {
             columnValues[rowIndex] = values[rowIndex][columnIndex];
         }
         return columnValues;
     }
 
-    private float dotProduct(float[] vector1, float[] vector2) {
+    private double dotProduct(double[] vector1, double[] vector2) {
         checkArgument(vector1.length == vector2.length, "vector1.length = %s, but vector2.length = %s");
-        float result = 0;
+        double result = 0;
         for (int index = 0; index < vector1.length; index++) {
             result += vector1[index] * vector2[index];
         }

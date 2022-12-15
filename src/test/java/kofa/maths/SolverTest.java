@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static java.lang.Math.sqrt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
@@ -13,15 +12,15 @@ class SolverTest {
     @Test
     void solveSuccess() {
         // given
-        float threshold = 0;
-        // requires 89 iterations in the Solver
-        float evilValue = 1.7023637E38f;
+        double threshold = 0;
+        // requires 116 iterations in the Solver
+        double evilValue = 1.7023637E38;
 
-        Function<Float, Float> errorFunction = squareRootError(evilValue);
+        Function<Double, Double> errorFunction = squareRootError(evilValue);
         Solver solver = new Solver(errorFunction);
 
         // when
-        Optional<Float> solution = solver.solve(0, evilValue, 0, threshold);
+        Optional<Double> solution = solver.solve(0, evilValue, 0, threshold);
 
         // then
         assertThat(solution).isPresent()
@@ -36,7 +35,7 @@ class SolverTest {
         Solver solver = new Solver(squareRootError(10));
 
         // when
-        Optional<Float> solution = solver.solve(0, 1, 0.5f, 0.001f);
+        Optional<Double> solution = solver.solve(0, 1, 0.5, 0.001);
 
         // then
         assertThat(solution).isEmpty();
@@ -45,24 +44,25 @@ class SolverTest {
     @Test
     void solveFailure_solutionNotPreciseEnough() {
         // given
-        double value = 123456789012.34567890123f;
+        double value = 123456789012.34567890123;
 
         Solver solver = new Solver(doubleBasedSquareRootError(value));
-        Optional<Float> solution = solver.solve(0, (float) value, 1, 0f);
+        Optional<Double> solution = solver.solve(0, value, 1, 0);
 
         assertThat(solution).isEmpty();
-        assertThat(solver.lastValue()).isCloseTo((float) sqrt(value), within(0.000_001f));
+        // we came close, but did not get a precise solution due to limited numeric precision
+        assertThat(solver.lastValue() * solver.lastValue()).isCloseTo(value, within(1E-4));
     }
 
-    private static Function<Float, Float> squareRootError(float value) {
+    private static Function<Double, Double> squareRootError(double value) {
         return guess -> guess * guess - value;
     }
 
-    private static Function<Float, Float> doubleBasedSquareRootError(double value) {
+    private static Function<Double, Double> doubleBasedSquareRootError(double value) {
         return guess -> {
-            double error = (double) guess * guess - value;
-            return error == 0 ? 0f :
-                    error > 0 ? 1f : -1f;
+            double error = guess * guess - value;
+            return error == 0 ? 0d :
+                    error > 0 ? 1d : -1d;
         };
     }
 }
