@@ -67,8 +67,8 @@ class ConverterTest {
 
         // then - same area average value picked in darktable with rec2020
         var expectedRec2020 = new Rec2020(0.101, 0.114, 0.170);
-        // were all integers, so need more lenient comparison
-        assertIsCloseTo(rec2020, expectedRec2020, PRECISE);
+        // were read from a UI, so need more lenient comparison
+        assertIsCloseTo(rec2020, expectedRec2020, ROUGH_FOR_INT, LENIENT, PRECISE);
     }
 
     @Test

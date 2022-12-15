@@ -33,7 +33,8 @@ class XYZTest {
                         ).usingWhitePoint(Converter.D65_WHITE_XYZ)
                         .toLch_uv(),
                 new LCh_uv(63.91936, 83.81409, expected_hRadians),
-                PRECISE
+                // picked from UI
+                PRECISE, PRECISE, LENIENT
         );
         assertIsCloseTo(
                 // linear Rec709 reading from a photo in darktable

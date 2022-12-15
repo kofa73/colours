@@ -3,7 +3,6 @@ package kofa;
 import kofa.maths.DoubleVector;
 import kofa.maths.Matrix;
 import kofa.maths.Vector3D;
-import org.assertj.core.data.Offset;
 import org.assertj.core.data.Percentage;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +31,7 @@ public class NumericAssertions {
         assertThat(actualVector).hasSameSizeAs(expectedVector);
         assertSoftly(softly -> {
                     for (int row = 0; row < actualVector.length; row++) {
-                        softly.assertThat(actualVector[row]).isEqualTo(expectedVector[row], Offset.offset(percentage));
+                        softly.assertThat(actualVector[row]).isCloseTo(expectedVector[row], Percentage.withPercentage(percentage));
                     }
                 }
         );
