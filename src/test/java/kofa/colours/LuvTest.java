@@ -21,7 +21,7 @@ class LuvTest {
         // from https://ajalt.github.io/colormath/converter/
         double hRadians = (2 * Math.PI * 280.84448 / 360 - 2 * Math.PI);
         assertIsCloseTo(
-                luv.toLch_uv(),
+                luv.toLch(),
                 // converting degrees to radians, then getting it in the range returned by atan2
                 new LCh_uv(32.90281, 68.99183, hRadians),
                 PRECISE

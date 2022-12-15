@@ -10,12 +10,17 @@ public class Converter {
         throw new RuntimeException("Don't instantiate this utility class");
     }
 
+    public static double cubeOf(double number) {
+        return number * number * number;
+    }
+
     public static double cubeRoot(double number) {
         return pow(number, 1.0 / 3.0);
     }
 
     // http://www.brucelindbloom.com/LContinuity.html
     // http://www.brucelindbloom.com/Eqn_XYZ_to_Luv.html
+    public static final double DELTA = 6d / 29;
     public static final double EPSILON = 216d / 24389;
     public static final double KAPPA = 24389d / 27;
 

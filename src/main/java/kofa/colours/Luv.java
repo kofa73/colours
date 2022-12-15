@@ -14,10 +14,8 @@ public record Luv(double L, double u, double v) implements Vector3D {
         return new double[]{L, u, v};
     }
 
-    public LCh_uv toLch_uv() {
-        double C = length(u, v);
-        double h = Math.atan2(v, u);
-        return new LCh_uv(L, C, h);
+    public LCh_uv toLch() {
+        return new LCh_uv(LchHelper.toPolar(L, u, v));
     }
 
     public static XYZLuvConverter fromXYZ(XYZ xyz) {

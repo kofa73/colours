@@ -31,7 +31,7 @@ class XYZTest {
                         .fromXYZ(
                                 new Rec2020(154.0 / 255, 58.0 / 255, 61.0 / 255).toXYZ()
                         ).usingWhitePoint(Converter.D65_WHITE_XYZ)
-                        .toLch_uv(),
+                        .toLch(),
                 new LCh_uv(63.91936, 83.81409, expected_hRadians),
                 // picked from UI
                 PRECISE, PRECISE, LENIENT
@@ -41,11 +41,11 @@ class XYZTest {
                 Luv.fromXYZ(
                                 new SRGB(217.0 / 255, 46.0 / 255, 59.0 / 255).toXYZ()
                         ).usingWhitePoint(Converter.D65_WHITE_XYZ)
-                        .toLch_uv(),
+                        .toLch(),
                 // LCh from https://ajalt.github.io/colormath/converter/, h in degrees
                 new LCh_uv(63.91936, 83.81409, (6.1006 / 360 * 2 * Math.PI)),
                 // allow some slack because of the integers
-                PRECISE, LENIENT, ROUGH_FOR_INT
+                PRECISE, LENIENT, ROUGH
                 // FIXME: darktable LCh 64.44, 50.26, 17.26 (degrees -> 0.30124 rad)
                 // Maybe that's LCH(ab)? https://ajalt.github.io/colormath/converter/ says
                 // LCH(ab) is 63.91936, 49.42461, 16.07154, which is quite close

@@ -2,12 +2,12 @@ package kofa.colours;
 
 import org.junit.jupiter.api.Test;
 
-import static kofa.NumericAssertions.PRECISE;
-import static kofa.NumericAssertions.assertIsCloseTo;
+import static java.lang.Math.PI;
+import static kofa.NumericAssertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class LCh_uv_Test {
-    private static final double H_RADIANS = (280.84448 / 360 * 2 * Math.PI);
+    private static final double H_RADIANS = (280.84448 / 360 * 2 * PI);
     private final LCh_uv lch = new LCh_uv(32.90281, 68.99183, H_RADIANS);
 
     @Test
@@ -24,5 +24,18 @@ class LCh_uv_Test {
                 new Luv(32.90281, 12.9804, -67.75974),
                 PRECISE
         );
+    }
+
+    @Test
+    void withHueInDegrees() {
+        assertDegreesAreClose(new LCh_uv(10, 10, -2 * PI).withHueInDegrees()[2], 0);
+        assertDegreesAreClose(new LCh_uv(10, 10, -1.5 * PI).withHueInDegrees()[2], 90);
+        assertDegreesAreClose(new LCh_uv(10, 10, -1 * PI).withHueInDegrees()[2], 180);
+        assertDegreesAreClose(new LCh_uv(10, 10, -0.5 * PI).withHueInDegrees()[2], 270);
+        assertDegreesAreClose(new LCh_uv(10, 10, 0 * PI).withHueInDegrees()[2], 360);
+        assertDegreesAreClose(new LCh_uv(10, 10, 0.5 * PI).withHueInDegrees()[2], 90);
+        assertDegreesAreClose(new LCh_uv(10, 10, 1 * PI).withHueInDegrees()[2], 180);
+        assertDegreesAreClose(new LCh_uv(10, 10, 1.5 * PI).withHueInDegrees()[2], 270);
+        assertDegreesAreClose(new LCh_uv(10, 10, 2 * PI).withHueInDegrees()[2], 360);
     }
 }

@@ -53,7 +53,7 @@ class ConverterTest {
         // then - same area average value picked in darktable with rec2020
         var expectedRec2020 = new Rec2020(101, 114, 170);
         // all integers, so need a lenient comparison
-        assertIsCloseTo(rec2020, expectedRec2020, ROUGH_FOR_INT, LENIENT, PRECISE);
+        assertIsCloseTo(rec2020, expectedRec2020, ROUGH, LENIENT, PRECISE);
     }
 
     @Test
@@ -68,7 +68,7 @@ class ConverterTest {
         // then - same area average value picked in darktable with rec2020
         var expectedRec2020 = new Rec2020(0.101, 0.114, 0.170);
         // were read from a UI, so need more lenient comparison
-        assertIsCloseTo(rec2020, expectedRec2020, ROUGH_FOR_INT, LENIENT, PRECISE);
+        assertIsCloseTo(rec2020, expectedRec2020, ROUGH, LENIENT, PRECISE);
     }
 
     @Test
@@ -83,7 +83,7 @@ class ConverterTest {
         var expectedSRGB = new SRGB(89, 115, 177);
 
         // all integers, so need very rough comparison
-        assertIsCloseTo(sRGB, expectedSRGB, ROUGH_FOR_INT);
+        assertIsCloseTo(sRGB, expectedSRGB, ROUGH);
     }
 
     @Test
@@ -126,7 +126,7 @@ class ConverterTest {
 
         Luv Luv_from_XYZ = Luv.fromXYZ(XYZ_from_RGB).usingWhitePoint(D65_WHITE_XYZ);
 
-        LCh_uv LCH_from_Luv = Luv_from_XYZ.toLch_uv();
+        LCh_uv LCH_from_Luv = Luv_from_XYZ.toLch();
 
         Luv Luv_from_LCH = LCH_from_Luv.toLuv();
         assertIsCloseTo(Luv_from_LCH, Luv_from_XYZ, PRECISE);
@@ -147,7 +147,7 @@ class ConverterTest {
         Luv Luv_from_XYZ = Luv.fromXYZ(XYZ_from_SRGB).usingWhitePoint(D65_WHITE_XYZ);
         assertIsCloseTo(Luv_from_XYZ_D65, Luv_from_XYZ, PRECISE);
 
-        var LCH_from_Luv = Luv_from_XYZ_D65.toLch_uv();
+        var LCH_from_Luv = Luv_from_XYZ_D65.toLch();
 
         var Luv_from_LCH = LCH_from_Luv.toLuv();
         assertIsCloseTo(Luv_from_LCH, Luv_from_XYZ_D65, PRECISE);
