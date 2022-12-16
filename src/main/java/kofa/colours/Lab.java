@@ -23,39 +23,43 @@ public record Lab(double L, double a, double b) implements Vector3D {
         return new double[]{L, a, b};
     }
 
-    public XYZ toXyz(XYZ reference) {
-        var fy = fy();
-        var fx = a / 500 + fy;
-        var fz = fy - b / 200;
-        var xr = fxz(fx);
-        var yr = L > KAPPA * EPSILON ?
-                cubeOf(fy) :
-                L / KAPPA;
-        var zr = fxz(fz);
-        return new XYZ(xr * reference.X(), yr * reference.Y(), zr * reference.Z());
+    public LabXYZConverter toXyz() {
+        return new LabXYZConverter();
     }
 
-    private double fxz(double value) {
-        return value > DELTA ?
-                cubeOf(value) :
-                (116 * value - 16) / KAPPA;
+    public class LabXYZConverter implements WhitePointXyzAwareConverter<XYZ> {
+        @Override
+        public XYZ usingWhitePoint(XYZ reference) {
+            var fy = fy();
+            var fx = a / 500 + fy;
+            var fz = fy - b / 200;
+            var xr = fxz(fx);
+            var yr = L > KAPPA_EPSILON ?
+                    cubeOf(fy) :
+                    L / KAPPA;
+            var zr = fxz(fz);
+            return new XYZ(xr * reference.X(), yr * reference.Y(), zr * reference.Z());
+        }
+
+        private double fxz(double value) {
+            return value > DELTA ?
+                    cubeOf(value) :
+                    (116 * value - 16) / KAPPA;
+        }
+
+        private double fy() {
+            return (L + 16) / 116;
+        }
     }
 
-    private double fy() {
-        return (L + 16) / 116;
-    }
-
-    public static class XYZLabConverter {
+    public static class XYZLabConverter implements WhitePointXyzAwareConverter<Lab> {
         private final XYZ xyz;
 
         public XYZLabConverter(XYZ xyz) {
             this.xyz = xyz;
         }
 
-        public Lab usingD65() {
-            return usingWhitePoint(D65_WHITE_XYZ);
-        }
-
+        @Override
         public Lab usingWhitePoint(XYZ referenceXYZ) {
             double fx = f(xyz.X() / referenceXYZ.X());
             double fy = f(xyz.Y() / referenceXYZ.Y());
@@ -68,7 +72,7 @@ public record Lab(double L, double a, double b) implements Vector3D {
 
         private double f(double componentRatio) {
             return componentRatio > EPSILON ?
-                    cubeRoot(componentRatio) :
+                    cubeRootOf(componentRatio) :
                     (KAPPA * componentRatio + 16) / 116;
         }
     }

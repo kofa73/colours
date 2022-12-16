@@ -6,16 +6,16 @@ public class Rec2020 extends RGB<Rec2020> {
     // http://www.russellcottrell.com/photo/matrixCalculator.htm
     static final Matrix3x3<Rec2020, XYZ> TO_XYZ = new Matrix3x3<>(
             XYZ::new,
-            0.6369580, 0.1446169, 0.1688810,
-            0.2627002, 0.6779981, 0.0593017,
-            0.0000000, 0.0280727, 1.0609851
+            6.36953507e-01, 1.44619185e-01, 1.68855854e-01,
+            2.62698339e-01, 6.78008766e-01, 5.92928953e-02,
+            4.99407097e-17, 2.80731358e-02, 1.06082723e+00
     );
 
     static final Matrix3x3<XYZ, Rec2020> FROM_XYZ = new Matrix3x3<>(
             Rec2020::new,
-            1.7166512, -0.3556708, -0.2533663,
-            -0.6666844, 1.6164812, 0.0157685,
-            0.0176399, -0.0427706, 0.9421031
+            1.71666343, -0.35567332, -0.25336809,
+            -0.66667384, 1.61645574, 0.0157683,
+            0.01764248, -0.04277698, 0.94224328
     );
 
     public static final Matrix3x3<Rec2020, SRGB> TO_SRGB = SRGB.FROM_XYZ.multiply(TO_XYZ);

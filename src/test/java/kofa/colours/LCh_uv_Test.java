@@ -12,7 +12,7 @@ class LCh_uv_Test {
     private final LCh_uv lch = new LCh_uv(32.90281, 68.99183, H_RADIANS);
 
     @Test
-    void toDoubles() {
+    void values() {
         assertThat(
                 lch.values()
         ).containsExactly(32.90281, 68.99183, H_RADIANS);

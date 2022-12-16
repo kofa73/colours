@@ -2,6 +2,7 @@ package kofa.colours;
 
 import kofa.maths.Vector3D;
 
+import static java.lang.Math.pow;
 import static kofa.colours.Converter.*;
 
 public record Luv(double L, double u, double v) implements Vector3D {
@@ -18,21 +19,22 @@ public record Luv(double L, double u, double v) implements Vector3D {
         return new LCh_uv(LchHelper.toPolar(L, u, v));
     }
 
-    public static XYZLuvConverter fromXYZ(XYZ xyz) {
+    public static XYZLuvConverter from(XYZ xyz) {
         return new XYZLuvConverter(xyz);
     }
 
-    public static class XYZLuvConverter {
+    public LuvXYZConverter toXYZ() {
+        return new LuvXYZConverter();
+    }
+
+    public static class XYZLuvConverter implements WhitePointXyzUvAwareConverter<Luv> {
         private final XYZ xyz;
 
         XYZLuvConverter(XYZ xyz) {
             this.xyz = xyz;
         }
 
-        public Luv usingD65() {
-            return usingWhitePoint(D65_WHITE_XYZ, D65_WHITE_uvPrime);
-        }
-
+        @Override
         public Luv usingWhitePoint(XYZ referenceXYZ) {
             double referenceX = referenceXYZ.X();
             double referenceY = referenceXYZ.Y();
@@ -56,13 +58,39 @@ public record Luv(double L, double u, double v) implements Vector3D {
             double vPrime = vPrime(xyz.Y(), denominator);
 
             double L = yr > EPSILON ?
-                    (116 * cubeRoot(yr)) - 16 :
+                    (116 * cubeRootOf(yr)) - 16 :
                     KAPPA * yr;
             double L13 = 13 * L;
             double u = L13 * (uPrime - reference_uPrime);
             double v = L13 * (vPrime - reference_vPrime);
 
             return new Luv(L, u, v);
+        }
+    }
+
+    public class LuvXYZConverter implements WhitePointXyzUvAwareConverter<XYZ> {
+
+        @Override
+        public XYZ usingWhitePoint(XYZ referenceXYZ, UV referenceUV) {
+            double referenceY = referenceXYZ.Y();
+
+            double reference_uPrime = referenceUV.u();
+            double reference_vPrime = referenceUV.v();
+
+            double L13 = 13 * L;
+
+            double uPrime = u / L13 + reference_uPrime;
+            double vPrime = v / L13 + reference_vPrime;
+
+            double Y = L > KAPPA_EPSILON ?
+                    (referenceY * pow(((L + 16) / 116), 3)) :
+                    referenceY * L / KAPPA;
+
+            double denominator = 4 * vPrime;
+            double X = Y * 9 * uPrime / denominator;
+            double Z = Y * (12 - 3 * uPrime - 20 * vPrime) / denominator;
+
+            return new XYZ(X, Y, Z);
         }
     }
 

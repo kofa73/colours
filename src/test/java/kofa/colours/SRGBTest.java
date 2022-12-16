@@ -4,17 +4,39 @@ import org.junit.jupiter.api.Test;
 
 import static kofa.NumericAssertions.PRECISE;
 import static kofa.NumericAssertions.assertIsCloseTo;
+import static kofa.colours.ConverterTest.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SRGBTest {
-    private final SRGB srgb = new SRGB(0.123, 0.456, 0.789);
+    @Test
+    void values() {
+        assertThat(new SRGB(1, 2, 3).values()).contains(1, 2, 3);
+    }
 
     @Test
-    void roundTrip_XYZ() {
-        assertIsCloseTo(SRGB.from(srgb.toXYZ()), srgb, PRECISE);
+    void fromXYZ() {
+        assertIsCloseTo(
+                SRGB.from(XYZ_663399),
+                LINEAR_SRGB_663399,
+                PRECISE
+        );
+    }
+
+    @Test
+    void toXYZ() {
+        assertIsCloseTo(
+                LINEAR_SRGB_663399.toXYZ(),
+                XYZ_663399,
+                PRECISE
+        );
     }
 
     @Test
     void toRec2020() {
-        assertIsCloseTo(srgb.toRec2020(), Rec2020.from(srgb.toXYZ()), PRECISE);
+        assertIsCloseTo(
+                LINEAR_SRGB_663399.toRec2020(),
+                REC2020_663399,
+                PRECISE
+        );
     }
 }

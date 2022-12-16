@@ -14,7 +14,16 @@ public class Converter {
         return number * number * number;
     }
 
-    public static double cubeRoot(double number) {
+    public static double divideSafely(double a, double b) {
+        if (b >= 0 && b < 1E-9) {
+            b = 1E-9;
+        } else if (b > -1E-9) {
+            b = -1E-9;
+        }
+        return a / b;
+    }
+
+    public static double cubeRootOf(double number) {
         return pow(number, 1.0 / 3.0);
     }
 
@@ -23,6 +32,8 @@ public class Converter {
     public static final double DELTA = 6d / 29;
     public static final double EPSILON = 216d / 24389;
     public static final double KAPPA = 24389d / 27;
+    // KAPPA * EPSILON
+    public static final double KAPPA_EPSILON = 8;
 
     public static final UV D65_WHITE_uvPrime = new UV(0.19783, 0.46832);
     public static final XYZ D65_WHITE_XYZ = new XYZ(0.9504559, 1, 1.0890578);
@@ -62,7 +73,7 @@ public class Converter {
         double uPrime = u / L13 + reference_uPrime;
         double vPrime = v / L13 + reference_vPrime;
 
-        double Y = L > 8 ?
+        double Y = L > KAPPA_EPSILON ?
                 (referenceY * pow(((L + 16) / 116), 3)) :
                 referenceY * L / KAPPA;
 

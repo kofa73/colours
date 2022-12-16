@@ -15,6 +15,15 @@ import static kofa.colours.Converter.convert;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ConverterTest {
+    // standard (RGB: #663399) XYZ for test from https://ajalt.github.io/colormath/converter/
+    public static final XYZ XYZ_663399 = new XYZ(0.12412, 0.07493, 0.3093);
+    public static final SRGB LINEAR_SRGB_663399 = new SRGB(0.13287, 0.0331, 0.31855);
+    public static final Rec2020 REC2020_663399 = new Rec2020(0.30459, 0.16817, 0.53086);
+    public static final Lab LAB_663399 = new Lab(32.90281, 42.88651, -47.14914);
+    public static final Luv Luv_663399 = new Luv(32.90281, 12.9804, -67.75974);
+
+    public static final XYZ TINY_XYZ = new XYZ(0.5, 1E-4, 1E-5);
+
     static Stream<Arguments> conversionMatrices() {
         return Stream.of(
                 Arguments.of((Vector3D.ConstructorFromValues<Rec2020>) (double r, double g, double b) -> new Rec2020(r, g, b), Rec2020.TO_XYZ, Rec2020.FROM_XYZ),
@@ -124,7 +133,7 @@ class ConverterTest {
         var original_sRGB = new SRGB(1, 1, 1);
         var XYZ_from_RGB = convert(original_sRGB, SRGB.TO_XYZ);
 
-        Luv Luv_from_XYZ = Luv.fromXYZ(XYZ_from_RGB).usingWhitePoint(D65_WHITE_XYZ);
+        Luv Luv_from_XYZ = Luv.from(XYZ_from_RGB).usingWhitePoint(D65_WHITE_XYZ);
 
         LCh_uv LCH_from_Luv = Luv_from_XYZ.toLch();
 
@@ -143,8 +152,8 @@ class ConverterTest {
         var original_sRGB = new SRGB(1, 1, 1);
         var XYZ_from_SRGB = convert(original_sRGB, SRGB.TO_XYZ);
 
-        var Luv_from_XYZ_D65 = Luv.fromXYZ(XYZ_from_SRGB).usingD65();
-        Luv Luv_from_XYZ = Luv.fromXYZ(XYZ_from_SRGB).usingWhitePoint(D65_WHITE_XYZ);
+        var Luv_from_XYZ_D65 = Luv.from(XYZ_from_SRGB).usingD65();
+        Luv Luv_from_XYZ = Luv.from(XYZ_from_SRGB).usingWhitePoint(D65_WHITE_XYZ);
         assertIsCloseTo(Luv_from_XYZ_D65, Luv_from_XYZ, PRECISE);
 
         var LCH_from_Luv = Luv_from_XYZ_D65.toLch();
