@@ -1,7 +1,6 @@
 package kofa;
 
 import kofa.maths.DoubleVector;
-import kofa.maths.Matrix;
 import kofa.maths.Vector3D;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.data.Percentage;
@@ -15,15 +14,6 @@ public class NumericAssertions {
     public static final Percentage LENIENT = Percentage.withPercentage(0.25);
     public static final Percentage ROUGH = Percentage.withPercentage(5);
     private static final double COMPARISON_THRESHOLD = 1E-12;
-
-    public static void assertIsCloseTo(Matrix<?> result, Matrix<?> expectedResult, Percentage percentage) {
-        for (int column = 0; column < result.nColumns(); column++) {
-            double[] resultColumn = result.column(column);
-            double[] expectedColumn = expectedResult.column(column);
-
-            assertIsCloseTo(resultColumn, expectedColumn, percentage);
-        }
-    }
 
     public static <V extends DoubleVector> void assertIsCloseTo(V actualVector, V expectedVector, Percentage percentage) {
         assertIsCloseTo(actualVector.values(), expectedVector.values(), percentage);

@@ -1,6 +1,6 @@
 package kofa.colours;
 
-import kofa.maths.Matrix3;
+import kofa.maths.Matrix3x3;
 import kofa.maths.Vector3D;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,7 +26,7 @@ class ConverterTest {
     @MethodSource("conversionMatrices")
     <S extends RGB<S>> void rgb_XYZ_roundtrip(
             Vector3D.ConstructorFromValues<S> constructor,
-            Matrix3<S, XYZ> rgbToXyz, Matrix3<XYZ, S> xyzToRgb
+            Matrix3x3<S, XYZ> rgbToXyz, Matrix3x3<XYZ, S> xyzToRgb
     ) {
         // given
         var originalRgb = constructor.createNew(12, 34, 56);

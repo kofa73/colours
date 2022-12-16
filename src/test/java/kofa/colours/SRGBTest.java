@@ -6,9 +6,15 @@ import static kofa.NumericAssertions.PRECISE;
 import static kofa.NumericAssertions.assertIsCloseTo;
 
 class SRGBTest {
+    private final SRGB srgb = new SRGB(0.123, 0.456, 0.789);
+
     @Test
     void roundTrip_XYZ() {
-        var original = new SRGB(0.123, 0.456, 0.789);
-        assertIsCloseTo(original, SRGB.from(original.toXYZ()), PRECISE);
+        assertIsCloseTo(SRGB.from(srgb.toXYZ()), srgb, PRECISE);
+    }
+
+    @Test
+    void toRec2020() {
+        assertIsCloseTo(srgb.toRec2020(), Rec2020.from(srgb.toXYZ()), PRECISE);
     }
 }

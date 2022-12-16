@@ -1,6 +1,6 @@
 package kofa.colours;
 
-import kofa.maths.Matrix3;
+import kofa.maths.Matrix3x3;
 import kofa.maths.Vector3D;
 
 import static java.lang.Math.pow;
@@ -28,8 +28,8 @@ public class Converter {
     public static final XYZ D65_WHITE_XYZ = new XYZ(0.9504559, 1, 1.0890578);
 
 
-    public static <I extends Vector3D, O extends Vector3D> O convert(I values, Matrix3<I, O> conversionMatrix) {
-        return conversionMatrix.multipliedBy(values);
+    public static <I extends Vector3D, O extends Vector3D> O convert(I values, Matrix3x3<I, O> conversionMatrix) {
+        return conversionMatrix.multiply(values);
     }
 
     public static XYZ convert_Luv_to_XYZ_D65(Luv valuesLuv) {

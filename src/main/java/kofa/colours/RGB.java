@@ -1,6 +1,6 @@
 package kofa.colours;
 
-import kofa.maths.Matrix3;
+import kofa.maths.Matrix3x3;
 import kofa.maths.Vector3D;
 
 public abstract class RGB<S extends RGB<S>> implements Vector3D {
@@ -18,10 +18,10 @@ public abstract class RGB<S extends RGB<S>> implements Vector3D {
         this.b = b;
     }
 
-    protected abstract Matrix3<S, XYZ> toXyzMatrix();
+    protected abstract Matrix3x3<S, XYZ> toXyzMatrix();
 
     public XYZ toXYZ() {
-        return toXyzMatrix().multipliedBy((S) this);
+        return toXyzMatrix().multiply((S) this);
     }
 
     @Override
