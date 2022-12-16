@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
+import static java.lang.Math.pow;
 import static kofa.NumericAssertions.*;
 import static kofa.colours.Converter.D65_WHITE_XYZ;
 import static kofa.colours.Converter.convert;
@@ -18,11 +19,18 @@ class ConverterTest {
     // standard (RGB: #663399) XYZ for test from https://ajalt.github.io/colormath/converter/
     public static final XYZ XYZ_663399 = new XYZ(0.12412, 0.07493, 0.3093);
     public static final SRGB LINEAR_SRGB_663399 = new SRGB(0.13287, 0.0331, 0.31855);
-    public static final Rec2020 REC2020_663399 = new Rec2020(0.30459, 0.16817, 0.53086);
+    public static final Rec2020 REC2020_663399 = new Rec2020(rec2020InverseOETF(0.30459), rec2020InverseOETF(0.16817), rec2020InverseOETF(0.53086));
     public static final Lab LAB_663399 = new Lab(32.90281, 42.88651, -47.14914);
     public static final Luv Luv_663399 = new Luv(32.90281, 12.9804, -67.75974);
 
     public static final XYZ TINY_XYZ = new XYZ(0.5, 1E-4, 1E-5);
+
+    // https://ajalt.github.io/colormath/converter/ does not provide linear Rec2020
+    private static double rec2020InverseOETF(double encoded) {
+        return encoded < 0.0812428313 ?
+                encoded / 4.5 :
+                pow((encoded + 0.09929682680944) / 1.09929682680944, 1 / 0.45);
+    }
 
     static Stream<Arguments> conversionMatrices() {
         return Stream.of(

@@ -21,7 +21,7 @@ public class Solver {
         this.errorFunction = errorFunction;
     }
 
-    Optional<Double> solve(double lowerBound, double upperBound, double startingPoint, double threshold) {
+    public Optional<Double> solve(double lowerBound, double upperBound, double startingPoint, double threshold) {
         initParams(lowerBound, upperBound, startingPoint, threshold);
         return doSolve();
     }
