@@ -54,7 +54,7 @@ public class NumericAssertions {
 
     public static void assertDegreesAreClose(double actualDegrees, double expectedDegrees) {
         try {
-            assertRadiansAreClose(actualDegrees / 360 * 2 * PI, expectedDegrees / 360 * 2 * PI);
+            assertRadiansAreClose(toRadians(actualDegrees), toRadians(expectedDegrees));
         } catch (AssertionError ae) {
             throw new AssertionError("Expecting actual degrees: " + actualDegrees + " to be close to " + expectedDegrees, ae);
         }

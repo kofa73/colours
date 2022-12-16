@@ -2,6 +2,7 @@ package kofa.colours;
 
 import org.junit.jupiter.api.Test;
 
+import static java.lang.Math.toRadians;
 import static kofa.NumericAssertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,7 +25,7 @@ class XYZTest {
                 new Luv(32.90281, 12.9804, -67.75974),
                 PRECISE
         );
-        double expected_hRadians = (6.1006 / 360 * 2 * Math.PI);
+        double expected_hRadians = toRadians(6.1006);
         assertIsCloseTo(
                 // 154/255 = 0.60392; 58/255 = 0.22745, 61/255 = 0.23922
                 Luv
@@ -43,7 +44,7 @@ class XYZTest {
                         ).usingWhitePoint(Converter.D65_WHITE_XYZ)
                         .toLch(),
                 // LCh from https://ajalt.github.io/colormath/converter/, h in degrees
-                new LCh_uv(63.91936, 83.81409, (6.1006 / 360 * 2 * Math.PI)),
+                new LCh_uv(63.91936, 83.81409, toRadians(6.1006)),
                 // allow some slack because of the integers
                 PRECISE, LENIENT, ROUGH
                 // FIXME: darktable LCh 64.44, 50.26, 17.26 (degrees -> 0.30124 rad)

@@ -23,7 +23,7 @@ public record Luv(double L, double u, double v) implements Vector3D {
     }
 
     public static class XYZLuvConverter {
-        private XYZ xyz;
+        private final XYZ xyz;
 
         XYZLuvConverter(XYZ xyz) {
             this.xyz = xyz;
@@ -69,9 +69,5 @@ public record Luv(double L, double u, double v) implements Vector3D {
     @Override
     public String toString() {
         return "%s[%f, %f, %f]".formatted(getClass().getSimpleName(), L, u, v);
-    }
-
-    private double length(double u, double v) {
-        return Math.sqrt(u * u + v * v);
     }
 }

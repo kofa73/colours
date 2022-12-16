@@ -2,7 +2,7 @@ package kofa.colours;
 
 import org.junit.jupiter.api.Test;
 
-import static java.lang.Math.PI;
+import static java.lang.Math.toRadians;
 import static kofa.NumericAssertions.PRECISE;
 import static kofa.NumericAssertions.assertIsCloseTo;
 import static kofa.colours.Converter.D65_WHITE_XYZ;
@@ -13,7 +13,7 @@ class LabTest {
     // RGB #663399
     private final Lab lab = new Lab(32.90281, 42.88651, -47.14914);
     private final XYZ xyz = new XYZ(0.12412, 0.07493, 0.3093);
-    private final LCh_ab lCh = new LCh_ab(32.90281, 63.73612, 312.28943 / 360 * 2 * PI - 2 * PI);
+    private final LCh_ab lCh = new LCh_ab(32.90281, 63.73612, toRadians(312.28943));
 
     @Test
     void values() {
