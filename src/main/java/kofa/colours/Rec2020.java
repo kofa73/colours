@@ -6,9 +6,9 @@ public class Rec2020 extends RGB<Rec2020> {
     // http://www.russellcottrell.com/photo/matrixCalculator.htm
     static final Matrix3x3<Rec2020, XYZ> TO_XYZ = new Matrix3x3<>(
             XYZ::new,
-            6.36953507e-01, 1.44619185e-01, 1.68855854e-01,
-            2.62698339e-01, 6.78008766e-01, 5.92928953e-02,
-            4.99407097e-17, 2.80731358e-02, 1.06082723e+00
+            6.36953507E-01, 1.44619185E-01, 1.68855854E-01,
+            2.62698339E-01, 6.78008766E-01, 5.92928953E-02,
+            4.99407097E-17, 2.80731358E-02, 1.06082723E+00
     );
 
     static final Matrix3x3<XYZ, Rec2020> FROM_XYZ = new Matrix3x3<>(
