@@ -93,9 +93,4 @@ public record Luv(double L, double u, double v) implements Vector3D {
             return new XYZ(X, Y, Z);
         }
     }
-
-    @Override
-    public String toString() {
-        return "%s[%f, %f, %f]".formatted(getClass().getSimpleName(), L, u, v);
-    }
 }

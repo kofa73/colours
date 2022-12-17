@@ -114,6 +114,10 @@ public class Converter {
     }
 
     static double denominator_XYZ_for_UV(XYZ xyz) {
-        return xyz.X() + 15 * xyz.Y() + 3 * xyz.Z();
+        var denominator = xyz.X() + 15 * xyz.Y() + 3 * xyz.Z();
+        if (denominator == 0.0) {
+            denominator = 1E-9;
+        }
+        return denominator;
     }
 }
