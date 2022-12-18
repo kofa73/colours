@@ -26,14 +26,14 @@ class LabTest {
     @Test
     void toXYZ() {
         assertIsCloseTo(
-                LAB_663399.toXyz().usingD65(),
+                LAB_663399.toXYZ().usingD65(),
                 XYZ_663399,
                 PRECISE
         );
 
         // other branch of conditional
         assertIsCloseTo(
-                Lab.from(ConverterTest.TINY_XYZ).usingD65().toXyz().usingD65(),
+                Lab.from(ConverterTest.TINY_XYZ).usingD65().toXYZ().usingD65(),
                 TINY_XYZ,
                 PRECISE
         );

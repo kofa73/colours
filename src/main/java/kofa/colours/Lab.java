@@ -17,13 +17,12 @@ public record Lab(double L, double a, double b) implements Vector3D {
         return new LCh_ab(LchHelper.toPolar(L, a, b));
     }
 
-
     @Override
     public double[] values() {
         return new double[]{L, a, b};
     }
 
-    public LabXYZConverter toXyz() {
+    public LabXYZConverter toXYZ() {
         return new LabXYZConverter();
     }
 

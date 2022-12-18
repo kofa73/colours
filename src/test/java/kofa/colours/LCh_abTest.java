@@ -39,5 +39,4 @@ class LCh_abTest {
         assertDegreesAreClose(new LCh_ab(10, 10, 1.5 * PI).withHueInDegrees()[2], 270);
         assertDegreesAreClose(new LCh_ab(10, 10, 2 * PI).withHueInDegrees()[2], 360);
     }
-
 }
