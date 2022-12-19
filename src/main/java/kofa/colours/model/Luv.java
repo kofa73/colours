@@ -6,7 +6,7 @@ import static java.lang.Math.pow;
 import static kofa.colours.model.ConversionHelper.*;
 import static kofa.colours.model.LChable.toPolar;
 
-public record Luv(double L, double u, double v) implements Vector3D, LChable<Luv, LCh_uv> {
+public record Luv(double L, double u, double v) implements Vector3D, LChable<Luv, LchUv> {
     public Luv(double[] doubles) {
         this(doubles[0], doubles[1], doubles[2]);
     }
@@ -17,8 +17,8 @@ public record Luv(double L, double u, double v) implements Vector3D, LChable<Luv
     }
 
     @Override
-    public LCh_uv toLCh() {
-        return new LCh_uv(toPolar(L, u, v));
+    public LchUv toLCh() {
+        return new LchUv(toPolar(L, u, v));
     }
 
     public static XYZLuvConverter from(XYZ xyz) {

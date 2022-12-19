@@ -2,7 +2,7 @@ package kofa.colours.transformer;
 
 import kofa.colours.model.LCh;
 import kofa.colours.model.LChable;
-import kofa.colours.model.SRGB;
+import kofa.colours.model.Srgb;
 import kofa.colours.model.XYZ;
 
 import java.util.function.Function;
@@ -17,34 +17,34 @@ import static java.lang.Math.min;
  * @param <P> the corresponding polar LCh type
  */
 abstract class AbstractLchCClippingTransformer<S extends LChable<S, P>, P extends LCh<S>> extends Transformer {
-    private final Function<XYZ, P> xyzToPolarConverter;
-    private final Function<double[], P> polarCoordinatesToPolarSpaceConverter;
-    private final Function<P, XYZ> polarSpaceToXyzConverter;
+    private final Function<XYZ, P> xyzToLchConverter;
+    private final Function<double[], P> lchCoordinatesToLchConverter;
+    private final Function<P, XYZ> lchToXyzConverter;
     private final ToDoubleFunction<P> solverFunction;
 
     AbstractLchCClippingTransformer(
-            Function<XYZ, P> xyzToPolarConverter,
-            Function<double[], P> polarCoordinatesToPolarSpaceConverter,
-            Function<P, XYZ> polarSpaceToXyzConverter,
+            Function<XYZ, P> xyzToLchConverter,
+            Function<double[], P> lchCoordinatesToLchConverter,
+            Function<P, XYZ> lchToXyzConverter,
             ToDoubleFunction<P> solverFunction
     ) {
-        this.xyzToPolarConverter = xyzToPolarConverter;
-        this.polarCoordinatesToPolarSpaceConverter = polarCoordinatesToPolarSpaceConverter;
-        this.polarSpaceToXyzConverter = polarSpaceToXyzConverter;
+        this.xyzToLchConverter = xyzToLchConverter;
+        this.lchCoordinatesToLchConverter = lchCoordinatesToLchConverter;
+        this.lchToXyzConverter = lchToXyzConverter;
         this.solverFunction = solverFunction;
     }
 
     @Override
-    public double[] getInsideGamut(XYZ xyz) {
-        var lch = xyzToPolarConverter.apply(xyz);
+    public Srgb getInsideGamut(XYZ xyz) {
+        var lch = xyzToLchConverter.apply(xyz);
         var maxC = solverFunction.applyAsDouble(lch);
         var reducedC = min(lch.C(), maxC);
-        return SRGB.from(
-                polarSpaceToXyzConverter.apply(
-                        polarCoordinatesToPolarSpaceConverter.apply(
+        return Srgb.from(
+                lchToXyzConverter.apply(
+                        lchCoordinatesToLchConverter.apply(
                                 new double[]{lch.L(), reducedC, lch.h()}
                         )
                 )
-        ).values();
+        );
     }
 }

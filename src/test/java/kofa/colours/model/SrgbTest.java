@@ -7,16 +7,16 @@ import static kofa.NumericAssertions.assertIsCloseTo;
 import static kofa.colours.model.ConverterTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class SRGBTest {
+class SrgbTest {
     @Test
     void values() {
-        assertThat(new SRGB(1, 2, 3).values()).contains(1, 2, 3);
+        assertThat(new Srgb(1, 2, 3).values()).contains(1, 2, 3);
     }
 
     @Test
     void fromXYZ() {
         assertIsCloseTo(
-                SRGB.from(XYZ_663399),
+                Srgb.from(XYZ_663399),
                 LINEAR_SRGB_663399,
                 PRECISE
         );

@@ -1,7 +1,7 @@
 package kofa.colours.model;
 
-public record LCh_uv(double L, double C, double h) implements LCh<Luv> {
-    public LCh_uv(double[] doubles) {
+public record LchUv(double L, double C, double h) implements LCh<Luv> {
+    public LchUv(double[] doubles) {
         this(doubles[0], doubles[1], doubles[2]);
     }
 

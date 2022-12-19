@@ -24,7 +24,7 @@ class LuvTest {
         double hRadians = toRadians(280.84448);
         assertIsCloseTo(
                 Luv_663399.toLCh(),
-                new LCh_uv(32.90281, 68.99183, hRadians),
+                new LchUv(32.90281, 68.99183, hRadians),
                 PRECISE
         );
     }

@@ -2,7 +2,9 @@ package kofa.colours.model;
 
 import kofa.maths.Matrix3x3;
 
-public class Rec2020 extends RGB<Rec2020> {
+public class Rec2020 extends Rgb<Rec2020> {
+    private static final Rec2020 WHITE = new Rec2020(1, 1, 1);
+
     // http://www.russellcottrell.com/photo/matrixCalculator.htm
     static final Matrix3x3<Rec2020, XYZ> TO_XYZ = new Matrix3x3<>(
             XYZ::new,
@@ -18,7 +20,7 @@ public class Rec2020 extends RGB<Rec2020> {
             0.01764248, -0.04277698, 0.94224328
     );
 
-    public static final Matrix3x3<Rec2020, SRGB> TO_SRGB = SRGB.FROM_XYZ.multiply(TO_XYZ);
+    public static final Matrix3x3<Rec2020, Srgb> TO_SRGB = Srgb.FROM_XYZ.multiply(TO_XYZ);
 
     public Rec2020(double[] doubles) {
         super(doubles);
@@ -33,11 +35,11 @@ public class Rec2020 extends RGB<Rec2020> {
         return TO_XYZ;
     }
 
-    public SRGB toSRGB() {
+    public Srgb toSRGB() {
         return TO_SRGB.multiply(this);
     }
 
     public static Rec2020 from(XYZ xyz) {
-        return FROM_XYZ.multiply(xyz);
+        return xyz.Y() >= 0.9995 ? WHITE : FROM_XYZ.multiply(xyz);
     }
 }

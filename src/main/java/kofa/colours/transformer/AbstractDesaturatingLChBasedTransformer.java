@@ -7,8 +7,8 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.max;
-import static kofa.colours.tools.MaxCLabLuvSolver.hToIndex;
-import static kofa.colours.tools.MaxCLabLuvSolver.lToIndex;
+import static kofa.colours.transformer.MaxCLabLuvSolver.hToIndex;
+import static kofa.colours.transformer.MaxCLabLuvSolver.lToIndex;
 
 /**
  * A transformer type that desaturates all colours by scaling LCh's C such that all colours fit inside sRGB.
@@ -53,15 +53,15 @@ abstract class AbstractDesaturatingLChBasedTransformer<S extends LChable<S, P>, 
     }
 
     @Override
-    public double[] getInsideGamut(XYZ xyz) {
+    public Srgb getInsideGamut(XYZ xyz) {
         var lch = xyzToPolarConverter.apply(xyz);
         var reducedC = lch.C() / cDivisor;
-        return SRGB.from(
+        return Srgb.from(
                 polarSpaceToXyzConverter.apply(
                         polarCoordinatesToPolarSpaceConverter.apply(
                                 new double[]{lch.L(), reducedC, lch.h()}
                         )
                 )
-        ).values();
+        );
     }
 }

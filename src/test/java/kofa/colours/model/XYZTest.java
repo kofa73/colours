@@ -31,18 +31,18 @@ class XYZTest {
                                 new Rec2020(154.0 / 255, 58.0 / 255, 61.0 / 255).toXYZ()
                         ).usingWhitePoint(ConversionHelper.D65_WHITE_XYZ)
                         .toLCh(),
-                new LCh_uv(63.91936, 83.81409, expected_hRadians),
+                new LchUv(63.91936, 83.81409, expected_hRadians),
                 // picked from UI
                 PRECISE, PRECISE, LENIENT
         );
         assertIsCloseTo(
                 // linear Rec709 reading from a photo in darktable
                 Luv.from(
-                                new SRGB(217.0 / 255, 46.0 / 255, 59.0 / 255).toXYZ()
+                                new Srgb(217.0 / 255, 46.0 / 255, 59.0 / 255).toXYZ()
                         ).usingWhitePoint(ConversionHelper.D65_WHITE_XYZ)
                         .toLCh(),
                 // LCh from https://ajalt.github.io/colormath/converter/, h in degrees
-                new LCh_uv(63.91936, 83.81409, toRadians(6.1006)),
+                new LchUv(63.91936, 83.81409, toRadians(6.1006)),
                 // allow some slack because of the integers
                 PRECISE, LENIENT, ROUGH
                 // FIXME: darktable LCh 64.44, 50.26, 17.26 (degrees -> 0.30124 rad)
