@@ -1,10 +1,10 @@
-package kofa.colours;
+package kofa.colours.model;
 
 import kofa.maths.Vector3D;
 
 import static java.lang.Math.pow;
-import static kofa.colours.Converter.*;
-import static kofa.colours.LChable.toPolar;
+import static kofa.colours.model.ConversionHelper.*;
+import static kofa.colours.model.LChable.toPolar;
 
 public record Luv(double L, double u, double v) implements Vector3D, LChable<Luv, LCh_uv> {
     public Luv(double[] doubles) {
@@ -94,5 +94,21 @@ public record Luv(double L, double u, double v) implements Vector3D, LChable<Luv
 
             return new XYZ(X, Y, Z);
         }
+    }
+
+    static double denominator_XYZ_for_UV(XYZ xyz) {
+        var denominator = xyz.X() + 15 * xyz.Y() + 3 * xyz.Z();
+        if (denominator == 0.0) {
+            denominator = 1E-9;
+        }
+        return denominator;
+    }
+
+    static double uPrime(double X, double denominator) {
+        return 4 * X / denominator;
+    }
+
+    static double vPrime(double Y, double denominator) {
+        return 9 * Y / denominator;
     }
 }

@@ -1,4 +1,4 @@
-package kofa.colours;
+package kofa.colours.model;
 
 import org.junit.jupiter.api.Test;
 
@@ -7,7 +7,7 @@ import static java.lang.Math.toRadians;
 import static kofa.NumericAssertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class LCh_uv_Test {
+class LchUvTest {
     private static final double H_RADIANS = toRadians(280.84448);
     private final LCh_uv lch = new LCh_uv(32.90281, 68.99183, H_RADIANS);
 

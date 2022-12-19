@@ -1,4 +1,4 @@
-package kofa.colours;
+package kofa.colours.model;
 
 public record LCh_uv(double L, double C, double h) implements LCh<Luv> {
     public LCh_uv(double[] doubles) {

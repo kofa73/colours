@@ -1,11 +1,11 @@
-package kofa.colours;
+package kofa.colours.model;
 
 import org.junit.jupiter.api.Test;
 
 import static java.lang.Math.toRadians;
 import static kofa.NumericAssertions.PRECISE;
 import static kofa.NumericAssertions.assertIsCloseTo;
-import static kofa.colours.ConverterTest.*;
+import static kofa.colours.model.ConverterTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class LabTest {
@@ -44,7 +44,7 @@ class LabTest {
         assertIsCloseTo(
                 LAB_663399.toLCh(),
                 // values from https://ajalt.github.io/colormath/converter/ RGB #663399
-                new LCh_ab(32.90281, 63.73612, toRadians(312.28943)),
+                new LchAb(32.90281, 63.73612, toRadians(312.28943)),
                 PRECISE
         );
     }

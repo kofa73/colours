@@ -1,12 +1,12 @@
-package kofa.colours;
+package kofa.colours.model;
 
 import org.junit.jupiter.api.Test;
 
 import static java.lang.Math.toRadians;
 import static kofa.NumericAssertions.PRECISE;
 import static kofa.NumericAssertions.assertIsCloseTo;
-import static kofa.colours.ConverterTest.Luv_663399;
-import static kofa.colours.ConverterTest.XYZ_663399;
+import static kofa.colours.model.ConverterTest.Luv_663399;
+import static kofa.colours.model.ConverterTest.XYZ_663399;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class LuvTest {

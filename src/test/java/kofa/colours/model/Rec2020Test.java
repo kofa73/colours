@@ -1,23 +1,23 @@
-package kofa.colours;
+package kofa.colours.model;
 
 import org.junit.jupiter.api.Test;
 
 import static kofa.NumericAssertions.PRECISE;
 import static kofa.NumericAssertions.assertIsCloseTo;
-import static kofa.colours.ConverterTest.*;
+import static kofa.colours.model.ConverterTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class SRGBTest {
+class Rec2020Test {
     @Test
     void values() {
-        assertThat(new SRGB(1, 2, 3).values()).contains(1, 2, 3);
+        assertThat(REC2020_663399.values()).contains(0.10805750115024938, 0.04324141440243367, 0.29037800273628517);
     }
 
     @Test
     void fromXYZ() {
         assertIsCloseTo(
-                SRGB.from(XYZ_663399),
-                LINEAR_SRGB_663399,
+                Rec2020.from(XYZ_663399),
+                REC2020_663399,
                 PRECISE
         );
     }
@@ -25,17 +25,17 @@ class SRGBTest {
     @Test
     void toXYZ() {
         assertIsCloseTo(
-                LINEAR_SRGB_663399.toXYZ(),
+                REC2020_663399.toXYZ(),
                 XYZ_663399,
                 PRECISE
         );
     }
 
     @Test
-    void toRec2020() {
+    void toSRGB() {
         assertIsCloseTo(
-                LINEAR_SRGB_663399.toRec2020(),
-                REC2020_663399,
+                REC2020_663399.toSRGB(),
+                LINEAR_SRGB_663399,
                 PRECISE
         );
     }

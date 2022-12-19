@@ -1,11 +1,11 @@
 package kofa.colours.transformer;
 
-import kofa.colours.Lab;
-import kofa.colours.SRGB;
-import kofa.colours.XYZ;
+import kofa.colours.model.Lab;
+import kofa.colours.model.SRGB;
+import kofa.colours.model.XYZ;
 
-public class L_As_BwTransformer extends Transformer {
-    public L_As_BwTransformer() {
+public class BwFromLTransformer extends Transformer {
+    public BwFromLTransformer() {
         super(true);
     }
 

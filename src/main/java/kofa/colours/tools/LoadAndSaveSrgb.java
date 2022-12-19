@@ -4,7 +4,7 @@ import kofa.colours.transformer.*;
 import kofa.io.ImageLoader;
 import kofa.io.PngOutput;
 
-public class LoadAndSaveSRGB {
+public class LoadAndSaveSrgb {
     public static void main(String[] args) {
         if (args.length <= 3) {
             System.out.println("Provide params: infile-linearRec2020 outfile-sRGB-with-gamma transformer(s)");
@@ -26,7 +26,7 @@ public class LoadAndSaveSRGB {
             var transformer = switch (transformerId) {
                 case 0 -> new NullTransformer();
                 case 1 -> new RgbClippingTransformer();
-                case 2 -> new L_As_BwTransformer();
+                case 2 -> new BwFromLTransformer();
                 case 3 -> new DesaturatingLabTransformer(image);
                 case 4 -> new DesaturatingLuvTransformer(image);
                 case 5 -> new ClippingLabTransformer();

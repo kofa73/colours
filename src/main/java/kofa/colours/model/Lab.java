@@ -1,11 +1,11 @@
-package kofa.colours;
+package kofa.colours.model;
 
 import kofa.maths.Vector3D;
 
-import static kofa.colours.Converter.*;
-import static kofa.colours.LChable.toPolar;
+import static kofa.colours.model.ConversionHelper.*;
+import static kofa.colours.model.LChable.toPolar;
 
-public record Lab(double L, double a, double b) implements Vector3D, LChable<Lab, LCh_ab> {
+public record Lab(double L, double a, double b) implements Vector3D, LChable<Lab, LchAb> {
     public Lab(double[] values) {
         this(values[0], values[1], values[2]);
     }
@@ -15,8 +15,8 @@ public record Lab(double L, double a, double b) implements Vector3D, LChable<Lab
     }
 
     @Override
-    public LCh_ab toLCh() {
-        return new LCh_ab(toPolar(L, a, b));
+    public LchAb toLCh() {
+        return new LchAb(toPolar(L, a, b));
     }
 
     @Override

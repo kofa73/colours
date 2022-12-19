@@ -1,10 +1,10 @@
 package kofa.colours.transformer;
 
-import kofa.colours.LCh_uv;
-import kofa.colours.Luv;
-import kofa.colours.tools.MaxCLabLuv;
+import kofa.colours.model.LCh_uv;
+import kofa.colours.model.Luv;
+import kofa.colours.tools.MaxCLabLuvSolver;
 
-public class ClippingLuvTransformer extends Abstract_C_ClippingTransformer<Luv, LCh_uv> {
+public class ClippingLuvTransformer extends AbstractLchCClippingTransformer<Luv, LCh_uv> {
     public ClippingLuvTransformer() {
         super(
                 xyz -> Luv.from(xyz).usingD65().toLCh(),
@@ -12,7 +12,7 @@ public class ClippingLuvTransformer extends Abstract_C_ClippingTransformer<Luv, 
                 lch_uv -> lch_uv
                         .toLuv()
                         .toXYZ().usingD65(),
-                lch_uv -> new MaxCLabLuv().solveLuv(lch_uv.L(), lch_uv.h())
+                lch_uv -> new MaxCLabLuvSolver().solveLuv(lch_uv.L(), lch_uv.h())
         );
     }
 }

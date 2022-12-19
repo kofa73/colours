@@ -1,4 +1,4 @@
-package kofa.colours;
+package kofa.colours.model;
 
 import static java.lang.Math.*;
 
@@ -15,5 +15,5 @@ public interface LChable<S extends LChable<S, T>, T extends LCh<S>> {
         return new double[]{L, C, h < 0 ? h + 2 * PI : h};
     }
 
-    public abstract T toLCh();
+    T toLCh();
 }

@@ -1,9 +1,9 @@
 package kofa.colours.transformer;
 
-import kofa.colours.LCh;
-import kofa.colours.LChable;
-import kofa.colours.SRGB;
-import kofa.colours.XYZ;
+import kofa.colours.model.LCh;
+import kofa.colours.model.LChable;
+import kofa.colours.model.SRGB;
+import kofa.colours.model.XYZ;
 
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
@@ -16,13 +16,13 @@ import static java.lang.Math.min;
  * @param <S> the base colour space that has an LCh representation, e.g. Lab or Luv
  * @param <P> the corresponding polar LCh type
  */
-abstract class Abstract_C_ClippingTransformer<S extends LChable<S, P>, P extends LCh<S>> extends Transformer {
+abstract class AbstractLchCClippingTransformer<S extends LChable<S, P>, P extends LCh<S>> extends Transformer {
     private final Function<XYZ, P> xyzToPolarConverter;
     private final Function<double[], P> polarCoordinatesToPolarSpaceConverter;
     private final Function<P, XYZ> polarSpaceToXyzConverter;
     private final ToDoubleFunction<P> solverFunction;
 
-    Abstract_C_ClippingTransformer(
+    AbstractLchCClippingTransformer(
             Function<XYZ, P> xyzToPolarConverter,
             Function<double[], P> polarCoordinatesToPolarSpaceConverter,
             Function<P, XYZ> polarSpaceToXyzConverter,

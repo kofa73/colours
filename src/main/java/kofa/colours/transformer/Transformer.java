@@ -1,6 +1,6 @@
 package kofa.colours.transformer;
 
-import kofa.colours.*;
+import kofa.colours.model.*;
 import kofa.io.RgbImage;
 
 import java.util.stream.IntStream;

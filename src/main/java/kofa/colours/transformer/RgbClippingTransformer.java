@@ -1,7 +1,7 @@
 package kofa.colours.transformer;
 
-import kofa.colours.SRGB;
-import kofa.colours.XYZ;
+import kofa.colours.model.SRGB;
+import kofa.colours.model.XYZ;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;

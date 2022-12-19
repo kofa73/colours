@@ -1,4 +1,4 @@
-package kofa.colours;
+package kofa.colours.model;
 
 import kofa.maths.Matrix3x3;
 

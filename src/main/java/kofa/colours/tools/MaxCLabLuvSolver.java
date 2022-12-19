@@ -1,9 +1,9 @@
 package kofa.colours.tools;
 
-import kofa.colours.LCh_ab;
-import kofa.colours.LCh_uv;
-import kofa.colours.SRGB;
-import kofa.colours.XYZ;
+import kofa.colours.model.LCh_uv;
+import kofa.colours.model.LchAb;
+import kofa.colours.model.SRGB;
+import kofa.colours.model.XYZ;
 import kofa.maths.Solver;
 
 import java.util.function.Function;
@@ -15,13 +15,13 @@ import static java.lang.Math.PI;
  * Tries to find max C values for LCh(ab) and LCh(uv) by scanning the LCh spaces in L and h, solving for
  * C where at least one sRGB components is 0 or 1.
  */
-public class MaxCLabLuv {
+public class MaxCLabLuvSolver {
 
     public static final int L_RESOLUTION = 10000;
     public static final int H_RESOLUTION = 3600;
 
     public static void main(String[] ignored) {
-        var maxCfinder = new MaxCLabLuv();
+        var maxCfinder = new MaxCLabLuvSolver();
         var maxClab = maxCfinder.solveLab();
         var maxCluv = maxCfinder.solveLuv();
         maxCfinder.printMaxC(maxClab, "Lab", maxCfinder::lch_ab_to_XYZ);
@@ -100,7 +100,7 @@ public class MaxCLabLuv {
     }
 
     private XYZ lch_ab_to_XYZ(double[] lch) {
-        return new LCh_ab(lch).toLab().toXYZ().usingD65();
+        return new LchAb(lch).toLab().toXYZ().usingD65();
     }
 
     private XYZ lch_uv_to_XYZ(double[] lch) {
