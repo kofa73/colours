@@ -6,10 +6,9 @@ import kofa.colours.SRGB;
 import kofa.colours.XYZ;
 
 import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
 
 import static java.lang.Math.min;
-import static kofa.colours.tools.MaxCLabLuv.hToIndex;
-import static kofa.colours.tools.MaxCLabLuv.lToIndex;
 
 /**
  * A transformer type that clips C to the maximum value
@@ -18,24 +17,28 @@ import static kofa.colours.tools.MaxCLabLuv.lToIndex;
  * @param <P> the corresponding polar LCh type
  */
 abstract class Abstract_C_ClippingTransformer<S extends LChable<S, P>, P extends LCh<S>> extends Transformer {
-    private final double[][] maxC;
     private final Function<XYZ, P> xyzToPolarConverter;
     private final Function<double[], P> polarCoordinatesToPolarSpaceConverter;
     private final Function<P, XYZ> polarSpaceToXyzConverter;
+    private final ToDoubleFunction<P> solverFunction;
 
     Abstract_C_ClippingTransformer(
-            double[][] maxC,
-            Function<XYZ, P> xyzToPolarConverter, Function<double[], P> polarCoordinatesToPolarSpaceConverter, Function<P, XYZ> polarSpaceToXyzConverter) {
-        this.maxC = maxC;
+            Function<XYZ, P> xyzToPolarConverter,
+            Function<double[], P> polarCoordinatesToPolarSpaceConverter,
+            Function<P, XYZ> polarSpaceToXyzConverter,
+            ToDoubleFunction<P> solverFunction
+    ) {
         this.xyzToPolarConverter = xyzToPolarConverter;
         this.polarCoordinatesToPolarSpaceConverter = polarCoordinatesToPolarSpaceConverter;
         this.polarSpaceToXyzConverter = polarSpaceToXyzConverter;
+        this.solverFunction = solverFunction;
     }
 
     @Override
     public double[] getInsideGamut(XYZ xyz) {
         var lch = xyzToPolarConverter.apply(xyz);
-        var reducedC = min(lch.C(), maxC[lToIndex(lch.L())][hToIndex(lch.h())]/* * 0.92*/);
+        var maxC = solverFunction.applyAsDouble(lch);
+        var reducedC = min(lch.C(), maxC);
         return SRGB.from(
                 polarSpaceToXyzConverter.apply(
                         polarCoordinatesToPolarSpaceConverter.apply(

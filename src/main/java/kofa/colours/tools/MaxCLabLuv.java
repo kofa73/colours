@@ -77,7 +77,7 @@ public class MaxCLabLuv {
 
     private static final double MAX_C = 500;
 
-    private double solveLab(double L, double h) {
+    public double solveLab(double L, double h) {
         var solver = new Solver(clipDetectorForLCh(L, h, this::lch_ab_to_XYZ));
         return solver.solve(0, MAX_C, 0, 0).orElseThrow(() ->
                 new IllegalArgumentException(
@@ -88,7 +88,7 @@ public class MaxCLabLuv {
         );
     }
 
-    private double solveLuv(double L, double h) {
+    public double solveLuv(double L, double h) {
         var solver = new Solver(clipDetectorForLCh(L, h, this::lch_uv_to_XYZ));
         return solver.solve(0, MAX_C, 0, 0).orElseThrow(() ->
                 new IllegalArgumentException(
@@ -122,7 +122,7 @@ public class MaxCLabLuv {
             }
             boolean onBoundary = false;
             for (double component : components) {
-                onBoundary |= (component > COMPONENT_MAX) || (component < COMPONENT_MIN);
+                onBoundary = onBoundary || ((component > COMPONENT_MAX) || (component < COMPONENT_MIN));
             }
             if (onBoundary) {
                 return 0.0;
@@ -137,10 +137,9 @@ public class MaxCLabLuv {
             for (int hIndex = 0; hIndex <= H_RESOLUTION; hIndex++) {
                 var C = maxC[lIndex][hIndex];
                 var srgb = SRGB.from(LChToXYZ.apply(new double[]{lIndexToL(lIndex), C, hIndexToH(hIndex)}));
-                System.out.println(
-                        "%d,%d,%f,%s".formatted(
-                                lIndex, hIndex, C, srgb
-                        )
+                System.out.printf(
+                        "%d,%d,%f,%s%n",
+                        lIndex, hIndex, C, srgb
                 );
             }
         }

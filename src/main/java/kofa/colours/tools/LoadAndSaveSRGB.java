@@ -6,8 +6,8 @@ import kofa.io.PngOutput;
 
 public class LoadAndSaveSRGB {
     public static void main(String[] args) {
-        if (args.length != 3) {
-            System.out.println("Provide params: infile outfile transformer");
+        if (args.length <= 3) {
+            System.out.println("Provide params: infile-linearRec2020 outfile-sRGB-with-gamma transformer(s)");
             System.out.println("Transformer 0: Null transformer");
             System.out.println("Transformer 1: Clip RGB");
             System.out.println("Transformer 2: BW using L");
@@ -18,23 +18,28 @@ public class LoadAndSaveSRGB {
             System.exit(1);
         }
 
-        var transformerId = Integer.parseInt(args[2]);
-
         var image = new ImageLoader().loadImageFrom(args[0]);
 
-        var transformer = switch (transformerId) {
-            case 0 -> new NullTransformer();
-            case 1 -> new RgbClippingTransformer();
-            case 2 -> new L_As_BwTransformer();
-            case 3 -> new DesaturatingLabTransformer(image);
-            case 4 -> new DesaturatingLuvTransformer(image);
-            case 5 -> new ClippingLabTransformer();
-            case 6 -> new ClippingLuvTransformer();
-            default -> throw new IllegalArgumentException("Unsupported transformer: " + transformerId);
-        };
+        for (int paramIndex = 2; paramIndex < args.length; paramIndex++) {
+            var transformerId = Integer.parseInt(args[paramIndex]);
 
-        transformer.transform(image);
+            var transformer = switch (transformerId) {
+                case 0 -> new NullTransformer();
+                case 1 -> new RgbClippingTransformer();
+                case 2 -> new L_As_BwTransformer();
+                case 3 -> new DesaturatingLabTransformer(image);
+                case 4 -> new DesaturatingLuvTransformer(image);
+                case 5 -> new ClippingLabTransformer();
+                case 6 -> new ClippingLuvTransformer();
+                default -> throw new IllegalArgumentException("Unsupported transformer: " + transformerId);
+            };
 
-        new PngOutput().write(args[1] + "-" + transformer.getClass().getSimpleName(), image);
+            image.init();
+
+            System.out.println("Using " + transformer.getClass().getSimpleName());
+            transformer.transform(image);
+
+            new PngOutput().write(args[1] + "-" + transformer.getClass().getSimpleName(), image);
+        }
     }
 }

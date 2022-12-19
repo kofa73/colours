@@ -54,7 +54,7 @@ class SrgbCubeMaxCRGB {
         System.out.println("======== " + space + " ========");
         for (int L = 0; L < maxC.length; L++) {
             for (int h = 0; h < maxC[L].length; h++) {
-                System.out.println("%d,%d,%f".formatted(L, h, maxC[L][h]));
+                System.out.printf("%d,%d,%f%n", L, h, maxC[L][h]);
             }
         }
     }

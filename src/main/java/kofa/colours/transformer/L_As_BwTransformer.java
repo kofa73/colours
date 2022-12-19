@@ -5,6 +5,9 @@ import kofa.colours.SRGB;
 import kofa.colours.XYZ;
 
 public class L_As_BwTransformer extends Transformer {
+    public L_As_BwTransformer() {
+        super(true);
+    }
 
     @Override
     public double[] getInsideGamut(XYZ xyz) {

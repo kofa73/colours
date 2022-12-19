@@ -30,6 +30,7 @@ abstract class AbstractDesaturatingLChBasedTransformer<S extends LChable<S, P>, 
             Function<double[], P> polarCoordinatesToPolarSpaceConverter,
             Function<P, XYZ> polarCoordinatesToXyzConverter
     ) {
+        super(false);
         this.xyzToPolarConverter = xyzToPolarConverter;
         this.polarCoordinatesToPolarSpaceConverter = polarCoordinatesToPolarSpaceConverter;
         this.polarSpaceToXyzConverter = polarCoordinatesToXyzConverter;
@@ -47,7 +48,8 @@ abstract class AbstractDesaturatingLChBasedTransformer<S extends LChable<S, P>, 
                     cDivisor = max(cDivisor, lch.C() / maxC[lIndex][hIndex]);
                 })
         );
-        cDivisor = max(cDivisor/* + 0.01*/, 1);
+        // FIXME: move to image analysis instead of maxC array
+        cDivisor = max(cDivisor + 0.05, 1);
     }
 
     @Override

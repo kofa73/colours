@@ -33,4 +33,8 @@ public abstract class RGB<S extends RGB<S>> implements Vector3D {
     public String toString() {
         return "%s[%f, %f, %f]".formatted(getClass().getSimpleName(), r, g, b);
     }
+
+    public boolean isOutOfGamut() {
+        return r < 0 || r > 1 || g < 0 || g > 1 || b < 0 || b > 1;
+    }
 }
