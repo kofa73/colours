@@ -2,9 +2,24 @@ package kofa.colours;
 
 import kofa.maths.Vector3D;
 
-import static java.lang.Math.toDegrees;
+import static java.lang.Math.*;
 
-public interface LCh extends Vector3D {
+/**
+ * LCh representation
+ *
+ * @param <T> the base colour space, e.g. Lab or Luv
+ */
+public interface LCh<T> extends Vector3D {
+    double L();
+
+    double C();
+
+    double h();
+
+    static double[] fromPolar(double L, double C, double h) {
+        return new double[]{L, C * cos(h), C * sin(h)};
+    }
+
     default double[] withHueInDegrees() {
         double[] values = values();
         var hue = values[2];

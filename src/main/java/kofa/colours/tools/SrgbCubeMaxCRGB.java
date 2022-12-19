@@ -79,8 +79,8 @@ class SrgbCubeMaxCRGB {
                                     var rgb = new SRGB(red, green, blue);
                                     var xyz = rgb.toXYZ();
                                     var lCh_ab = Lab.from(xyz).usingD65().toLCh();
-                                    var lCh_uv = Luv.from(xyz).usingD65().toLch();
-                                    int L = (int) Math.round(lCh_ab.L() / 100.0 * L_RESOLUTION);
+                            var lCh_uv = Luv.from(xyz).usingD65().toLCh();
+                            int L = (int) Math.round(lCh_ab.L() / 100.0 * L_RESOLUTION);
                                     int h_ab = (int) round(lCh_ab.h() / (2 * PI) * H_RESOLUTION);
                                     int h_uv = (int) round(lCh_uv.h() / (2 * PI) * H_RESOLUTION);
                                     h_ab = min(h_ab, H_RESOLUTION);

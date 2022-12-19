@@ -23,7 +23,7 @@ class LuvTest {
         // converting degrees to radians, then getting it in the range returned by atan2
         double hRadians = toRadians(280.84448);
         assertIsCloseTo(
-                Luv_663399.toLch(),
+                Luv_663399.toLCh(),
                 new LCh_uv(32.90281, 68.99183, hRadians),
                 PRECISE
         );

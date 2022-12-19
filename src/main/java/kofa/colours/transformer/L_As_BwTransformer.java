@@ -1,18 +1,16 @@
 package kofa.colours.transformer;
 
+import kofa.colours.Lab;
 import kofa.colours.SRGB;
-
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import kofa.colours.XYZ;
 
 public class L_As_BwTransformer extends Transformer {
 
     @Override
-    public double[] getInsideGamut(SRGB srgb) {
-        var rgb = srgb.values();
-        for (int i = 0; i < rgb.length; i++) {
-            rgb[i] = max(0, min(rgb[i], 1));
-        }
-        return rgb;
+    public double[] getInsideGamut(XYZ xyz) {
+        var lab = Lab.from(xyz).usingD65().values();
+        lab[1] = 0;
+        lab[2] = 0;
+        return SRGB.from(new Lab(lab).toXYZ().usingD65()).values();
     }
 }

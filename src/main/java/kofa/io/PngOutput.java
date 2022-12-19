@@ -1,22 +1,13 @@
 package kofa.io;
 
-import java.awt.Transparency;
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferUShort;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
+import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import javax.imageio.ImageIO;
-
-import kofa.image.RgbImage;
 
 public class PngOutput {
     public void write(String filePrefix, RgbImage image) {
@@ -35,18 +26,18 @@ public class PngOutput {
         WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_USHORT, image.width(), image.height(), 3, null);
         DataBufferUShort buffer = (DataBufferUShort) raster.getDataBuffer();
         short[][] bankData = buffer.getBankData();
-        
-        float[][] redChannel = image.redChannel();
-        float[][] greenChannel = image.greenChannel();
-        float[][] blueChannel = image.blueChannel();
+
+        double[][] redChannel = image.redChannel();
+        double[][] greenChannel = image.greenChannel();
+        double[][] blueChannel = image.blueChannel();
         int index = 0;
         int height = image.height();
         int width = image.width();
         for (int row = 0; row < height; row++) {
             for (int column = 0; column < width; column++) {
-                bankData[0][index++] = (short) redChannel[row][column];
-                bankData[0][index++] = (short) greenChannel[row][column];
-                bankData[0][index++] = (short) blueChannel[row][column];
+                bankData[0][index++] = (short) (65535 * redChannel[row][column]);
+                bankData[0][index++] = (short) (65536 * greenChannel[row][column]);
+                bankData[0][index++] = (short) (65535 * blueChannel[row][column]);
             }
         }
         return raster;

@@ -143,7 +143,7 @@ class ConverterTest {
 
         Luv Luv_from_XYZ = Luv.from(XYZ_from_RGB).usingWhitePoint(D65_WHITE_XYZ);
 
-        LCh_uv LCH_from_Luv = Luv_from_XYZ.toLch();
+        LCh_uv LCH_from_Luv = Luv_from_XYZ.toLCh();
 
         Luv Luv_from_LCH = LCH_from_Luv.toLuv();
         assertIsCloseTo(Luv_from_LCH, Luv_from_XYZ, PRECISE);
@@ -164,7 +164,7 @@ class ConverterTest {
         Luv Luv_from_XYZ = Luv.from(XYZ_from_SRGB).usingWhitePoint(D65_WHITE_XYZ);
         assertIsCloseTo(Luv_from_XYZ_D65, Luv_from_XYZ, PRECISE);
 
-        var LCH_from_Luv = Luv_from_XYZ_D65.toLch();
+        var LCH_from_Luv = Luv_from_XYZ_D65.toLCh();
 
         var Luv_from_LCH = LCH_from_Luv.toLuv();
         assertIsCloseTo(Luv_from_LCH, Luv_from_XYZ_D65, PRECISE);

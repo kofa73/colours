@@ -30,7 +30,7 @@ class XYZTest {
                         .from(
                                 new Rec2020(154.0 / 255, 58.0 / 255, 61.0 / 255).toXYZ()
                         ).usingWhitePoint(Converter.D65_WHITE_XYZ)
-                        .toLch(),
+                        .toLCh(),
                 new LCh_uv(63.91936, 83.81409, expected_hRadians),
                 // picked from UI
                 PRECISE, PRECISE, LENIENT
@@ -40,7 +40,7 @@ class XYZTest {
                 Luv.from(
                                 new SRGB(217.0 / 255, 46.0 / 255, 59.0 / 255).toXYZ()
                         ).usingWhitePoint(Converter.D65_WHITE_XYZ)
-                        .toLch(),
+                        .toLCh(),
                 // LCh from https://ajalt.github.io/colormath/converter/, h in degrees
                 new LCh_uv(63.91936, 83.81409, toRadians(6.1006)),
                 // allow some slack because of the integers
