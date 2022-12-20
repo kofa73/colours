@@ -28,14 +28,14 @@ class ConverterTest {
     @Test
     void sRgb_XYZ_Rec2020() {
         // given - some random area average value picked in darktable with linear rec709/sRGB
-        var sRgb = new Srgb(89, 115, 177);
+        var sRgb = new Srgb(89 / 255.0, 115 / 255.0, 177 / 255.0);
 
         // when
         var xyz = sRgb.toXYZ();
         var rec2020 = Rec2020.from(xyz);
 
         // then - same area average value picked in darktable with rec2020
-        var expectedRec2020 = new Rec2020(101, 114, 170);
+        var expectedRec2020 = new Rec2020(101 / 255.0, 114 / 255.0, 170 / 255.0);
         // all integers, so need a lenient comparison
         assertIsCloseTo(rec2020, expectedRec2020, ROUGH, LENIENT, PRECISE);
     }
@@ -57,14 +57,14 @@ class ConverterTest {
 
     @Test
     void rec2020_XYZ_sRgb() {
-        var original_Rec2020 = new Rec2020(101, 114, 170);
+        var original_Rec2020 = new Rec2020(101 / 255.0, 114 / 255.0, 170 / 255.0);
 
         // when
         var xyz = original_Rec2020.toXYZ();
         var sRGB = Srgb.from(xyz);
 
         // then - same area average value picked in darktable with rec2020
-        var expectedSRGB = new Srgb(89, 115, 177);
+        var expectedSRGB = new Srgb(89 / 255.0, 115 / 255.0, 177 / 255.0);
 
         // all integers, so need very rough comparison
         assertIsCloseTo(sRGB, expectedSRGB, ROUGH);
