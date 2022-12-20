@@ -13,7 +13,7 @@ public class NumericAssertions {
     public static final Percentage PRECISE = Percentage.withPercentage(0.06);
     public static final Percentage LENIENT = Percentage.withPercentage(0.25);
     public static final Percentage ROUGH = Percentage.withPercentage(5);
-    private static final double COMPARISON_THRESHOLD = 1E-12;
+    private static final double COMPARISON_THRESHOLD = 1E-6;
 
     public static <V extends DoubleVector> void assertIsCloseTo(V actualVector, V expectedVector, Percentage percentage) {
         assertIsCloseTo(actualVector.values(), expectedVector.values(), percentage);

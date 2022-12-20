@@ -1,26 +1,26 @@
 package kofa.colours.model;
 
-import kofa.maths.Matrix3x3;
+import kofa.maths.SpaceConversionMatrix;
+
+import static kofa.colours.model.ConversionHelper.D65_WHITE_XYZ;
 
 public class Rec2020 extends Rgb<Rec2020> {
     private static final Rec2020 WHITE = new Rec2020(1, 1, 1);
 
-    // http://www.russellcottrell.com/photo/matrixCalculator.htm
-    static final Matrix3x3<Rec2020, XYZ> TO_XYZ = new Matrix3x3<>(
+    // values of sRGB primaries from http://www.brucelindbloom.com/index.html?WorkingSpaceInfo.html
+    static final SpaceConversionMatrix<Rec2020, XYZ> TO_XYZ = new SpaceConversionMatrix<>(
             XYZ::new,
-            6.36953507E-01, 1.44619185E-01, 1.68855854E-01,
-            2.62698339E-01, 6.78008766E-01, 5.92928953E-02,
-            4.99407097E-17, 2.80731358E-02, 1.06082723E+00
+            calculateToXyzMatrix(
+                    0.708, 0.292,
+                    0.170, 0.797,
+                    0.131, 0.046,
+                    D65_WHITE_XYZ
+            )
     );
 
-    static final Matrix3x3<XYZ, Rec2020> FROM_XYZ = new Matrix3x3<>(
-            Rec2020::new,
-            1.71666343, -0.35567332, -0.25336809,
-            -0.66667384, 1.61645574, 0.0157683,
-            0.01764248, -0.04277698, 0.94224328
-    );
+    static final SpaceConversionMatrix<XYZ, Rec2020> FROM_XYZ = TO_XYZ.invert(Rec2020::new);
 
-    public static final Matrix3x3<Rec2020, Srgb> TO_SRGB = Srgb.FROM_XYZ.multiply(TO_XYZ);
+    public static final SpaceConversionMatrix<Rec2020, Srgb> TO_SRGB = Srgb.FROM_XYZ.multiply(TO_XYZ);
 
     public Rec2020(double[] doubles) {
         super(doubles);
@@ -31,7 +31,7 @@ public class Rec2020 extends Rgb<Rec2020> {
     }
 
     @Override
-    protected Matrix3x3<Rec2020, XYZ> toXyzMatrix() {
+    protected SpaceConversionMatrix<Rec2020, XYZ> toXyzMatrix() {
         return TO_XYZ;
     }
 

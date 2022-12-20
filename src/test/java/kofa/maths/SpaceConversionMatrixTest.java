@@ -4,12 +4,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class Matrix3x3Test {
-    private final Matrix3x3<Source, Interim> sourceToInterim = new Matrix3x3<>(
+class SpaceConversionMatrixTest {
+    private final SpaceConversionMatrix<Source, Interim> sourceToInterim = new SpaceConversionMatrix<>(
             Interim::new,
-            2, 3, 5,
-            7, 11, 13,
-            17, 19, 23
+            new double[][]{
+                    {2, 3, 5},
+                    {7, 11, 13},
+                    {17, 19, 23}
+            }
     );
 
     @Test
@@ -25,15 +27,17 @@ class Matrix3x3Test {
     @Test
     void multiply_matrix() {
         // given
-        var interimToTarget = new Matrix3x3<Interim, Target>(
+        var interimToTarget = new SpaceConversionMatrix<Interim, Target>(
                 Target::new,
-                29, 31, 37,
-                41, 43, 47,
-                53, 59, 61
+                new double[][]{
+                        {29, 31, 37},
+                        {41, 43, 47},
+                        {53, 59, 61}
+                }
         );
 
         // when
-        Matrix3x3<Source, Target> result = interimToTarget.multiply(sourceToInterim);
+        SpaceConversionMatrix<Source, Target> result = interimToTarget.multiply(sourceToInterim);
 
         // then
         assertThat(result.values()[0]).containsExactly(904, 1131, 1399);
@@ -47,16 +51,18 @@ class Matrix3x3Test {
 
         var interim = sourceToInterim.multiply(source);
 
-        var interimToTarget = new Matrix3x3<Interim, Target>(
+        var interimToTarget = new SpaceConversionMatrix<Interim, Target>(
                 Target::new,
-                29, 31, 37,
-                41, 43, 47,
-                53, 59, 61
+                new double[][]{
+                        {29, 31, 37},
+                        {41, 43, 47},
+                        {53, 59, 61}
+                }
         );
 
         var target1 = interimToTarget.multiply(interim);
 
-        Matrix3x3<Source, Target> sourceToTarget = interimToTarget.multiply(sourceToInterim);
+        SpaceConversionMatrix<Source, Target> sourceToTarget = interimToTarget.multiply(sourceToInterim);
 
         var target2 = sourceToTarget.multiply(source);
 

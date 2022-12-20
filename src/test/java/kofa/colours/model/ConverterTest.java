@@ -24,7 +24,6 @@ class ConverterTest {
                 pow((encoded + 0.09929682680944) / 1.09929682680944, 1 / 0.45);
     }
 
-
     @Test
     void sRgb_XYZ_Rec2020() {
         // given - some random area average value picked in darktable with linear rec709/sRGB

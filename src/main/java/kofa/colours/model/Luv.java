@@ -35,19 +35,6 @@ public record Luv(double L, double u, double v) implements Vector3D, LChable<Luv
         XYZLuvConverter(XYZ xyz) {
             this.xyz = xyz;
         }
-
-        @Override
-        public Luv usingWhitePoint(XYZ referenceXYZ) {
-            double referenceX = referenceXYZ.X();
-            double referenceY = referenceXYZ.Y();
-
-            double referenceDenominator = denominator_XYZ_for_UV(referenceXYZ);
-            double referenceU = uPrime(referenceX, referenceDenominator);
-            double referenceV = vPrime(referenceY, referenceDenominator);
-
-            return usingWhitePoint(referenceXYZ, new UV(referenceU, referenceV));
-        }
-
         public Luv usingWhitePoint(XYZ referenceXYZ, UV referenceUV) {
             // http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_Luv.html
             double yr = xyz.Y() / referenceXYZ.Y();
@@ -55,16 +42,14 @@ public record Luv(double L, double u, double v) implements Vector3D, LChable<Luv
             double reference_uPrime = referenceUV.u();
             double reference_vPrime = referenceUV.v();
 
-            double denominator = denominator_XYZ_for_UV(xyz);
-            double uPrime = uPrime(xyz.X(), denominator);
-            double vPrime = vPrime(xyz.Y(), denominator);
+            var uv = UV.from(xyz);
 
             double L = yr > EPSILON ?
                     (116 * cubeRootOf(yr)) - 16 :
                     KAPPA * yr;
             double L13 = 13 * L;
-            double u = L13 * (uPrime - reference_uPrime);
-            double v = L13 * (vPrime - reference_vPrime);
+            double u = L13 * (uv.u() - reference_uPrime);
+            double v = L13 * (uv.v() - reference_vPrime);
 
             return new Luv(L, u, v);
         }
@@ -76,13 +61,10 @@ public record Luv(double L, double u, double v) implements Vector3D, LChable<Luv
         public XYZ usingWhitePoint(XYZ referenceXYZ, UV referenceUV) {
             double referenceY = referenceXYZ.Y();
 
-            double reference_uPrime = referenceUV.u();
-            double reference_vPrime = referenceUV.v();
-
             double L13 = 13 * L;
 
-            double uPrime = u / L13 + reference_uPrime;
-            double vPrime = v / L13 + reference_vPrime;
+            double uPrime = u / L13 + referenceUV.u();
+            double vPrime = v / L13 + referenceUV.v();
 
             double Y = L > KAPPA_EPSILON ?
                     (referenceY * pow(((L + 16) / 116), 3)) :
@@ -95,20 +77,5 @@ public record Luv(double L, double u, double v) implements Vector3D, LChable<Luv
             return new XYZ(X, Y, Z);
         }
     }
-
-    static double denominator_XYZ_for_UV(XYZ xyz) {
-        var denominator = xyz.X() + 15 * xyz.Y() + 3 * xyz.Z();
-        if (denominator == 0.0) {
-            denominator = 1E-9;
-        }
-        return denominator;
-    }
-
-    static double uPrime(double X, double denominator) {
-        return 4 * X / denominator;
-    }
-
-    static double vPrime(double Y, double denominator) {
-        return 9 * Y / denominator;
-    }
 }
+
