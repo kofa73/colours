@@ -45,7 +45,7 @@ public class Rec2020 extends Rgb<Rec2020> {
     }
 
     // https://en.wikipedia.org/wiki/Rec._2020#Transfer_characteristics
-    public static double rec2020InverseOETF(double encoded) {
+    public static double applyInverseOetf(double encoded) {
         return encoded < 0.0812428313 ?
                 encoded / 4.5 :
                 pow((encoded + 0.09929682680944) / 1.09929682680944, 1 / 0.45);

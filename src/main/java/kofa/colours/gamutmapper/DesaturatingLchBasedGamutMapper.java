@@ -14,24 +14,51 @@ import static java.lang.Math.max;
  * It analyses the image, finds the maximum 'actual C' to 'C at gamut boundary' ratio, and uses that to desaturate
  * the image. Therefore, saturation differences are maintained, at the cost of severe desaturation.
  *
- * @param <S> the base colour space that has an LCh representation, e.g. Lab or Luv
- * @param <L> the corresponding polar LCh type
+ * @param <L> the LCh subtype
  */
-abstract class AbstractDesaturatingLchBasedGamutMapper<S extends ConvertibleToLch<L>, L extends Lch> extends GamutMapper {
+public class DesaturatingLchBasedGamutMapper<L extends Lch> extends GamutMapper {
+    private final String name;
     private final Function<Xyz, L> xyzToLchConverter;
     private final Function<double[], L> polarCoordinatesToLchConverter;
     private final Function<L, Xyz> lchToXyzConverter;
     private double cDivisor = 0;
 
-    AbstractDesaturatingLchBasedGamutMapper(
+    public static DesaturatingLchBasedGamutMapper<LchAb> forLchAb(RgbImage image) {
+        return new DesaturatingLchBasedGamutMapper<>(
+                image,
+                LchAb.class,
+                lch -> new MaxCLabLuvSolver().solveMaxCForLchAb(lch),
+                xyz -> Lab.from(xyz).usingD65().toLch(),
+                LchAb::new,
+                lch -> lch
+                        .toLab()
+                        .toXyz().usingD65()
+        );
+    }
+
+    public static DesaturatingLchBasedGamutMapper<LchUv> forLchUv(RgbImage image) {
+        return new DesaturatingLchBasedGamutMapper<>(
+                image,
+                LchUv.class,
+                lch -> new MaxCLabLuvSolver().solveMaxCForLchUv(lch),
+                xyz -> Luv.from(xyz).usingD65().toLch(),
+                LchUv::new,
+                lch -> lch
+                        .toLuv()
+                        .toXyz().usingD65()
+        );
+    }
+
+    private DesaturatingLchBasedGamutMapper(
             RgbImage image,
+            Class<L> type,
             ToDoubleFunction<L> maxCFinder,
-            Function<Rec2020, S> rec2020ToLchConverter,
             Function<Xyz, L> xyzToLchConverter,
             Function<double[], L> polarCoordinatesToLchConverter,
             Function<L, Xyz> polarCoordinatesToXyzConverter
     ) {
         super(true);
+        this.name = type.getSimpleName();
         this.xyzToLchConverter = xyzToLchConverter;
         this.polarCoordinatesToLchConverter = polarCoordinatesToLchConverter;
         this.lchToXyzConverter = polarCoordinatesToXyzConverter;
@@ -43,7 +70,7 @@ abstract class AbstractDesaturatingLchBasedGamutMapper<S extends ConvertibleToLc
                 IntStream.range(0, image.width()).forEach(column -> {
                     var rec2020 = new Rec2020(red[row][column], green[row][column], blue[row][column]);
                     if (rec2020.toSRGB().isOutOfGamut()) {
-                        var lch = rec2020ToLchConverter.apply(rec2020).toLch();
+                        var lch = xyzToLchConverter.apply(rec2020.toXyz());
                         if (lch.C() != 0) {
                             var maxC = maxCFinder.applyAsDouble(lch);
                             if (maxC != 0) {
@@ -67,5 +94,10 @@ abstract class AbstractDesaturatingLchBasedGamutMapper<S extends ConvertibleToLc
                         )
                 )
         );
+    }
+
+    @Override
+    public String name() {
+        return super.name() + name;
     }
 }

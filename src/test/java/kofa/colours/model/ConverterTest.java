@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static java.lang.Math.toRadians;
 import static kofa.NumericAssertions.*;
 import static kofa.colours.model.ConversionHelper.D65_WHITE_XYZ;
-import static kofa.colours.model.Rec2020.rec2020InverseOETF;
+import static kofa.colours.model.Rec2020.applyInverseOetf;
 
 class ConverterTest {
     // standard (RGB: #663399) XYZ for test from https://ajalt.github.io/colormath/converter/
@@ -13,7 +13,7 @@ class ConverterTest {
     public static final Srgb LINEAR_SRGB_663399 = new Srgb(0.13287, 0.0331, 0.31855);
     // https://ajalt.github.io/colormath/converter/ does not provide linear Rec2020
     public static final Rec2020 REC2020_663399 = new Rec2020(
-            rec2020InverseOETF(0.30459), rec2020InverseOETF(0.16817), rec2020InverseOETF(0.53086)
+            applyInverseOetf(0.30459), applyInverseOetf(0.16817), applyInverseOetf(0.53086)
     );
     public static final Lab LAB_663399 = new Lab(32.90281, 42.88651, -47.14914);
     public static final Luv LUV_663399 = new Luv(32.90281, 12.9804, -67.75974);
@@ -136,7 +136,7 @@ class ConverterTest {
         var xyzFromLuv = luvFromLch.toXyz().usingWhitePoint(D65_WHITE_XYZ);
         assertIsCloseTo(xyzFromLuvD65, xyzFromLuv, PRECISE);
 
-        var srgbFromXyz = Srgb.from(xyzFromLuvD65);
-        assertIsCloseTo(srgbFromXyz, originalSrgb, PRECISE);
+        var sRgbFromXyz = Srgb.from(xyzFromLuvD65);
+        assertIsCloseTo(sRgbFromXyz, originalSrgb, PRECISE);
     }
 }

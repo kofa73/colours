@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static java.lang.Math.toRadians;
 import static kofa.NumericAssertions.PRECISE;
 import static kofa.NumericAssertions.assertIsCloseTo;
+import static kofa.colours.model.ConversionHelper.D65_WHITE_XYZ;
 import static kofa.colours.model.ConverterTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,6 +25,24 @@ class LabTest {
     }
 
     @Test
+    void fromXyz_white() {
+        assertIsCloseTo(
+                Lab.from(D65_WHITE_XYZ).usingD65(),
+                new Lab(100, 0, 0),
+                PRECISE
+        );
+    }
+
+    @Test
+    void fromXyz_black() {
+        assertIsCloseTo(
+                Lab.from(new Xyz(0, 0, 0)).usingD65(),
+                new Lab(0, 0, 0),
+                PRECISE
+        );
+    }
+
+    @Test
     void toXyz() {
         assertIsCloseTo(
                 LAB_663399.toXyz().usingD65(),
@@ -37,6 +56,25 @@ class LabTest {
                 TINY_XYZ,
                 PRECISE
         );
+    }
+
+    @Test
+    void toXyz_white() {
+        assertIsCloseTo(
+                new Lab(100, 0, 0).toXyz().usingD65(),
+                D65_WHITE_XYZ,
+                PRECISE
+        );
+    }
+
+    @Test
+    void toXyz_black() {
+        assertIsCloseTo(
+                new Lab(0, 0, 0).toXyz().usingD65(),
+                new Xyz(0, 0, 0),
+                PRECISE
+        );
+        assertThat(new Lab(0, 100, -100).toXyz().usingD65().Y()).isEqualTo(0);
     }
 
     @Test

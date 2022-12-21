@@ -2,11 +2,12 @@ package kofa.colours.model;
 
 import kofa.maths.Vector3D;
 
-import static java.lang.Math.pow;
 import static kofa.colours.model.ConversionHelper.*;
 import static kofa.colours.model.ConvertibleToLch.toPolar;
 
 public record Luv(double L, double u, double v) implements Vector3D, ConvertibleToLch<LchUv> {
+    public static final Luv BLACK = new Luv(0, 0, 0);
+
     public Luv(double[] doubles) {
         this(doubles[0], doubles[1], doubles[2]);
     }
@@ -37,11 +38,11 @@ public record Luv(double L, double u, double v) implements Vector3D, Convertible
         }
 
         public Luv usingWhitePoint(Xyz referenceXyz, Uv referenceUv) {
+            if (xyz.Y() == 0) {
+                return BLACK;
+            }
             // http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_Luv.html
             double yr = xyz.Y() / referenceXyz.Y();
-
-            double referenceU = referenceUv.u();
-            double referenceV = referenceUv.v();
 
             var uv = Uv.from(xyz);
 
@@ -49,8 +50,8 @@ public record Luv(double L, double u, double v) implements Vector3D, Convertible
                     (116 * cubeRootOf(yr)) - 16 :
                     KAPPA * yr;
             double L13 = 13 * L;
-            double u = L13 * (uv.u() - referenceU);
-            double v = L13 * (uv.v() - referenceV);
+            double u = L13 * (uv.u() - referenceUv.u());
+            double v = L13 * (uv.v() - referenceUv.v());
 
             return new Luv(L, u, v);
         }
@@ -68,7 +69,7 @@ public record Luv(double L, double u, double v) implements Vector3D, Convertible
             double vPrime = v / L13 + referenceUv.v();
 
             double Y = L > KAPPA_EPSILON ?
-                    (referenceY * pow(((L + 16) / 116), 3)) :
+                    referenceY * cubeOf((L + 16) / 116) :
                     referenceY * L / KAPPA;
 
             double denominator = 4 * vPrime;

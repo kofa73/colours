@@ -115,16 +115,13 @@ public class MaxCLabLuvSolver {
     private Function<Double, Double> clipDetectorForLch(double L, double h, Function<double[], Xyz> xyzMapper) {
         return (Double C) -> {
             var xyz = xyzMapper.apply(new double[]{L, C, h});
-            var srgb = Srgb.from(xyz);
-            double[] components = srgb.coordinates();
-            for (double component : components) {
-                if (component < 0 || component > 1) {
-                    return 1.0;
-                }
+            var sRgb = Srgb.from(xyz);
+            if (sRgb.isOutOfGamut()) {
+                return 1.0;
             }
-            boolean onBoundary = false;
-            for (double component : components) {
-                onBoundary = onBoundary || ((component > COMPONENT_MAX) || (component < COMPONENT_MIN));
+            var onBoundary = false;
+            for (var coordinate : sRgb.coordinates()) {
+                onBoundary = onBoundary || ((coordinate > COMPONENT_MAX) || (coordinate < COMPONENT_MIN));
             }
             if (onBoundary) {
                 return 0.0;
@@ -138,10 +135,10 @@ public class MaxCLabLuvSolver {
         for (int lIndex = 0; lIndex <= L_RESOLUTION; lIndex++) {
             for (int hIndex = 0; hIndex <= H_RESOLUTION; hIndex++) {
                 var C = maxC[lIndex][hIndex];
-                var srgb = Srgb.from(LchToXYZ.apply(new double[]{lOrdinalToL(lIndex), C, hOrdinalToH(hIndex)}));
+                var sRgb = Srgb.from(LchToXYZ.apply(new double[]{lOrdinalToL(lIndex), C, hOrdinalToH(hIndex)}));
                 System.out.printf(
                         "%d,%d,%f,%s%n",
-                        lIndex, hIndex, C, srgb
+                        lIndex, hIndex, C, sRgb
                 );
             }
         }

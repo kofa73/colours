@@ -62,6 +62,9 @@ public record Lab(double L, double a, double b) implements Vector3D, Convertible
 
         @Override
         public Lab usingWhitePoint(Xyz referenceXyz) {
+//            if (xyz.Y() == 0) {
+//                return BLACK;
+//            }
             double fx = f(xyz.X() / referenceXyz.X());
             double fy = f(xyz.Y() / referenceXyz.Y());
             double fz = f(xyz.Z() / referenceXyz.Z());

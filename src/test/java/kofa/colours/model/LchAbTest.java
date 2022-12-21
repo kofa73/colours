@@ -34,9 +34,15 @@ class LchAbTest {
         assertDegreesAreClose(new LchAb(10, 10, -1 * PI).withHueInDegrees()[2], 180);
         assertDegreesAreClose(new LchAb(10, 10, -0.5 * PI).withHueInDegrees()[2], 270);
         assertDegreesAreClose(new LchAb(10, 10, 0 * PI).withHueInDegrees()[2], 360);
+
         assertDegreesAreClose(new LchAb(10, 10, 0.5 * PI).withHueInDegrees()[2], 90);
         assertDegreesAreClose(new LchAb(10, 10, 1 * PI).withHueInDegrees()[2], 180);
         assertDegreesAreClose(new LchAb(10, 10, 1.5 * PI).withHueInDegrees()[2], 270);
         assertDegreesAreClose(new LchAb(10, 10, 2 * PI).withHueInDegrees()[2], 360);
+
+        assertDegreesAreClose(new LchAb(10, 10, 2.5 * PI).withHueInDegrees()[2], 90);
+        assertDegreesAreClose(new LchAb(10, 10, 3 * PI).withHueInDegrees()[2], 180);
+        assertDegreesAreClose(new LchAb(10, 10, 3.5 * PI).withHueInDegrees()[2], 270);
+        assertDegreesAreClose(new LchAb(10, 10, 4 * PI).withHueInDegrees()[2], 360);
     }
 }

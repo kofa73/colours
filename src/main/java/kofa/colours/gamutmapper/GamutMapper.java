@@ -49,11 +49,11 @@ public abstract class GamutMapper {
             int row, int column
     ) {
         var xyz = new Rec2020(red[row][column], green[row][column], blue[row][column]).toXyz();
-        var srgb = Srgb.from(xyz);
-        if (processInGamutPixels || srgb.isOutOfGamut()) {
-            srgb = getInsideGamut(xyz);
+        var sRgb = Srgb.from(xyz);
+        if (processInGamutPixels || sRgb.isOutOfGamut()) {
+            sRgb = getInsideGamut(xyz);
         }
-        return ensurePixelIsWithinGamut(srgb, red, green, blue, row, column);
+        return ensurePixelIsWithinGamut(sRgb, red, green, blue, row, column);
     }
 
     private Srgb ensurePixelIsWithinGamut(
@@ -112,4 +112,8 @@ public abstract class GamutMapper {
     }
 
     protected abstract Srgb getInsideGamut(Xyz xyz);
+
+    public String name() {
+        return this.getClass().getSimpleName();
+    }
 }

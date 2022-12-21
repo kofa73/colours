@@ -6,6 +6,7 @@ import static kofa.NumericAssertions.PRECISE;
 import static kofa.NumericAssertions.assertIsCloseTo;
 import static kofa.colours.model.ConverterTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 class Rec2020Test {
     @Test
@@ -60,5 +61,14 @@ class Rec2020Test {
         assertIsCloseTo(rec2020FromXyz[0], new double[]{1.71666343, -0.35567332, -0.25336809}, PRECISE);
         assertIsCloseTo(rec2020FromXyz[1], new double[]{-0.66667384, 1.61645574, 0.0157683}, PRECISE);
         assertIsCloseTo(rec2020FromXyz[2], new double[]{0.01764248, -0.04277698, 0.94224328}, PRECISE);
+    }
+
+    @Test
+    void applyInverseOetf() {
+        var linearBelowThreshold = Rec2020.applyInverseOetf(0.0812428312);
+        double linearAtThreshold = Rec2020.applyInverseOetf(0.0812428313);
+        assertThat(linearBelowThreshold)
+                .isEqualTo(linearAtThreshold, offset(1E-10))
+                .isLessThan(linearAtThreshold);
     }
 }

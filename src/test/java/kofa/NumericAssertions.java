@@ -5,28 +5,47 @@ import kofa.maths.Vector3D;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.data.Percentage;
 
+import java.util.Arrays;
+
 import static java.lang.Math.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 public class NumericAssertions {
     public static final Percentage PRECISE = Percentage.withPercentage(0.06);
-    public static final Percentage LENIENT = Percentage.withPercentage(0.25);
+    public static final Percentage LENIENT = Percentage.withPercentage(0.2);
     public static final Percentage ROUGH = Percentage.withPercentage(5);
-    private static final double COMPARISON_THRESHOLD = 1E-6;
+    private static final double COMPARISON_THRESHOLD = 1E-15;
 
     public static <V extends DoubleVector> void assertIsCloseTo(V actualVector, V expectedVector, Percentage percentage) {
-        assertIsCloseTo(actualVector.coordinates(), expectedVector.coordinates(), percentage);
+        assertThat(actualVector).hasSameClassAs(expectedVector);
+        try {
+            assertIsCloseTo(actualVector.coordinates(), expectedVector.coordinates(), percentage);
+        } catch (AssertionError ae) {
+            throw new AssertionError(
+                    "Comparison failed for actual = %s and expected = %s".formatted(
+                            actualVector, expectedVector
+                    ), ae
+            );
+        }
     }
 
     public static void assertIsCloseTo(double[] actualVector, double[] expectedVector, Percentage percentage) {
         assertThat(actualVector).hasSameSizeAs(expectedVector);
-        assertSoftly(softly -> {
-                    for (int row = 0; row < actualVector.length; row++) {
-                        assertIsCloseTo(softly, actualVector[row], expectedVector[row], percentage);
+        try {
+            assertSoftly(softly -> {
+                        for (int row = 0; row < actualVector.length; row++) {
+                            assertIsCloseTo(softly, actualVector[row], expectedVector[row], percentage);
+                        }
                     }
-                }
-        );
+            );
+        } catch (AssertionError ae) {
+            throw new AssertionError(
+                    "Comparison failed for actual = %s and expected = %s".formatted(
+                            Arrays.toString(actualVector), Arrays.toString(expectedVector)
+                    ), ae
+            );
+        }
     }
 
     public static <V extends Vector3D> void assertIsCloseTo(

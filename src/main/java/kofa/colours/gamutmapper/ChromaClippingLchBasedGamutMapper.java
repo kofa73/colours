@@ -1,8 +1,6 @@
 package kofa.colours.gamutmapper;
 
-import kofa.colours.model.Lch;
-import kofa.colours.model.Srgb;
-import kofa.colours.model.Xyz;
+import kofa.colours.model.*;
 
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
@@ -15,18 +13,43 @@ import java.util.function.ToDoubleFunction;
  *
  * @param <L> the polar LCh type
  */
-abstract class AbstractLchChromaClippingGamutMapper<L extends Lch> extends GamutMapper {
+public class ChromaClippingLchBasedGamutMapper<L extends Lch> extends GamutMapper {
     private final Function<Xyz, L> xyzToLch;
     private final Function<double[], L> lchCoordinatesToLch;
     private final Function<L, Xyz> lchToXyz;
     private final ToDoubleFunction<L> maxCFinder;
+    private final String name;
 
-    AbstractLchChromaClippingGamutMapper(
+    public static ChromaClippingLchBasedGamutMapper<LchAb> forLchAb() {
+        return new ChromaClippingLchBasedGamutMapper<>(
+                LchAb.class,
+                lch -> new MaxCLabLuvSolver().solveMaxCForLchAb(lch), xyz -> Lab.from(xyz).usingD65().toLch(),
+                LchAb::new,
+                lch -> lch
+                        .toLab()
+                        .toXyz().usingD65()
+        );
+    }
+
+    public static ChromaClippingLchBasedGamutMapper<LchUv> forLchUv() {
+        return new ChromaClippingLchBasedGamutMapper<>(
+                LchUv.class,
+                lch -> new MaxCLabLuvSolver().solveMaxCForLchUv(lch), xyz -> Luv.from(xyz).usingD65().toLch(),
+                LchUv::new,
+                lch -> lch
+                        .toLuv()
+                        .toXyz().usingD65()
+        );
+    }
+
+    private ChromaClippingLchBasedGamutMapper(
+            Class<L> type,
             ToDoubleFunction<L> maxCFinder,
             Function<Xyz, L> xyzToLch,
             Function<double[], L> lchCoordinatesToLch,
             Function<L, Xyz> lchToXyz
     ) {
+        this.name = type.getSimpleName();
         this.maxCFinder = maxCFinder;
         this.xyzToLch = xyzToLch;
         this.lchCoordinatesToLch = lchCoordinatesToLch;
@@ -45,4 +68,10 @@ abstract class AbstractLchChromaClippingGamutMapper<L extends Lch> extends Gamut
                 )
         );
     }
+
+    @Override
+    public String name() {
+        return super.name() + name;
+    }
 }
+
