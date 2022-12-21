@@ -1,4 +1,4 @@
-package kofa.colours.transformer;
+package kofa.colours.gamutmapper;
 
 import kofa.colours.model.*;
 import kofa.io.RgbImage;
@@ -8,15 +8,15 @@ import java.util.stream.IntStream;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public abstract class Transformer {
-    private final boolean skipGamutCheck;
+public abstract class GamutMapper {
+    private final boolean processInGamutPixels;
 
-    protected Transformer() {
-        this.skipGamutCheck = false;
+    protected GamutMapper() {
+        this.processInGamutPixels = false;
     }
 
-    Transformer(boolean skipGamutCheck) {
-        this.skipGamutCheck = skipGamutCheck;
+    GamutMapper(boolean processInGamutPixels) {
+        this.processInGamutPixels = processInGamutPixels;
     }
 
     public void transform(RgbImage image) {
@@ -24,9 +24,9 @@ public abstract class Transformer {
         var green = image.greenChannel();
         var blue = image.blueChannel();
         IntStream.range(0, image.height()).parallel().forEach(row -> {
-                    for (int column = 0; column < image.width(); column++) {
-                        var transformed = transform(red, green, blue, row, column);
-                        red[row][column] = applyGamma(transformed.r);
+            for (int column = 0; column < image.width(); column++) {
+                var transformed = transform(red, green, blue, row, column);
+                red[row][column] = applyGamma(transformed.r);
                         green[row][column] = applyGamma(transformed.g);
                         blue[row][column] = applyGamma(transformed.b);
                     }
@@ -50,7 +50,7 @@ public abstract class Transformer {
     ) {
         var xyz = new Rec2020(red[row][column], green[row][column], blue[row][column]).toXyz();
         var srgb = Srgb.from(xyz);
-        if (skipGamutCheck || srgb.isOutOfGamut()) {
+        if (processInGamutPixels || srgb.isOutOfGamut()) {
             srgb = getInsideGamut(xyz);
         }
         return ensurePixelIsWithinGamut(srgb, red, green, blue, row, column);
@@ -63,7 +63,7 @@ public abstract class Transformer {
             double[][] blue,
             int row, int column
     ) {
-        for (double value : transformedPixel.values()) {
+        for (double value : transformedPixel.coordinates()) {
             // if error is greater than what 16-bit integer rounding would mask, die
             if (value < -1.0 / 65535 / 2 || value > 1 + 1.0 / 65535 / 2) {
                 var rec2020 = new Rec2020(red[row][column], green[row][column], blue[row][column]);

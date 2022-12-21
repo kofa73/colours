@@ -16,7 +16,7 @@ public class NumericAssertions {
     private static final double COMPARISON_THRESHOLD = 1E-6;
 
     public static <V extends DoubleVector> void assertIsCloseTo(V actualVector, V expectedVector, Percentage percentage) {
-        assertIsCloseTo(actualVector.values(), expectedVector.values(), percentage);
+        assertIsCloseTo(actualVector.coordinates(), expectedVector.coordinates(), percentage);
     }
 
     public static void assertIsCloseTo(double[] actualVector, double[] expectedVector, Percentage percentage) {
@@ -33,8 +33,8 @@ public class NumericAssertions {
             V actualVector, V expectedVector,
             Percentage percentage0, Percentage percentage1, Percentage percentage2
     ) {
-        double[] actualDoubles = actualVector.values();
-        double[] expectedDoubles = expectedVector.values();
+        double[] actualDoubles = actualVector.coordinates();
+        double[] expectedDoubles = expectedVector.coordinates();
         assertSoftly(softly -> {
             assertIsCloseTo(softly, actualDoubles[0], expectedDoubles[0], percentage0);
             assertIsCloseTo(softly, actualDoubles[1], expectedDoubles[1], percentage1);

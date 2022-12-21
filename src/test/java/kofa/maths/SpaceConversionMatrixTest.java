@@ -21,7 +21,7 @@ class SpaceConversionMatrixTest {
         Interim result = sourceToInterim.multiply(new Source(29, 31, 37));
 
         // then
-        assertThat(result.values()).containsExactly(336, 1025, 1933);
+        assertThat(result.coordinates()).containsExactly(336, 1025, 1933);
     }
 
     @Test
@@ -66,12 +66,12 @@ class SpaceConversionMatrixTest {
 
         var target2 = sourceToTarget.multiply(source);
 
-        assertThat(target1.values()).contains(target2.values());
+        assertThat(target1.coordinates()).contains(target2.coordinates());
     }
 
     private record Source(double a, double b, double c) implements Vector3D {
         @Override
-        public double[] values() {
+        public double[] coordinates() {
             return new double[]{a, b, c};
         }
     }
@@ -82,7 +82,7 @@ class SpaceConversionMatrixTest {
         }
 
         @Override
-        public double[] values() {
+        public double[] coordinates() {
             return new double[]{a, b, c};
         }
     }
@@ -93,7 +93,7 @@ class SpaceConversionMatrixTest {
         }
 
         @Override
-        public double[] values() {
+        public double[] coordinates() {
             return new double[]{a, b, c};
         }
     }

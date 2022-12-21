@@ -1,4 +1,4 @@
-package kofa.colours.transformer;
+package kofa.colours.gamutmapper;
 
 import kofa.colours.model.LchAb;
 import kofa.colours.model.LchUv;
@@ -116,7 +116,7 @@ public class MaxCLabLuvSolver {
         return (Double C) -> {
             var xyz = xyzMapper.apply(new double[]{L, C, h});
             var srgb = Srgb.from(xyz);
-            double[] components = srgb.values();
+            double[] components = srgb.coordinates();
             for (double component : components) {
                 if (component < 0 || component > 1) {
                     return 1.0;

@@ -14,7 +14,7 @@ class LchUvTest {
     @Test
     void values() {
         assertThat(
-                lch.values()
+                lch.coordinates()
         ).containsExactly(32.90281, 68.99183, H_RADIANS);
     }
 

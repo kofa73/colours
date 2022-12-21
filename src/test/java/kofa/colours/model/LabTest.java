@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class LabTest {
     @Test
     void values() {
-        assertThat(new Lab(1, 2, 3).values()).containsExactly(1, 2, 3);
+        assertThat(new Lab(1, 2, 3).coordinates()).containsExactly(1, 2, 3);
     }
 
     @Test

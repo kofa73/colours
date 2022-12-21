@@ -6,10 +6,8 @@ import static java.lang.Math.*;
 
 /**
  * LCh representation
- *
- * @param <T> the base colour space, e.g. Lab or Luv
  */
-public interface Lch<T> extends Vector3D {
+public interface Lch extends Vector3D {
     double L();
 
     double C();
@@ -21,7 +19,7 @@ public interface Lch<T> extends Vector3D {
     }
 
     default double[] withHueInDegrees() {
-        double[] values = values();
+        double[] values = coordinates();
         var hue = values[2];
         var hueDegrees = toDegrees(hue);
         values[2] = hueDegrees > 360 ? hueDegrees - 360 : (hueDegrees < 0 ? hueDegrees + 360 : hueDegrees);

@@ -11,7 +11,7 @@ class XyzTest {
     @Test
     void toDoubles() {
         assertThat(
-                XYZ_663399.values()
+                XYZ_663399.coordinates()
         ).containsExactly(0.12412, 0.07493, 0.3093);
     }
 

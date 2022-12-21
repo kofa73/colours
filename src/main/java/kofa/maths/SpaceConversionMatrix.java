@@ -22,7 +22,7 @@ public class SpaceConversionMatrix<I extends Vector3D, O extends Vector3D> {
     }
 
     public O multiply(I vector) {
-        var doubles = vector.values();
+        var doubles = vector.coordinates();
         var result = new double[3];
         result[0] = matrix[0][0] * doubles[0] + matrix[0][1] * doubles[1] + matrix[0][2] * doubles[2];
         result[1] = matrix[1][0] * doubles[0] + matrix[1][1] * doubles[1] + matrix[1][2] * doubles[2];

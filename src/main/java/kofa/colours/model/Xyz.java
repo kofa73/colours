@@ -8,7 +8,7 @@ public record Xyz(double X, double Y, double Z) implements Vector3D {
     }
 
     @Override
-    public double[] values() {
+    public double[] coordinates() {
         return new double[]{X, Y, Z};
     }
 

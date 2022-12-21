@@ -6,13 +6,13 @@ import static java.lang.Math.pow;
 import static kofa.colours.model.ConversionHelper.*;
 import static kofa.colours.model.ConvertibleToLch.toPolar;
 
-public record Luv(double L, double u, double v) implements Vector3D, ConvertibleToLch<Luv, LchUv> {
+public record Luv(double L, double u, double v) implements Vector3D, ConvertibleToLch<LchUv> {
     public Luv(double[] doubles) {
         this(doubles[0], doubles[1], doubles[2]);
     }
 
     @Override
-    public double[] values() {
+    public double[] coordinates() {
         return new double[]{L, u, v};
     }
 

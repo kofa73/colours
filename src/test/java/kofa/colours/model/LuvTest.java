@@ -13,7 +13,7 @@ class LuvTest {
     @Test
     void values() {
         assertThat(
-                LUV_663399.values()
+                LUV_663399.coordinates()
         ).containsExactly(32.90281, 12.9804, -67.75974);
     }
 

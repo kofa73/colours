@@ -28,7 +28,7 @@ public abstract class Rgb<S extends Rgb<S>> implements Vector3D {
     }
 
     @Override
-    public double[] values() {
+    public double[] coordinates() {
         return new double[]{r, g, b};
     }
 

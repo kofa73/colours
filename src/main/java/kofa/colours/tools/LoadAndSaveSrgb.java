@@ -1,6 +1,6 @@
 package kofa.colours.tools;
 
-import kofa.colours.transformer.*;
+import kofa.colours.gamutmapper.*;
 import kofa.io.ImageLoader;
 import kofa.io.PngOutput;
 
@@ -26,13 +26,13 @@ public class LoadAndSaveSrgb {
             var transformerId = Integer.parseInt(args[paramIndex]);
 
             var transformer = switch (transformerId) {
-                case 0 -> new NullTransformer();
-                case 1 -> new RgbClippingTransformer();
-                case 2 -> new BwFromLTransformer();
-                case 3 -> new DesaturatingLabTransformer(image);
-                case 4 -> new DesaturatingLuvTransformer(image);
-                case 5 -> new ClippingLabTransformer();
-                case 6 -> new ClippingLuvTransformer();
+                case 0 -> new NullGamutMapper();
+                case 1 -> new RgbClippingGamutMapper();
+                case 2 -> new BwFromLGamutMapper();
+                case 3 -> new DesaturatingLabGamutMapper(image);
+                case 4 -> new DesaturatingLuvGamutMapper(image);
+                case 5 -> new LchAbChromaClippingGamutMapper();
+                case 6 -> new LchUvChromaClippingGamutMapper();
                 default -> throw new IllegalArgumentException("Unsupported transformer: " + transformerId);
             };
 

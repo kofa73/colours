@@ -4,7 +4,7 @@ import kofa.maths.DoubleVector;
 
 public record Uv(double u, double v) implements DoubleVector {
     @Override
-    public double[] values() {
+    public double[] coordinates() {
         return new double[]{u, v};
     }
 

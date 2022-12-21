@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SrgbTest {
     @Test
     void values() {
-        assertThat(new Srgb(1, 2, 3).values()).contains(1, 2, 3);
+        assertThat(new Srgb(1, 2, 3).coordinates()).contains(1, 2, 3);
     }
 
     @Test

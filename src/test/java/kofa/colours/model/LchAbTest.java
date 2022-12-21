@@ -14,7 +14,7 @@ class LchAbTest {
     @Test
     void values() {
         assertThat(
-                lch.values()
+                lch.coordinates()
         ).containsExactly(32.90281, 63.73612, H_RADIANS);
     }
 

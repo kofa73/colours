@@ -1,4 +1,4 @@
-package kofa.colours.transformer;
+package kofa.colours.gamutmapper;
 
 import kofa.colours.model.*;
 import kofa.io.RgbImage;
@@ -10,29 +10,31 @@ import java.util.stream.IntStream;
 import static java.lang.Math.max;
 
 /**
- * A transformer type that desaturates all colours by scaling LCh's C such that all colours fit inside sRGB.
+ * A gamut mapper type that desaturates all colours by scaling LCh's C using the same value such that all colours fit inside sRGB.
+ * It analyses the image, finds the maximum 'actual C' to 'C at gamut boundary' ratio, and uses that to desaturate
+ * the image. Therefore, saturation differences are maintained, at the cost of severe desaturation.
  *
  * @param <S> the base colour space that has an LCh representation, e.g. Lab or Luv
- * @param <P> the corresponding polar LCh type
+ * @param <L> the corresponding polar LCh type
  */
-abstract class AbstractDesaturatingLchBasedTransformer<S extends ConvertibleToLch<S, P>, P extends Lch<S>> extends Transformer {
-    private final Function<Xyz, P> xyzToPolarConverter;
-    private final Function<double[], P> polarCoordinatesToPolarSpaceConverter;
-    private final Function<P, Xyz> polarSpaceToXyzConverter;
+abstract class AbstractDesaturatingLchBasedGamutMapper<S extends ConvertibleToLch<L>, L extends Lch> extends GamutMapper {
+    private final Function<Xyz, L> xyzToLchConverter;
+    private final Function<double[], L> polarCoordinatesToLchConverter;
+    private final Function<L, Xyz> lchToXyzConverter;
     private double cDivisor = 0;
 
-    AbstractDesaturatingLchBasedTransformer(
+    AbstractDesaturatingLchBasedGamutMapper(
             RgbImage image,
-            ToDoubleFunction<P> maxCFinder,
+            ToDoubleFunction<L> maxCFinder,
             Function<Rec2020, S> rec2020ToLchConverter,
-            Function<Xyz, P> xyzToPolarConverter,
-            Function<double[], P> polarCoordinatesToPolarSpaceConverter,
-            Function<P, Xyz> polarCoordinatesToXyzConverter
+            Function<Xyz, L> xyzToLchConverter,
+            Function<double[], L> polarCoordinatesToLchConverter,
+            Function<L, Xyz> polarCoordinatesToXyzConverter
     ) {
         super(true);
-        this.xyzToPolarConverter = xyzToPolarConverter;
-        this.polarCoordinatesToPolarSpaceConverter = polarCoordinatesToPolarSpaceConverter;
-        this.polarSpaceToXyzConverter = polarCoordinatesToXyzConverter;
+        this.xyzToLchConverter = xyzToLchConverter;
+        this.polarCoordinatesToLchConverter = polarCoordinatesToLchConverter;
+        this.lchToXyzConverter = polarCoordinatesToXyzConverter;
         var red = image.redChannel();
         var green = image.greenChannel();
         var blue = image.blueChannel();
@@ -56,11 +58,11 @@ abstract class AbstractDesaturatingLchBasedTransformer<S extends ConvertibleToLc
 
     @Override
     public Srgb getInsideGamut(Xyz xyz) {
-        var lch = xyzToPolarConverter.apply(xyz);
+        var lch = xyzToLchConverter.apply(xyz);
         var reducedC = lch.C() / cDivisor;
         return Srgb.from(
-                polarSpaceToXyzConverter.apply(
-                        polarCoordinatesToPolarSpaceConverter.apply(
+                lchToXyzConverter.apply(
+                        polarCoordinatesToLchConverter.apply(
                                 new double[]{lch.L(), reducedC, lch.h()}
                         )
                 )

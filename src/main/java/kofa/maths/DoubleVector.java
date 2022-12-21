@@ -1,5 +1,5 @@
 package kofa.maths;
 
 public interface DoubleVector {
-    double[] values();
+    double[] coordinates();
 }

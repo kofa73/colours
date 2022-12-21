@@ -1,9 +1,9 @@
-package kofa.colours.transformer;
+package kofa.colours.gamutmapper;
 
 import kofa.colours.model.Srgb;
 import kofa.colours.model.Xyz;
 
-public class NullTransformer extends Transformer {
+public class NullGamutMapper extends GamutMapper {
 
     @Override
     public Srgb getInsideGamut(Xyz xyz) {

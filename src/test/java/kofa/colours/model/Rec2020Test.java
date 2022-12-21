@@ -11,7 +11,7 @@ class Rec2020Test {
     @Test
     void values() {
         assertThat(
-                REC2020_663399.values()
+                REC2020_663399.coordinates()
         ).contains(
                 0.10805750115024938, 0.04324141440243367, 0.29037800273628517
         );

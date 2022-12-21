@@ -5,7 +5,7 @@ import kofa.maths.Vector3D;
 import static kofa.colours.model.ConversionHelper.*;
 import static kofa.colours.model.ConvertibleToLch.toPolar;
 
-public record Lab(double L, double a, double b) implements Vector3D, ConvertibleToLch<Lab, LchAb> {
+public record Lab(double L, double a, double b) implements Vector3D, ConvertibleToLch<LchAb> {
     public Lab(double[] values) {
         this(values[0], values[1], values[2]);
     }
@@ -20,7 +20,7 @@ public record Lab(double L, double a, double b) implements Vector3D, Convertible
     }
 
     @Override
-    public double[] values() {
+    public double[] coordinates() {
         return new double[]{L, a, b};
     }
 

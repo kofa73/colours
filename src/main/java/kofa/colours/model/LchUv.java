@@ -2,13 +2,13 @@ package kofa.colours.model;
 
 import static kofa.colours.model.Lch.fromPolar;
 
-public record LchUv(double L, double C, double h) implements Lch<Luv> {
+public record LchUv(double L, double C, double h) implements Lch {
     public LchUv(double[] doubles) {
         this(doubles[0], doubles[1], doubles[2]);
     }
 
     @Override
-    public double[] values() {
+    public double[] coordinates() {
         return new double[]{L, C, h};
     }
 
