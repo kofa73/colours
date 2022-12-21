@@ -15,6 +15,14 @@ public class LoadAndSaveSrgb {
             System.out.println("Transformer 4: Desaturate by scaling C of LCh(uv)");
             System.out.println("Transformer 5: Clip C of LCh(ab)");
             System.out.println("Transformer 6: Clip C of LCh(uv)");
+            System.out.println("Transformer 7: Dampen C of LCh(ab), shoulder = 0");
+            System.out.println("Transformer 8: Dampen C of LCh(uv), shoulder = 0");
+            System.out.println("Transformer 9: Dampen C of LCh(ab), shoulder = 0.5");
+            System.out.println("Transformer 10: Dampen C of LCh(uv), shoulder = 0.5");
+            System.out.println("Transformer 11: Dampen C of LCh(ab), shoulder = 0.7");
+            System.out.println("Transformer 12: Dampen C of LCh(uv), shoulder = 0.7");
+            System.out.println("Transformer 13: Dampen C of LCh(ab), shoulder = 0.9");
+            System.out.println("Transformer 14: Dampen C of LCh(uv), shoulder = 0.9");
             System.exit(1);
         }
 
@@ -33,6 +41,14 @@ public class LoadAndSaveSrgb {
                 case 4 -> DesaturatingLchBasedGamutMapper.forLchUv(image);
                 case 5 -> ChromaClippingLchBasedGamutMapper.forLchAb();
                 case 6 -> ChromaClippingLchBasedGamutMapper.forLchUv();
+                case 7 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0);
+                case 8 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0);
+                case 9 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.5);
+                case 10 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.5);
+                case 11 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.7);
+                case 12 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.7);
+                case 13 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.9);
+                case 14 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.9);
                 default -> throw new IllegalArgumentException("Unsupported transformer: " + transformerId);
             };
 
