@@ -75,8 +75,7 @@ public class GradualChromaDampeningLchBasedGamutMapper<L extends Lch> extends Ga
         var ratioToMaxC = originalC / cAtGamutBoundary;
         if (ratioToMaxC > shoulder) {
             var curveValue = dampeningCurve.mappedValueOf(ratioToMaxC);
-            var dampeningFactor = curveValue / ratioToMaxC;
-            dampenedC = dampeningFactor * originalC;
+            dampenedC = curveValue * cAtGamutBoundary;
         } else {
             dampenedC = originalC;
         }
