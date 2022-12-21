@@ -1,12 +1,12 @@
 package kofa.colours.transformer;
 
 import kofa.colours.model.Srgb;
-import kofa.colours.model.XYZ;
+import kofa.colours.model.Xyz;
 
 public class NullTransformer extends Transformer {
 
     @Override
-    public Srgb getInsideGamut(XYZ xyz) {
+    public Srgb getInsideGamut(Xyz xyz) {
         return Srgb.from(xyz);
     }
 }

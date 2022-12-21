@@ -23,6 +23,6 @@ public class ConversionHelper {
     // KAPPA * EPSILON
     public static final double KAPPA_EPSILON = 8;
 
-    public static final XYZ D65_WHITE_XYZ = new XYZ(0.9504559, 1, 1.0890578);
-    public static final UV D65_WHITE_uvPrime = UV.from(D65_WHITE_XYZ);
+    public static final Xyz D65_WHITE_XYZ = new Xyz(0.9504559, 1, 1.0890578);
+    public static final Uv D65_WHITE_UV = Uv.from(D65_WHITE_XYZ);
 }

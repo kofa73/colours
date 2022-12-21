@@ -9,7 +9,7 @@ import static java.lang.Math.*;
  *
  * @param <T> the base colour space, e.g. Lab or Luv
  */
-public interface LCh<T> extends Vector3D {
+public interface Lch<T> extends Vector3D {
     double L();
 
     double C();

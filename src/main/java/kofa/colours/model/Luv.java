@@ -4,9 +4,9 @@ import kofa.maths.Vector3D;
 
 import static java.lang.Math.pow;
 import static kofa.colours.model.ConversionHelper.*;
-import static kofa.colours.model.LChable.toPolar;
+import static kofa.colours.model.ConvertibleToLch.toPolar;
 
-public record Luv(double L, double u, double v) implements Vector3D, LChable<Luv, LchUv> {
+public record Luv(double L, double u, double v) implements Vector3D, ConvertibleToLch<Luv, LchUv> {
     public Luv(double[] doubles) {
         this(doubles[0], doubles[1], doubles[2]);
     }
@@ -17,54 +17,55 @@ public record Luv(double L, double u, double v) implements Vector3D, LChable<Luv
     }
 
     @Override
-    public LchUv toLCh() {
+    public LchUv toLch() {
         return new LchUv(toPolar(L, u, v));
     }
 
-    public static XYZLuvConverter from(XYZ xyz) {
-        return new XYZLuvConverter(xyz);
+    public static XyzLuvConverter from(Xyz xyz) {
+        return new XyzLuvConverter(xyz);
     }
 
-    public LuvXYZConverter toXYZ() {
-        return new LuvXYZConverter();
+    public LuvXyzConverter toXyz() {
+        return new LuvXyzConverter();
     }
 
-    public static class XYZLuvConverter implements WhitePointXyzUvAwareConverter<Luv> {
-        private final XYZ xyz;
+    public static class XyzLuvConverter implements WhitePointXyzUvAwareConverter<Luv> {
+        private final Xyz xyz;
 
-        XYZLuvConverter(XYZ xyz) {
+        XyzLuvConverter(Xyz xyz) {
             this.xyz = xyz;
         }
-        public Luv usingWhitePoint(XYZ referenceXYZ, UV referenceUV) {
+
+        public Luv usingWhitePoint(Xyz referenceXyz, Uv referenceUv) {
             // http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_Luv.html
-            double yr = xyz.Y() / referenceXYZ.Y();
+            double yr = xyz.Y() / referenceXyz.Y();
 
-            double reference_uPrime = referenceUV.u();
-            double reference_vPrime = referenceUV.v();
+            double referenceU = referenceUv.u();
+            double referenceV = referenceUv.v();
 
-            var uv = UV.from(xyz);
+            var uv = Uv.from(xyz);
 
             double L = yr > EPSILON ?
                     (116 * cubeRootOf(yr)) - 16 :
                     KAPPA * yr;
             double L13 = 13 * L;
-            double u = L13 * (uv.u() - reference_uPrime);
-            double v = L13 * (uv.v() - reference_vPrime);
+            double u = L13 * (uv.u() - referenceU);
+            double v = L13 * (uv.v() - referenceV);
 
             return new Luv(L, u, v);
         }
     }
 
-    public class LuvXYZConverter implements WhitePointXyzUvAwareConverter<XYZ> {
+    public class LuvXyzConverter implements WhitePointXyzUvAwareConverter<Xyz> {
 
         @Override
-        public XYZ usingWhitePoint(XYZ referenceXYZ, UV referenceUV) {
-            double referenceY = referenceXYZ.Y();
+        public Xyz usingWhitePoint(Xyz referenceXyz, Uv referenceUv) {
+            double referenceY = referenceXyz.Y();
 
             double L13 = 13 * L;
 
-            double uPrime = u / L13 + referenceUV.u();
-            double vPrime = v / L13 + referenceUV.v();
+            double uPrime = u / L13 + referenceUv.u();
+            double vPrime = v / L13 + referenceUv.v();
 
             double Y = L > KAPPA_EPSILON ?
                     (referenceY * pow(((L + 16) / 116), 3)) :
@@ -74,7 +75,7 @@ public record Luv(double L, double u, double v) implements Vector3D, LChable<Luv
             double X = Y * 9 * uPrime / denominator;
             double Z = Y * (12 - 3 * uPrime - 20 * vPrime) / denominator;
 
-            return new XYZ(X, Y, Z);
+            return new Xyz(X, Y, Z);
         }
     }
 }

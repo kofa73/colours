@@ -21,9 +21,9 @@ public abstract class Rgb<S extends Rgb<S>> implements Vector3D {
         this.b = b;
     }
 
-    protected abstract SpaceConversionMatrix<S, XYZ> toXyzMatrix();
+    protected abstract SpaceConversionMatrix<S, Xyz> toXyzMatrix();
 
-    public XYZ toXYZ() {
+    public Xyz toXyz() {
         return toXyzMatrix().multiply((S) this);
     }
 
@@ -45,7 +45,7 @@ public abstract class Rgb<S extends Rgb<S>> implements Vector3D {
             double xr, double yr,
             double xg, double yg,
             double xb, double yb,
-            XYZ referenceWhite
+            Xyz referenceWhite
     ) {
         double Xr = xr / yr;
         double Yr = 1;

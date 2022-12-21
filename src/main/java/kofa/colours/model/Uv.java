@@ -2,7 +2,7 @@ package kofa.colours.model;
 
 import kofa.maths.DoubleVector;
 
-public record UV(double u, double v) implements DoubleVector {
+public record Uv(double u, double v) implements DoubleVector {
     @Override
     public double[] values() {
         return new double[]{u, v};
@@ -13,17 +13,17 @@ public record UV(double u, double v) implements DoubleVector {
         return "%s[%f, %f]".formatted(getClass().getSimpleName(), u, v);
     }
 
-    public static UV from(XYZ xyz) {
-        var denominator = denominator_XYZ_for_UV(xyz);
-        return new UV(
+    public static Uv from(Xyz xyz) {
+        var denominator = denominatorXyzForUv(xyz);
+        return new Uv(
                 uPrime(xyz.X(), denominator),
                 vPrime(xyz.Y(), denominator)
         );
     }
 
-    private static double denominator_XYZ_for_UV(XYZ xyz) {
+    private static double denominatorXyzForUv(Xyz xyz) {
         var denominator = xyz.X() + 15 * xyz.Y() + 3 * xyz.Z();
-        if (denominator == 0.0) {
+        if (denominator == 0) {
             denominator = 1E-9;
         }
         return denominator;

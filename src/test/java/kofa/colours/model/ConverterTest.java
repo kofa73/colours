@@ -2,35 +2,31 @@ package kofa.colours.model;
 
 import org.junit.jupiter.api.Test;
 
-import static java.lang.Math.pow;
 import static java.lang.Math.toRadians;
 import static kofa.NumericAssertions.*;
 import static kofa.colours.model.ConversionHelper.D65_WHITE_XYZ;
+import static kofa.colours.model.Rec2020.rec2020InverseOETF;
 
 class ConverterTest {
     // standard (RGB: #663399) XYZ for test from https://ajalt.github.io/colormath/converter/
-    public static final XYZ XYZ_663399 = new XYZ(0.12412, 0.07493, 0.3093);
+    public static final Xyz XYZ_663399 = new Xyz(0.12412, 0.07493, 0.3093);
     public static final Srgb LINEAR_SRGB_663399 = new Srgb(0.13287, 0.0331, 0.31855);
-    public static final Rec2020 REC2020_663399 = new Rec2020(rec2020InverseOETF(0.30459), rec2020InverseOETF(0.16817), rec2020InverseOETF(0.53086));
-    public static final Lab LAB_663399 = new Lab(32.90281, 42.88651, -47.14914);
-    public static final Luv Luv_663399 = new Luv(32.90281, 12.9804, -67.75974);
-
-    public static final XYZ TINY_XYZ = new XYZ(0.5, 1E-4, 1E-5);
-
     // https://ajalt.github.io/colormath/converter/ does not provide linear Rec2020
-    private static double rec2020InverseOETF(double encoded) {
-        return encoded < 0.0812428313 ?
-                encoded / 4.5 :
-                pow((encoded + 0.09929682680944) / 1.09929682680944, 1 / 0.45);
-    }
+    public static final Rec2020 REC2020_663399 = new Rec2020(
+            rec2020InverseOETF(0.30459), rec2020InverseOETF(0.16817), rec2020InverseOETF(0.53086)
+    );
+    public static final Lab LAB_663399 = new Lab(32.90281, 42.88651, -47.14914);
+    public static final Luv LUV_663399 = new Luv(32.90281, 12.9804, -67.75974);
+
+    public static final Xyz TINY_XYZ = new Xyz(0.5, 1E-4, 1E-5);
 
     @Test
-    void sRgb_XYZ_Rec2020() {
+    void sRgb_Xyz_Rec2020() {
         // given - some random area average value picked in darktable with linear rec709/sRGB
         var sRgb = new Srgb(89 / 255.0, 115 / 255.0, 177 / 255.0);
 
         // when
-        var xyz = sRgb.toXYZ();
+        var xyz = sRgb.toXyz();
         var rec2020 = Rec2020.from(xyz);
 
         // then - same area average value picked in darktable with rec2020
@@ -40,12 +36,12 @@ class ConverterTest {
     }
 
     @Test
-    void sRgb_XYZ_Rec2020_doubles() {
+    void sRgb_Xyz_Rec2020_doubles() {
         // given - some random area average value picked in darktable with linear rec709/sRGB
         var sRgb = new Srgb(0.089, 0.115, 0.177);
 
         // when
-        var xyz = sRgb.toXYZ();
+        var xyz = sRgb.toXyz();
         var rec2020 = Rec2020.from(xyz);
 
         // then - same area average value picked in darktable with rec2020
@@ -55,11 +51,11 @@ class ConverterTest {
     }
 
     @Test
-    void rec2020_XYZ_sRgb() {
-        var original_Rec2020 = new Rec2020(101 / 255.0, 114 / 255.0, 170 / 255.0);
+    void rec2020_Xyz_sRgb() {
+        var originalRec2020 = new Rec2020(101 / 255.0, 114 / 255.0, 170 / 255.0);
 
         // when
-        var xyz = original_Rec2020.toXYZ();
+        var xyz = originalRec2020.toXyz();
         var sRGB = Srgb.from(xyz);
 
         // then - same area average value picked in darktable with rec2020
@@ -78,7 +74,7 @@ class ConverterTest {
         var luv = new Luv(32.90281, 12.9804, -67.75974);
 
         // when
-        var lchUv = luv.toLCh();
+        var lchUv = luv.toLch();
 
         // then
         // 280.84448 degrees -> 4.90166086204 radians + wrap-around
@@ -105,42 +101,42 @@ class ConverterTest {
     @Test
     void white_roundtrip() {
         var original_sRGB = new Srgb(1, 1, 1);
-        var XYZ_from_RGB = original_sRGB.toXYZ();
+        var XYZ_from_RGB = original_sRGB.toXyz();
 
-        Luv Luv_from_XYZ = Luv.from(XYZ_from_RGB).usingWhitePoint(D65_WHITE_XYZ);
+        Luv luvFromXyz = Luv.from(XYZ_from_RGB).usingWhitePoint(D65_WHITE_XYZ);
 
-        LchUv LCH_from_Luv = Luv_from_XYZ.toLCh();
+        LchUv LCH_from_Luv = luvFromXyz.toLch();
 
         Luv Luv_from_LCH = LCH_from_Luv.toLuv();
-        assertIsCloseTo(Luv_from_LCH, Luv_from_XYZ, PRECISE);
+        assertIsCloseTo(Luv_from_LCH, luvFromXyz, PRECISE);
 
-        XYZ XYZ_from_Luv = Luv_from_LCH.toXYZ().usingD65();
-        assertIsCloseTo(XYZ_from_Luv, XYZ_from_RGB, PRECISE);
+        Xyz Xyz_from_Luv = Luv_from_LCH.toXyz().usingD65();
+        assertIsCloseTo(Xyz_from_Luv, XYZ_from_RGB, PRECISE);
 
-        var sRGB_from_XYZ = Srgb.from(XYZ_from_Luv);
+        var sRGB_from_XYZ = Srgb.from(Xyz_from_Luv);
         assertIsCloseTo(sRGB_from_XYZ, original_sRGB, PRECISE);
     }
 
     @Test
     void white_roundtrip_D65() {
-        var original_sRGB = new Srgb(1, 1, 1);
-        var XYZ_from_SRGB = original_sRGB.toXYZ();
+        var originalSrgb = new Srgb(1, 1, 1);
+        var xyzFromSrgb = originalSrgb.toXyz();
 
-        var Luv_from_XYZ_D65 = Luv.from(XYZ_from_SRGB).usingD65();
-        Luv Luv_from_XYZ = Luv.from(XYZ_from_SRGB).usingWhitePoint(D65_WHITE_XYZ);
-        assertIsCloseTo(Luv_from_XYZ_D65, Luv_from_XYZ, PRECISE);
+        var luvFromXyzD65 = Luv.from(xyzFromSrgb).usingD65();
+        Luv luvFromXyz = Luv.from(xyzFromSrgb).usingWhitePoint(D65_WHITE_XYZ);
+        assertIsCloseTo(luvFromXyzD65, luvFromXyz, PRECISE);
 
-        var LCH_from_Luv = Luv_from_XYZ_D65.toLCh();
+        var lchFromLuv = luvFromXyzD65.toLch();
 
-        var Luv_from_LCH = LCH_from_Luv.toLuv();
-        assertIsCloseTo(Luv_from_LCH, Luv_from_XYZ_D65, PRECISE);
+        var luvFromLch = lchFromLuv.toLuv();
+        assertIsCloseTo(luvFromLch, luvFromXyzD65, PRECISE);
 
-        var XYZ_from_Luv_D65 = Luv_from_LCH.toXYZ().usingD65();
-        assertIsCloseTo(XYZ_from_Luv_D65, XYZ_from_SRGB, PRECISE);
-        var XYZ_from_Luv = Luv_from_LCH.toXYZ().usingWhitePoint(D65_WHITE_XYZ);
-        assertIsCloseTo(XYZ_from_Luv_D65, XYZ_from_Luv, PRECISE);
+        var xyzFromLuvD65 = luvFromLch.toXyz().usingD65();
+        assertIsCloseTo(xyzFromLuvD65, xyzFromSrgb, PRECISE);
+        var xyzFromLuv = luvFromLch.toXyz().usingWhitePoint(D65_WHITE_XYZ);
+        assertIsCloseTo(xyzFromLuvD65, xyzFromLuv, PRECISE);
 
-        var sRGB_from_XYZ = Srgb.from(XYZ_from_Luv_D65);
-        assertIsCloseTo(sRGB_from_XYZ, original_sRGB, PRECISE);
+        var srgbFromXyz = Srgb.from(xyzFromLuvD65);
+        assertIsCloseTo(srgbFromXyz, originalSrgb, PRECISE);
     }
 }

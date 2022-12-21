@@ -1,6 +1,8 @@
 package kofa.colours.model;
 
-public record LchUv(double L, double C, double h) implements LCh<Luv> {
+import static kofa.colours.model.Lch.fromPolar;
+
+public record LchUv(double L, double C, double h) implements Lch<Luv> {
     public LchUv(double[] doubles) {
         this(doubles[0], doubles[1], doubles[2]);
     }
@@ -11,7 +13,7 @@ public record LchUv(double L, double C, double h) implements LCh<Luv> {
     }
 
     public Luv toLuv() {
-        return new Luv(LCh.fromPolar(L, C, h));
+        return new Luv(fromPolar(L, C, h));
     }
 
     @Override

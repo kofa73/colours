@@ -48,7 +48,7 @@ public abstract class Transformer {
             double[][] blue,
             int row, int column
     ) {
-        var xyz = new Rec2020(red[row][column], green[row][column], blue[row][column]).toXYZ();
+        var xyz = new Rec2020(red[row][column], green[row][column], blue[row][column]).toXyz();
         var srgb = Srgb.from(xyz);
         if (skipGamutCheck || srgb.isOutOfGamut()) {
             srgb = getInsideGamut(xyz);
@@ -67,10 +67,10 @@ public abstract class Transformer {
             // if error is greater than what 16-bit integer rounding would mask, die
             if (value < -1.0 / 65535 / 2 || value > 1 + 1.0 / 65535 / 2) {
                 var rec2020 = new Rec2020(red[row][column], green[row][column], blue[row][column]);
-                var xyzIn = rec2020.toXYZ();
+                var xyzIn = rec2020.toXyz();
                 var labIn = Lab.from(xyzIn).usingD65();
                 var luvIn = Luv.from(xyzIn).usingD65();
-                var xyzOut = transformedPixel.toXYZ();
+                var xyzOut = transformedPixel.toXyz();
                 var labOut = Lab.from(xyzOut).usingD65();
                 var luvOut = Luv.from(xyzOut).usingD65();
                 throw new RuntimeException(
@@ -90,13 +90,13 @@ public abstract class Transformer {
                                 row, column,
                                 rec2020,
                                 xyzIn,
-                                labIn, labIn.toLCh(),
-                                luvIn, luvIn.toLCh(),
+                                labIn, labIn.toLch(),
+                                luvIn, luvIn.toLch(),
 
                                 transformedPixel,
                                 xyzOut,
-                                labOut, labOut.toLCh(),
-                                luvOut, luvOut.toLCh()
+                                labOut, labOut.toLch(),
+                                luvOut, luvOut.toLch()
                         )
                 );
             }
@@ -111,5 +111,5 @@ public abstract class Transformer {
                 : transformedPixel;
     }
 
-    protected abstract Srgb getInsideGamut(XYZ xyz);
+    protected abstract Srgb getInsideGamut(Xyz xyz);
 }

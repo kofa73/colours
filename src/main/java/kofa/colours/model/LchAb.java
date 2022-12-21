@@ -1,8 +1,8 @@
 package kofa.colours.model;
 
-import static kofa.colours.model.LCh.fromPolar;
+import static kofa.colours.model.Lch.fromPolar;
 
-public record LchAb(double L, double C, double h) implements LCh<Lab> {
+public record LchAb(double L, double C, double h) implements Lch<Lab> {
     public LchAb(double[] doubles) {
         this(doubles[0], doubles[1], doubles[2]);
     }

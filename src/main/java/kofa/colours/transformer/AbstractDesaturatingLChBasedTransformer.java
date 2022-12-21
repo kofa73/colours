@@ -4,11 +4,10 @@ import kofa.colours.model.*;
 import kofa.io.RgbImage;
 
 import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.max;
-import static kofa.colours.transformer.MaxCLabLuvSolver.hToIndex;
-import static kofa.colours.transformer.MaxCLabLuvSolver.lToIndex;
 
 /**
  * A transformer type that desaturates all colours by scaling LCh's C such that all colours fit inside sRGB.
@@ -16,21 +15,21 @@ import static kofa.colours.transformer.MaxCLabLuvSolver.lToIndex;
  * @param <S> the base colour space that has an LCh representation, e.g. Lab or Luv
  * @param <P> the corresponding polar LCh type
  */
-abstract class AbstractDesaturatingLChBasedTransformer<S extends LChable<S, P>, P extends LCh<S>> extends Transformer {
-    private final Function<XYZ, P> xyzToPolarConverter;
+abstract class AbstractDesaturatingLchBasedTransformer<S extends ConvertibleToLch<S, P>, P extends Lch<S>> extends Transformer {
+    private final Function<Xyz, P> xyzToPolarConverter;
     private final Function<double[], P> polarCoordinatesToPolarSpaceConverter;
-    private final Function<P, XYZ> polarSpaceToXyzConverter;
+    private final Function<P, Xyz> polarSpaceToXyzConverter;
     private double cDivisor = 0;
 
-    AbstractDesaturatingLChBasedTransformer(
+    AbstractDesaturatingLchBasedTransformer(
             RgbImage image,
-            double[][] maxC,
-            Function<Rec2020, S> rec2020ToLChConverter,
-            Function<XYZ, P> xyzToPolarConverter,
+            ToDoubleFunction<P> maxCFinder,
+            Function<Rec2020, S> rec2020ToLchConverter,
+            Function<Xyz, P> xyzToPolarConverter,
             Function<double[], P> polarCoordinatesToPolarSpaceConverter,
-            Function<P, XYZ> polarCoordinatesToXyzConverter
+            Function<P, Xyz> polarCoordinatesToXyzConverter
     ) {
-        super(false);
+        super(true);
         this.xyzToPolarConverter = xyzToPolarConverter;
         this.polarCoordinatesToPolarSpaceConverter = polarCoordinatesToPolarSpaceConverter;
         this.polarSpaceToXyzConverter = polarCoordinatesToXyzConverter;
@@ -40,20 +39,23 @@ abstract class AbstractDesaturatingLChBasedTransformer<S extends LChable<S, P>, 
 
         IntStream.range(0, image.height()).forEach(row ->
                 IntStream.range(0, image.width()).forEach(column -> {
-                    var lch = rec2020ToLChConverter.apply(
-                            new Rec2020(red[row][column], green[row][column], blue[row][column])
-                    ).toLCh();
-                    int lIndex = lToIndex(lch.L());
-                    int hIndex = hToIndex(lch.h());
-                    cDivisor = max(cDivisor, lch.C() / maxC[lIndex][hIndex]);
+                    var rec2020 = new Rec2020(red[row][column], green[row][column], blue[row][column]);
+                    if (rec2020.toSRGB().isOutOfGamut()) {
+                        var lch = rec2020ToLchConverter.apply(rec2020).toLch();
+                        if (lch.C() != 0) {
+                            var maxC = maxCFinder.applyAsDouble(lch);
+                            if (maxC != 0) {
+                                cDivisor = max(cDivisor, lch.C() / maxC);
+                            }
+                        }
+                    }
                 })
         );
-        // FIXME: move to image analysis instead of maxC array
-        cDivisor = max(cDivisor + 0.05, 1);
+        cDivisor = max(cDivisor, 1);
     }
 
     @Override
-    public Srgb getInsideGamut(XYZ xyz) {
+    public Srgb getInsideGamut(Xyz xyz) {
         var lch = xyzToPolarConverter.apply(xyz);
         var reducedC = lch.C() / cDivisor;
         return Srgb.from(

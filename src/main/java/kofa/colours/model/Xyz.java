@@ -2,8 +2,8 @@ package kofa.colours.model;
 
 import kofa.maths.Vector3D;
 
-public record XYZ(double X, double Y, double Z) implements Vector3D {
-    public XYZ(double[] doubles) {
+public record Xyz(double X, double Y, double Z) implements Vector3D {
+    public Xyz(double[] doubles) {
         this(doubles[0], doubles[1], doubles[2]);
     }
 

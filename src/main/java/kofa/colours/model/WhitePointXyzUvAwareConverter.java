@@ -1,17 +1,17 @@
 package kofa.colours.model;
 
+import static kofa.colours.model.ConversionHelper.D65_WHITE_UV;
 import static kofa.colours.model.ConversionHelper.D65_WHITE_XYZ;
-import static kofa.colours.model.ConversionHelper.D65_WHITE_uvPrime;
 
 interface WhitePointXyzUvAwareConverter<T> extends WhitePointXyzAwareConverter<T> {
     default T usingD65() {
-        return usingWhitePoint(D65_WHITE_XYZ, D65_WHITE_uvPrime);
+        return usingWhitePoint(D65_WHITE_XYZ, D65_WHITE_UV);
     }
 
     @Override
-    default T usingWhitePoint(XYZ referenceXYZ) {
-        return usingWhitePoint(referenceXYZ, UV.from(referenceXYZ));
+    default T usingWhitePoint(Xyz referenceXyz) {
+        return usingWhitePoint(referenceXyz, Uv.from(referenceXyz));
     }
 
-    T usingWhitePoint(XYZ referenceXYZ, UV referenceUV);
+    T usingWhitePoint(Xyz referenceXyz, Uv referenceUv);
 }

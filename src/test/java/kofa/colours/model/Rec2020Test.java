@@ -27,9 +27,9 @@ class Rec2020Test {
     }
 
     @Test
-    void toXYZ() {
+    void toXyz() {
         assertIsCloseTo(
-                REC2020_663399.toXYZ(),
+                REC2020_663399.toXyz(),
                 XYZ_663399,
                 PRECISE
         );

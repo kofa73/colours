@@ -3,19 +3,19 @@ package kofa.colours.model;
 import kofa.maths.Vector3D;
 
 import static kofa.colours.model.ConversionHelper.*;
-import static kofa.colours.model.LChable.toPolar;
+import static kofa.colours.model.ConvertibleToLch.toPolar;
 
-public record Lab(double L, double a, double b) implements Vector3D, LChable<Lab, LchAb> {
+public record Lab(double L, double a, double b) implements Vector3D, ConvertibleToLch<Lab, LchAb> {
     public Lab(double[] values) {
         this(values[0], values[1], values[2]);
     }
 
-    public static XYZLabConverter from(XYZ xyz) {
-        return new XYZLabConverter(xyz);
+    public static XyzLabConverter from(Xyz xyz) {
+        return new XyzLabConverter(xyz);
     }
 
     @Override
-    public LchAb toLCh() {
+    public LchAb toLch() {
         return new LchAb(toPolar(L, a, b));
     }
 
@@ -24,13 +24,13 @@ public record Lab(double L, double a, double b) implements Vector3D, LChable<Lab
         return new double[]{L, a, b};
     }
 
-    public LabXYZConverter toXYZ() {
-        return new LabXYZConverter();
+    public LabXyzConverter toXyz() {
+        return new LabXyzConverter();
     }
 
-    public class LabXYZConverter implements WhitePointXyzAwareConverter<XYZ> {
+    public class LabXyzConverter implements WhitePointXyzAwareConverter<Xyz> {
         @Override
-        public XYZ usingWhitePoint(XYZ reference) {
+        public Xyz usingWhitePoint(Xyz reference) {
             var fy = fy();
             var fx = a / 500 + fy;
             var fz = fy - b / 200;
@@ -39,7 +39,7 @@ public record Lab(double L, double a, double b) implements Vector3D, LChable<Lab
                     cubeOf(fy) :
                     L / KAPPA;
             var zr = fxz(fz);
-            return new XYZ(xr * reference.X(), yr * reference.Y(), zr * reference.Z());
+            return new Xyz(xr * reference.X(), yr * reference.Y(), zr * reference.Z());
         }
 
         private double fxz(double value) {
@@ -53,18 +53,18 @@ public record Lab(double L, double a, double b) implements Vector3D, LChable<Lab
         }
     }
 
-    public static class XYZLabConverter implements WhitePointXyzAwareConverter<Lab> {
-        private final XYZ xyz;
+    public static class XyzLabConverter implements WhitePointXyzAwareConverter<Lab> {
+        private final Xyz xyz;
 
-        public XYZLabConverter(XYZ xyz) {
+        public XyzLabConverter(Xyz xyz) {
             this.xyz = xyz;
         }
 
         @Override
-        public Lab usingWhitePoint(XYZ referenceXYZ) {
-            double fx = f(xyz.X() / referenceXYZ.X());
-            double fy = f(xyz.Y() / referenceXYZ.Y());
-            double fz = f(xyz.Z() / referenceXYZ.Z());
+        public Lab usingWhitePoint(Xyz referenceXyz) {
+            double fx = f(xyz.X() / referenceXyz.X());
+            double fy = f(xyz.Y() / referenceXyz.Y());
+            double fz = f(xyz.Z() / referenceXyz.Z());
             double L = 116 * fy - 16;
             double a = 500 * (fx - fy);
             double b = 200 * (fy - fz);

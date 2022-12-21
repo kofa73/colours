@@ -7,5 +7,5 @@ interface WhitePointXyzAwareConverter<T> {
         return usingWhitePoint(D65_WHITE_XYZ);
     }
 
-    T usingWhitePoint(XYZ referenceXYZ);
+    T usingWhitePoint(Xyz referenceXyz);
 }

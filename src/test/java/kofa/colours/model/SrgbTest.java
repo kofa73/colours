@@ -23,9 +23,9 @@ class SrgbTest {
     }
 
     @Test
-    void toXYZ() {
+    void toXyz() {
         assertIsCloseTo(
-                LINEAR_SRGB_663399.toXYZ(),
+                LINEAR_SRGB_663399.toXyz(),
                 XYZ_663399,
                 PRECISE
         );
