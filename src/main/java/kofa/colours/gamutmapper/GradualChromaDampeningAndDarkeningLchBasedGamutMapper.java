@@ -6,6 +6,8 @@ import kofa.maths.Curve;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
+import static java.lang.Math.min;
+
 /**
  * A gamut mapper type that gradually dampens LCh chroma to the maximum value, independently for each pixel.
  * Additionally, it also darkens bright out-of-gamut pixels.
@@ -78,10 +80,24 @@ public class GradualChromaDampeningAndDarkeningLchBasedGamutMapper<L extends Lch
         var cAtGamutBoundary = maxCFinder.applyAsDouble(lch);
         double originalC = lch.C();
         double dampenedC;
+        if (cAtGamutBoundary == 0) {
+            cAtGamutBoundary = 1E-6;
+        }
         var ratioToMaxC = originalC / cAtGamutBoundary;
+
+        // FIXME: too much L dampening, see _DSC8850-GradualChromaDampeningAndDarkeningLchBasedGamutMapper-LchAb-shoulder-0-lShoulder-0.png
+        // TODO idea: only keep new L if it caused maxC increase -- may not be the case for dark pixels?
+
         double L = lch.L();
         if (L / 100 > lShoulder) {
-            L = lCurve.mappedValueOf(L / 100) * 100;
+            // FIXME: even if L is high, it won't be reduced if not saturated?
+            // TODO: move this logic to a separate method and write unit tests
+            double lMultiplier = min(1, lCurve.mappedValueOf(L / 100) / (L / 100));
+            var reducedL = L * lMultiplier;
+            L = Math.max(reducedL, ratioToMaxC * reducedL + (1 - ratioToMaxC) * L);
+            if (L > lch.L()) {
+                System.out.println("oops");
+            }
             lch = lchCoordinatesToLch.apply(
                     new double[]{L, 0, lch.h()}
             );

@@ -20,6 +20,7 @@ public abstract class GamutMapper {
     }
 
     public void transform(RgbImage image) {
+        image.init();
         var red = image.redChannel();
         var green = image.greenChannel();
         var blue = image.blueChannel();

@@ -43,14 +43,11 @@ public class LoadAndSaveSrgb {
         var image = new ImageLoader().loadImageFrom(args[0]);
 
         for (int paramIndex = 2; paramIndex < args.length; paramIndex++) {
-            image.init();
 
             var transformerId = Integer.parseInt(args[paramIndex]);
 
-            // FIXME: remove this, it's only for testing
-            // FIXME: t004100 orig hdr gets stuck for lShoulder = 0.5 and 0.9???
-            DoubleStream.of(0, 0.3, 0.5, 0.7, 0.9, 0.95).forEach(lShoulder -> {
-
+            // FIXME: this is only for testing
+            DoubleStream.of(0, 0.3, 0.5, 0.7, 0.8, 0.9, 0.95).forEach(lShoulder -> {
                 var transformer = switch (transformerId) {
                     case 0 -> new NullGamutMapper();
                     case 1 -> new RgbClippingGamutMapper();
@@ -83,10 +80,11 @@ public class LoadAndSaveSrgb {
                     default -> throw new IllegalArgumentException("Unsupported transformer: " + transformerId);
                 };
 
-                System.out.println("Using " + transformer.name());
-                transformer.transform(image);
-
-                new PngOutput().write(args[1] + "-" + transformer.name(), image);
+                if (lShoulder == 0 || transformer instanceof GradualChromaDampeningAndDarkeningLchBasedGamutMapper) {
+                    System.out.println("Using " + transformer.name());
+                    transformer.transform(image);
+                    new PngOutput().write(args[1] + "-" + transformer.name(), image);
+                }
             });
         }
     }
