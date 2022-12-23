@@ -4,6 +4,8 @@ import kofa.colours.gamutmapper.*;
 import kofa.io.ImageLoader;
 import kofa.io.PngOutput;
 
+import java.util.stream.DoubleStream;
+
 public class LoadAndSaveSrgb {
     public static void main(String[] args) {
         if (args.length < 3) {
@@ -45,42 +47,47 @@ public class LoadAndSaveSrgb {
 
             var transformerId = Integer.parseInt(args[paramIndex]);
 
-            var transformer = switch (transformerId) {
-                case 0 -> new NullGamutMapper();
-                case 1 -> new RgbClippingGamutMapper();
-                case 2 -> new BwFromLGamutMapper();
+            // FIXME: remove this, it's only for testing
+            // FIXME: t004100 orig hdr gets stuck for lShoulder = 0.5 and 0.9???
+            DoubleStream.of(0, 0.3, 0.5, 0.7, 0.9, 0.95).forEach(lShoulder -> {
 
-                case 3 -> DesaturatingLchBasedGamutMapper.forLchAb(image);
-                case 4 -> DesaturatingLchBasedGamutMapper.forLchUv(image);
+                var transformer = switch (transformerId) {
+                    case 0 -> new NullGamutMapper();
+                    case 1 -> new RgbClippingGamutMapper();
+                    case 2 -> new BwFromLGamutMapper();
 
-                case 5 -> ChromaClippingLchBasedGamutMapper.forLchAb();
-                case 6 -> ChromaClippingLchBasedGamutMapper.forLchUv();
+                    case 3 -> DesaturatingLchBasedGamutMapper.forLchAb(image);
+                    case 4 -> DesaturatingLchBasedGamutMapper.forLchUv(image);
 
-                case 7 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0);
-                case 8 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0);
-                case 9 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.5);
-                case 10 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.5);
-                case 11 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.7);
-                case 12 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.7);
-                case 13 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.9);
-                case 14 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.9);
+                    case 5 -> ChromaClippingLchBasedGamutMapper.forLchAb();
+                    case 6 -> ChromaClippingLchBasedGamutMapper.forLchUv();
 
-                case 15 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchAb(0);
-                case 16 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchUv(0);
-                case 17 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchAb(0.5);
-                case 18 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchUv(0.5);
-                case 19 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchAb(0.7);
-                case 20 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchUv(0.7);
-                case 21 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchAb(0.9);
-                case 22 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchUv(0.9);
+                    case 7 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0);
+                    case 8 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0);
+                    case 9 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.5);
+                    case 10 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.5);
+                    case 11 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.7);
+                    case 12 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.7);
+                    case 13 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.90);
+                    case 14 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.90);
 
-                default -> throw new IllegalArgumentException("Unsupported transformer: " + transformerId);
-            };
+                    case 15 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchAb(0, lShoulder);
+                    case 16 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchUv(0, lShoulder);
+                    case 17 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchAb(0.5, lShoulder);
+                    case 18 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchUv(0.5, lShoulder);
+                    case 19 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchAb(0.7, lShoulder);
+                    case 20 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchUv(0.7, lShoulder);
+                    case 21 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchAb(0.90, lShoulder);
+                    case 22 -> GradualChromaDampeningAndDarkeningLchBasedGamutMapper.forLchUv(0.90, lShoulder);
 
-            System.out.println("Using " + transformer.name());
-            transformer.transform(image);
+                    default -> throw new IllegalArgumentException("Unsupported transformer: " + transformerId);
+                };
 
-            new PngOutput().write(args[1] + "-" + transformer.name(), image);
+                System.out.println("Using " + transformer.name());
+                transformer.transform(image);
+
+                new PngOutput().write(args[1] + "-" + transformer.name(), image);
+            });
         }
     }
 }

@@ -74,22 +74,18 @@ public class MaxCLabLuvSolver {
         return solveMaxCForLch(lch, this::lchUvToXyz);
     }
 
-    private double solveMaxCForLch(Lch lch, Function<double[], Xyz> xyzMapper) {
+    private double solveMaxCForLch(Lch lch, Function<double[], Xyz> lchCoordinatesToXyz) {
         var L = lch.L();
         var h = lch.h();
         if (L >= 100 || L <= 0) {
             return 0;
         }
-        var solver = new Solver(clipDetectorForLch(L, h, xyzMapper));
-        double searchFrom = 0;
-        Optional<Double> solution;
-        // due to non-monotonicity of C to RGB being out of gamut, we search in small pieces
+        double cOutOfGamut = 0;
         do {
-            solution = solver.solve(searchFrom, searchFrom + 10, searchFrom + 5, 0);
-            if (solution.isEmpty()) {
-                searchFrom += 10;
-            }
-        } while (solution.isEmpty() && searchFrom < MAX_C);
+            cOutOfGamut++;
+        } while (!Srgb.from(lchCoordinatesToXyz.apply(new double[]{L, cOutOfGamut, h})).isOutOfGamut());
+        var solver = new Solver(clipDetectorForLch(L, h, lchCoordinatesToXyz));
+        Optional<Double> solution = solver.solve(cOutOfGamut - 1, cOutOfGamut, cOutOfGamut - 0.5, 0);
         if (solution.isEmpty()) {
             throw new IllegalArgumentException(
                     "Unable to solve C in %s for L=%f, h=%f. Best guess: C=%f".formatted(

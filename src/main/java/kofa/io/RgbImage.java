@@ -3,8 +3,7 @@ package kofa.io;
 import java.awt.image.Raster;
 import java.util.stream.IntStream;
 
-import static java.awt.image.DataBuffer.TYPE_BYTE;
-import static java.awt.image.DataBuffer.TYPE_USHORT;
+import static java.awt.image.DataBuffer.*;
 
 public class RgbImage {
     private final Raster raster;
@@ -29,13 +28,17 @@ public class RgbImage {
         double divisor = switch (dataType) {
             case TYPE_BYTE -> 255;
             case TYPE_USHORT -> 65536;
-            // case TYPE_FLOAT, TYPE_DOUBLE -> ???
+            case TYPE_FLOAT, TYPE_DOUBLE -> 1;
             default -> throw new IllegalArgumentException("Unsupported data type: " + dataType);
         };
         IntStream.range(0, height).parallel().forEach(row -> {
             double[] pixel = new double[3];
             for (int column = 0; column < raster.getWidth(); column++) {
                 raster.getPixel(column, row, pixel);
+//                if (pixel[0] > 1 || pixel[1] > 1 || pixel[2] > 1) {
+//                    System.out.println(Arrays.toString(pixel));
+//                    System.exit(1);
+//                }
                 redChannel[row][column] = pixel[0] / divisor;
                 greenChannel[row][column] = pixel[1] / divisor;
                 blueChannel[row][column] = pixel[2] / divisor;

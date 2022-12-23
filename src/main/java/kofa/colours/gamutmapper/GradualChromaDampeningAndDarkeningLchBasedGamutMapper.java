@@ -25,12 +25,12 @@ public class GradualChromaDampeningAndDarkeningLchBasedGamutMapper<L extends Lch
     // the shoulder of the curve; also, the ratio to maxC below which C is not modified
     private final double shoulder;
 
-    private static final double L_SHOULDER = 90;
-    private static final Curve L_CURVE = new Curve(1, L_SHOULDER / 100);
+    private final double lShoulder;
+    private final Curve lCurve;
 
-    public static GradualChromaDampeningAndDarkeningLchBasedGamutMapper<LchAb> forLchAb(double shoulder) {
+    public static GradualChromaDampeningAndDarkeningLchBasedGamutMapper<LchAb> forLchAb(double shoulder, double lShoulder) {
         return new GradualChromaDampeningAndDarkeningLchBasedGamutMapper<>(
-                shoulder,
+                shoulder, lShoulder,
                 LchAb.class,
                 lch -> new MaxCLabLuvSolver().solveMaxCForLchAb(lch), xyz -> Lab.from(xyz).usingD65().toLch(),
                 LchAb::new,
@@ -40,9 +40,9 @@ public class GradualChromaDampeningAndDarkeningLchBasedGamutMapper<L extends Lch
         );
     }
 
-    public static GradualChromaDampeningAndDarkeningLchBasedGamutMapper<LchUv> forLchUv(double shoulder) {
+    public static GradualChromaDampeningAndDarkeningLchBasedGamutMapper<LchUv> forLchUv(double shoulder, double lShoulder) {
         return new GradualChromaDampeningAndDarkeningLchBasedGamutMapper<>(
-                shoulder,
+                shoulder, lShoulder,
                 LchUv.class,
                 lch -> new MaxCLabLuvSolver().solveMaxCForLchUv(lch), xyz -> Luv.from(xyz).usingD65().toLch(),
                 LchUv::new,
@@ -53,7 +53,7 @@ public class GradualChromaDampeningAndDarkeningLchBasedGamutMapper<L extends Lch
     }
 
     private GradualChromaDampeningAndDarkeningLchBasedGamutMapper(
-            double shoulder,
+            double shoulder, double lShoulder,
             Class<L> type,
             ToDoubleFunction<L> maxCFinder,
             Function<Xyz, L> xyzToLch,
@@ -68,6 +68,8 @@ public class GradualChromaDampeningAndDarkeningLchBasedGamutMapper<L extends Lch
         this.lchToXyz = lchToXyz;
         this.dampeningCurve = new Curve(1, shoulder);
         this.shoulder = shoulder;
+        this.lCurve = new Curve(1, lShoulder);
+        this.lShoulder = lShoulder;
     }
 
     @Override
@@ -78,15 +80,15 @@ public class GradualChromaDampeningAndDarkeningLchBasedGamutMapper<L extends Lch
         double dampenedC;
         var ratioToMaxC = originalC / cAtGamutBoundary;
         double L = lch.L();
+        if (L / 100 > lShoulder) {
+            L = lCurve.mappedValueOf(L / 100) * 100;
+            lch = lchCoordinatesToLch.apply(
+                    new double[]{L, 0, lch.h()}
+            );
+            cAtGamutBoundary = maxCFinder.applyAsDouble(lch);
+            ratioToMaxC = originalC / cAtGamutBoundary;
+        }
         if (ratioToMaxC > shoulder) {
-            if (L > L_SHOULDER) {
-                L = L_CURVE.mappedValueOf(lch.L() / 100) * 100;
-                var darkened = lchCoordinatesToLch.apply(
-                        new double[]{L, 0, lch.h()}
-                );
-                cAtGamutBoundary = maxCFinder.applyAsDouble(darkened);
-                ratioToMaxC = originalC / cAtGamutBoundary;
-            }
             var curveValue = dampeningCurve.mappedValueOf(ratioToMaxC);
             dampenedC = curveValue * cAtGamutBoundary;
         } else {
@@ -103,7 +105,8 @@ public class GradualChromaDampeningAndDarkeningLchBasedGamutMapper<L extends Lch
 
     @Override
     public String name() {
-        return super.name() + name + "-shoulder-%d".formatted((int) (shoulder * 100));
+        return "%s-%s-shoulder-%d-lShoulder-%d".formatted(
+                super.name(), name, (int) (shoulder * 100), (int) (lShoulder * 100)
+        );
     }
 }
-
