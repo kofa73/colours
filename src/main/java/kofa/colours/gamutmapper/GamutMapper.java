@@ -23,15 +23,17 @@ public abstract class GamutMapper {
         var red = image.redChannel();
         var green = image.greenChannel();
         var blue = image.blueChannel();
-        IntStream.range(0, image.height()).parallel().forEach(row -> {
-            for (int column = 0; column < image.width(); column++) {
-                var transformed = transform(red, green, blue, row, column);
-                red[row][column] = applyGamma(transformed.r);
-                        green[row][column] = applyGamma(transformed.g);
-                        blue[row][column] = applyGamma(transformed.b);
-                    }
-                }
-        );
+        IntStream.range(0, image.height())
+                .parallel()
+                .forEach(row -> {
+                            for (int column = 0; column < image.width(); column++) {
+                                var transformed = transform(red, green, blue, row, column);
+                                red[row][column] = applyGamma(transformed.r);
+                                green[row][column] = applyGamma(transformed.g);
+                                blue[row][column] = applyGamma(transformed.b);
+                            }
+                        }
+                );
     }
 
     private static final double LINEAR_THRESHOLD = 0.0031308;

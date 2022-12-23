@@ -1,11 +1,9 @@
 package kofa.colours.gamutmapper;
 
-import kofa.colours.model.LchAb;
-import kofa.colours.model.LchUv;
-import kofa.colours.model.Srgb;
-import kofa.colours.model.Xyz;
+import kofa.colours.model.*;
 import kofa.maths.Solver;
 
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -19,6 +17,8 @@ public class MaxCLabLuvSolver {
 
     private static final int L_RESOLUTION = 10000;
     private static final int H_RESOLUTION = 3600;
+
+    private static final double MAX_C = 200;
 
     public static void main(String[] ignored) {
         var maxCfinder = new MaxCLabLuvSolver();
@@ -66,39 +66,38 @@ public class MaxCLabLuvSolver {
         return 100.0 * lIndex / L_RESOLUTION;
     }
 
-    private static final double MAX_C = 500;
-
     public double solveMaxCForLchAb(LchAb lch) {
-        var L = lch.L();
-        var h = lch.h();
-        if (L >= 100 || L <= 0) {
-            return 0;
-        }
-        var solver = new Solver(clipDetectorForLch(L, h, this::lchAbToXyz));
-        return solver.solve(0, MAX_C, 0, 0)
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "Unable to solve C LCH_ab for L=%f, h=%f. Best guess: C=%f".formatted(
-                                        L, h, solver.lastValue()
-                                )
-                        )
-                );
+        return solveMaxCForLch(lch, this::lchAbToXyz);
     }
 
     public double solveMaxCForLchUv(LchUv lch) {
+        return solveMaxCForLch(lch, this::lchUvToXyz);
+    }
+
+    private double solveMaxCForLch(Lch lch, Function<double[], Xyz> xyzMapper) {
         var L = lch.L();
         var h = lch.h();
         if (L >= 100 || L <= 0) {
             return 0;
         }
-        var solver = new Solver(clipDetectorForLch(L, h, this::lchUvToXyz));
-        return solver.solve(0, MAX_C, 0, 0).orElseThrow(() ->
-                new IllegalArgumentException(
-                        "Unable to solve C LCH_uv for L=%f, h=%f. Best guess: C=%f".formatted(
-                                L, h, solver.lastValue()
-                        )
-                )
-        );
+        var solver = new Solver(clipDetectorForLch(L, h, xyzMapper));
+        double searchFrom = 0;
+        Optional<Double> solution;
+        // due to non-monotonicity of C to RGB being out of gamut, we search in small pieces
+        do {
+            solution = solver.solve(searchFrom, searchFrom + 10, searchFrom + 5, 0);
+            if (solution.isEmpty()) {
+                searchFrom += 10;
+            }
+        } while (solution.isEmpty() && searchFrom < MAX_C);
+        if (solution.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Unable to solve C in %s for L=%f, h=%f. Best guess: C=%f".formatted(
+                            lch.getClass().getSimpleName(), L, h, solver.lastValue()
+                    )
+            );
+        }
+        return solution.get();
     }
 
     private Xyz lchAbToXyz(double[] lch) {
@@ -119,12 +118,10 @@ public class MaxCLabLuvSolver {
             if (sRgb.isOutOfGamut()) {
                 return 1.0;
             }
-            var onBoundary = false;
             for (var coordinate : sRgb.coordinates()) {
-                onBoundary = onBoundary || ((coordinate > COMPONENT_MAX) || (coordinate < COMPONENT_MIN));
-            }
-            if (onBoundary) {
-                return 0.0;
+                if ((coordinate > COMPONENT_MAX) || (coordinate < COMPONENT_MIN)) {
+                    return 0.0;
+                }
             }
             return -1.0;
         };

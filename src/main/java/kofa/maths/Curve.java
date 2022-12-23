@@ -29,6 +29,6 @@ public class Curve {
             return gradient * x;
         }
 
-        return (1 + mappedValueOfShoulderStartMinusOne * Math.exp((gradient * x - mappedValueOfShoulderStart) / mappedValueOfShoulderStartMinusOne));
+        return 1 + mappedValueOfShoulderStartMinusOne * Math.exp((gradient * x - mappedValueOfShoulderStart) / mappedValueOfShoulderStartMinusOne);
     }
 }
