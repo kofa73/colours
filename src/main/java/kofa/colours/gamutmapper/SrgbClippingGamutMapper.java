@@ -6,7 +6,7 @@ import kofa.colours.model.Xyz;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public class RgbClippingGamutMapper extends GamutMapper {
+public class SrgbClippingGamutMapper extends GamutMapper {
 
     @Override
     public Srgb getInsideGamut(Xyz xyz) {

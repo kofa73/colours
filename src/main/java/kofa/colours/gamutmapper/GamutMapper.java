@@ -20,7 +20,6 @@ public abstract class GamutMapper {
     }
 
     public void transform(RgbImage image) {
-        image.init();
         var red = image.redChannel();
         var green = image.greenChannel();
         var blue = image.blueChannel();
@@ -29,9 +28,9 @@ public abstract class GamutMapper {
                 .forEach(row -> {
                             for (int column = 0; column < image.width(); column++) {
                                 var transformed = transform(red, green, blue, row, column);
-                                red[row][column] = applyGamma(transformed.r);
-                                green[row][column] = applyGamma(transformed.g);
-                                blue[row][column] = applyGamma(transformed.b);
+                                red[row][column] = applyGamma(transformed.r());
+                                green[row][column] = applyGamma(transformed.g());
+                                blue[row][column] = applyGamma(transformed.b());
                             }
                         }
                 );
@@ -107,9 +106,9 @@ public abstract class GamutMapper {
         // clip away any remaining tiny error
         return transformedPixel.isOutOfGamut() ?
                 new Srgb(
-                        min(1, max(0, transformedPixel.r)),
-                        min(1, max(0, transformedPixel.g)),
-                        min(1, max(0, transformedPixel.b))
+                        min(1, max(0, transformedPixel.r())),
+                        min(1, max(0, transformedPixel.g())),
+                        min(1, max(0, transformedPixel.b()))
                 )
                 : transformedPixel;
     }

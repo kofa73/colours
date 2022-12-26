@@ -7,9 +7,9 @@ import static org.apache.commons.math3.linear.MatrixUtils.createRealMatrix;
 import static org.apache.commons.math3.linear.MatrixUtils.inverse;
 
 public abstract class Rgb<S extends Rgb<S>> implements Vector3D {
-    public final double r;
-    public final double g;
-    public final double b;
+    private final double r;
+    private final double g;
+    private final double b;
 
     Rgb(double[] doubles) {
         this(doubles[0], doubles[1], doubles[2]);
@@ -74,5 +74,17 @@ public abstract class Rgb<S extends Rgb<S>> implements Vector3D {
                 {Sr * Yr, Sg * Yg, Sb * Yb},
                 {Sr * Zr, Sg * Zg, Sb * Zb}
         };
+    }
+
+    public double r() {
+        return r;
+    }
+
+    public double g() {
+        return g;
+    }
+
+    public double b() {
+        return b;
     }
 }

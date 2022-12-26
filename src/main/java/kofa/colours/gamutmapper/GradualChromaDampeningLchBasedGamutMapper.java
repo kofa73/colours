@@ -1,7 +1,7 @@
 package kofa.colours.gamutmapper;
 
 import kofa.colours.model.*;
-import kofa.maths.Curve;
+import kofa.maths.ThanatomanicCurve6;
 
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
@@ -20,7 +20,7 @@ public class GradualChromaDampeningLchBasedGamutMapper<L extends Lch> extends Ga
     private final Function<L, Xyz> lchToXyz;
     private final ToDoubleFunction<L> maxCFinder;
     private final String name;
-    private final Curve dampeningCurve;
+    private final ThanatomanicCurve6 dampeningCurve;
     // the shoulder of the curve; also, the ratio to maxC below which C is not modified
     private final double shoulder;
 
@@ -62,7 +62,7 @@ public class GradualChromaDampeningLchBasedGamutMapper<L extends Lch> extends Ga
         this.xyzToLch = xyzToLch;
         this.lchCoordinatesToLch = lchCoordinatesToLch;
         this.lchToXyz = lchToXyz;
-        this.dampeningCurve = new Curve(1, shoulder);
+        this.dampeningCurve = new ThanatomanicCurve6(1, shoulder);
         this.shoulder = shoulder;
     }
 

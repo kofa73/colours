@@ -35,10 +35,6 @@ public class RgbImage {
             double[] pixel = new double[3];
             for (int column = 0; column < raster.getWidth(); column++) {
                 raster.getPixel(column, row, pixel);
-//                if (pixel[0] > 1 || pixel[1] > 1 || pixel[2] > 1) {
-//                    System.out.println(Arrays.toString(pixel));
-//                    System.exit(1);
-//                }
                 redChannel[row][column] = pixel[0] / divisor;
                 greenChannel[row][column] = pixel[1] / divisor;
                 blueChannel[row][column] = pixel[2] / divisor;
