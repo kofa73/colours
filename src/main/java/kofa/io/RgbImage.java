@@ -1,7 +1,9 @@
 package kofa.io;
 
 import java.awt.image.Raster;
+import java.util.function.Function;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static java.awt.image.DataBuffer.*;
 
@@ -31,15 +33,14 @@ public class RgbImage {
             case TYPE_FLOAT, TYPE_DOUBLE -> 1;
             default -> throw new IllegalArgumentException("Unsupported data type: " + dataType);
         };
-        IntStream.range(0, height).parallel().forEach(row -> {
-            double[] pixel = new double[3];
-            for (int column = 0; column < raster.getWidth(); column++) {
-                raster.getPixel(column, row, pixel);
-                redChannel[row][column] = pixel[0] / divisor;
-                greenChannel[row][column] = pixel[1] / divisor;
-                blueChannel[row][column] = pixel[2] / divisor;
-            }
-        });
+        forEachPixel((row, column, ignoredRed, ignoredGreen, ignoredBlue) -> {
+                    double[] components = new double[3];
+                    raster.getPixel(column, row, components);
+                    redChannel[row][column] = components[0] / divisor;
+                    greenChannel[row][column] = components[1] / divisor;
+                    blueChannel[row][column] = components[2] / divisor;
+                }
+        );
     }
 
     public double[][] redChannel() {
@@ -57,8 +58,70 @@ public class RgbImage {
     public int width() {
         return width;
     }
-    
+
     public int height() {
         return height;
+    }
+
+    public interface PixelConsumer {
+        void consume(int row, int column, double red, double green, double blue);
+    }
+
+    public interface PixelTransformer {
+        double[] transform(int row, int column, double red, double green, double blue);
+    }
+
+    public void forEachPixel(PixelConsumer consumer) {
+        forEachPixel(consumer, true);
+    }
+
+    public void forEachPixelSequentially(PixelConsumer consumer) {
+        forEachPixel(consumer, false);
+    }
+
+    private void forEachPixel(PixelConsumer consumer, boolean parallel) {
+        IntStream range = IntStream.range(0, height);
+        if (parallel) {
+            range = range.parallel();
+        }
+        range.forEach(row -> {
+            for (int column = 0; column < raster.getWidth(); column++) {
+                consumer.consume(
+                        row, column,
+                        redChannel[row][column],
+                        greenChannel[row][column],
+                        blueChannel[row][column]
+                );
+            }
+        });
+    }
+
+    public void transformAllPixels(PixelTransformer transformer) {
+        IntStream.range(0, height)
+                .parallel()
+                .forEach(row -> {
+                    for (int column = 0; column < raster.getWidth(); column++) {
+                        double[] transformed = transformer.transform(
+                                row, column,
+                                redChannel[row][column],
+                                greenChannel[row][column],
+                                blueChannel[row][column]
+                        );
+                        redChannel[row][column] = transformed[0];
+                        greenChannel[row][column] = transformed[1];
+                        blueChannel[row][column] = transformed[2];
+                    }
+                });
+    }
+
+    public Stream<double[]> pixelStream() {
+        return IntStream.range(0, height).mapToObj(row ->
+                IntStream.range(0, width).mapToObj(column ->
+                        new double[]{
+                                redChannel[row][column],
+                                greenChannel[row][column],
+                                blueChannel[row][column]
+                        })
+        ).flatMap(Function.identity());
     }
 }

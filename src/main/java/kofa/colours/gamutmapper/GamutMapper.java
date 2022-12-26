@@ -3,8 +3,6 @@ package kofa.colours.gamutmapper;
 import kofa.colours.model.*;
 import kofa.io.RgbImage;
 
-import java.util.stream.IntStream;
-
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -19,21 +17,15 @@ public abstract class GamutMapper {
         this.processInGamutPixels = processInGamutPixels;
     }
 
-    public void transform(RgbImage image) {
-        var red = image.redChannel();
-        var green = image.greenChannel();
-        var blue = image.blueChannel();
-        IntStream.range(0, image.height())
-                .parallel()
-                .forEach(row -> {
-                            for (int column = 0; column < image.width(); column++) {
-                                var transformed = transform(red, green, blue, row, column);
-                                red[row][column] = applyGamma(transformed.r());
-                                green[row][column] = applyGamma(transformed.g());
-                                blue[row][column] = applyGamma(transformed.b());
-                            }
-                        }
-                );
+    public void mapToSrgb(RgbImage image) {
+        image.transformAllPixels((row, column, red, green, blue) -> {
+            Srgb transformed = mapToSrgb(red, green, blue, row, column);
+            return new double[]{
+                    applyGamma(transformed.r()),
+                    applyGamma(transformed.g()),
+                    applyGamma(transformed.b())
+            };
+        });
     }
 
     private static final double LINEAR_THRESHOLD = 0.0031308;
@@ -44,35 +36,32 @@ public abstract class GamutMapper {
                 1.055 * Math.pow(linear, 1 / 2.4) - 0.055;
     }
 
-    private Srgb transform(
-            double[][] red,
-            double[][] green,
-            double[][] blue,
+    private Srgb mapToSrgb(
+            double rec2020Red,
+            double rec2020Green,
+            double rec2020Blue,
             int row, int column
     ) {
-        var xyz = new Rec2020(red[row][column], green[row][column], blue[row][column]).toXyz();
+        var xyz = new Rec2020(rec2020Red, rec2020Green, rec2020Blue).toXyz();
         var sRgb = Srgb.from(xyz);
         if (processInGamutPixels || sRgb.isOutOfGamut()) {
             sRgb = getInsideGamut(xyz);
         }
-        return ensurePixelIsWithinGamut(sRgb, red, green, blue, row, column);
+        return ensurePixelIsWithinGamut(sRgb, row, column, rec2020Red, rec2020Green, rec2020Blue);
     }
 
     private Srgb ensurePixelIsWithinGamut(
-            Srgb transformedPixel,
-            double[][] red,
-            double[][] green,
-            double[][] blue,
-            int row, int column
-    ) {
-        for (double value : transformedPixel.coordinates()) {
+            Srgb mappedPixel,
+            int row, int column,
+            double rec2020Red, double rec2020Green, double rec2020Blue) {
+        for (double value : mappedPixel.coordinates()) {
             // if error is greater than what 16-bit integer rounding would mask, die
             if (value < -1.0 / 65535 / 2 || value > 1 + 1.0 / 65535 / 2) {
-                var rec2020 = new Rec2020(red[row][column], green[row][column], blue[row][column]);
+                var rec2020 = new Rec2020(rec2020Red, rec2020Green, rec2020Blue);
                 var xyzIn = rec2020.toXyz();
                 var labIn = Lab.from(xyzIn).usingD65();
                 var luvIn = Luv.from(xyzIn).usingD65();
-                var xyzOut = transformedPixel.toXyz();
+                var xyzOut = mappedPixel.toXyz();
                 var labOut = Lab.from(xyzOut).usingD65();
                 var luvOut = Luv.from(xyzOut).usingD65();
                 throw new RuntimeException(
@@ -95,7 +84,7 @@ public abstract class GamutMapper {
                                 labIn, labIn.toLch(),
                                 luvIn, luvIn.toLch(),
 
-                                transformedPixel,
+                                mappedPixel,
                                 xyzOut,
                                 labOut, labOut.toLch(),
                                 luvOut, luvOut.toLch()
@@ -104,13 +93,13 @@ public abstract class GamutMapper {
             }
         }
         // clip away any remaining tiny error
-        return transformedPixel.isOutOfGamut() ?
+        return mappedPixel.isOutOfGamut() ?
                 new Srgb(
-                        min(1, max(0, transformedPixel.r())),
-                        min(1, max(0, transformedPixel.g())),
-                        min(1, max(0, transformedPixel.b()))
+                        min(1, max(0, mappedPixel.r())),
+                        min(1, max(0, mappedPixel.g())),
+                        min(1, max(0, mappedPixel.b()))
                 )
-                : transformedPixel;
+                : mappedPixel;
     }
 
     protected abstract Srgb getInsideGamut(Xyz xyz);

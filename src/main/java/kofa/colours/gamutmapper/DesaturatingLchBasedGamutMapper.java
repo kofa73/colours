@@ -5,7 +5,6 @@ import kofa.io.RgbImage;
 
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.IntStream;
 
 import static java.lang.Math.max;
 
@@ -62,24 +61,20 @@ public class DesaturatingLchBasedGamutMapper<L extends Lch> extends GamutMapper 
         this.xyzToLchConverter = xyzToLchConverter;
         this.polarCoordinatesToLchConverter = polarCoordinatesToLchConverter;
         this.lchToXyzConverter = polarCoordinatesToXyzConverter;
-        var red = image.redChannel();
-        var green = image.greenChannel();
-        var blue = image.blueChannel();
 
-        IntStream.range(0, image.height()).forEach(row ->
-                IntStream.range(0, image.width()).forEach(column -> {
-                    var rec2020 = new Rec2020(red[row][column], green[row][column], blue[row][column]);
-                    if (rec2020.toSRGB().isOutOfGamut()) {
-                        var lch = xyzToLchConverter.apply(rec2020.toXyz());
-                        if (lch.C() != 0) {
-                            var maxC = maxCFinder.applyAsDouble(lch);
-                            if (maxC != 0) {
-                                cDivisor = max(cDivisor, lch.C() / maxC);
-                            }
-                        }
+        image.forEachPixelSequentially((row, column, red, green, blue) -> {
+            var rec2020 = new Rec2020(red, green, blue);
+            if (rec2020.toSRGB().isOutOfGamut()) {
+                var lch = xyzToLchConverter.apply(rec2020.toXyz());
+                if (lch.C() != 0) {
+                    var maxC = maxCFinder.applyAsDouble(lch);
+                    if (maxC != 0) {
+                        cDivisor = max(cDivisor, lch.C() / maxC);
                     }
-                })
-        );
+                }
+            }
+        });
+
         cDivisor = max(cDivisor, 1);
     }
 

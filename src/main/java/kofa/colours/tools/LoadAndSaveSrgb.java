@@ -6,6 +6,7 @@ import kofa.io.ImageLoader;
 import kofa.io.PngOutput;
 import kofa.io.RgbImage;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 public class LoadAndSaveSrgb {
@@ -21,6 +22,7 @@ public class LoadAndSaveSrgb {
 
         var image = new ImageLoader().loadImageFrom(inputFile);
 
+//        var toneMapper = new XyzToneMapper(image);
         var toneMapper = new LabToneMapper(image);
 
         for (int mapperId : mapperIds) {
@@ -32,8 +34,8 @@ public class LoadAndSaveSrgb {
 
             if (gamutMapper != null) {
                 System.out.println("Using " + gamutMapper.name());
-                gamutMapper.transform(image);
-                new PngOutput().write(baseName + "-" + gamutMapper.name(), image);
+                gamutMapper.mapToSrgb(image);
+                new PngOutput().write(baseName + "-" + toneMapper.getClass().getSimpleName() + "-" + gamutMapper.name(), image);
             } else {
                 printHelpAndExit();
             }
@@ -49,6 +51,11 @@ public class LoadAndSaveSrgb {
                     .toArray();
         } catch (NumberFormatException nfe) {
             System.out.printf("%s %s%n%n", nfe.getClass().getSimpleName(), nfe.getMessage());
+            printHelpAndExit();
+        }
+        int[] invalidIds = Arrays.stream(ids).filter(i -> i < 1 || i > 14).toArray();
+        if (invalidIds.length > 0) {
+            System.out.printf("Found invalid ids: %s%n%n", Arrays.toString(invalidIds));
             printHelpAndExit();
         }
         return ids;
