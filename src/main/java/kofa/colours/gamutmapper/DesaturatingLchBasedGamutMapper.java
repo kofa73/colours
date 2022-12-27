@@ -22,26 +22,26 @@ public class DesaturatingLchBasedGamutMapper<L extends Lch> extends GamutMapper 
     private final Function<L, Xyz> lchToXyzConverter;
     private double cDivisor = 0;
 
-    public static DesaturatingLchBasedGamutMapper<LchAb> forLchAb(RgbImage image) {
+    public static DesaturatingLchBasedGamutMapper<CieLchAb> forLchAb(RgbImage image) {
         return new DesaturatingLchBasedGamutMapper<>(
                 image,
-                LchAb.class,
+                CieLchAb.class,
                 lch -> new MaxCLabLuvSolver().solveMaxCForLchAb(lch),
-                xyz -> Lab.from(xyz).usingD65().toLch(),
-                LchAb::new,
+                xyz -> CieLab.from(xyz).usingD65().toLch(),
+                CieLchAb::new,
                 lch -> lch
                         .toLab()
                         .toXyz().usingD65()
         );
     }
 
-    public static DesaturatingLchBasedGamutMapper<LchUv> forLchUv(RgbImage image) {
+    public static DesaturatingLchBasedGamutMapper<CieLchUv> forLchUv(RgbImage image) {
         return new DesaturatingLchBasedGamutMapper<>(
                 image,
-                LchUv.class,
+                CieLchUv.class,
                 lch -> new MaxCLabLuvSolver().solveMaxCForLchUv(lch),
-                xyz -> Luv.from(xyz).usingD65().toLch(),
-                LchUv::new,
+                xyz -> CieLuv.from(xyz).usingD65().toLch(),
+                CieLchUv::new,
                 lch -> lch
                         .toLuv()
                         .toXyz().usingD65()

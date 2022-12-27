@@ -2,8 +2,8 @@ package kofa.colours.model;
 
 import static kofa.colours.model.Lch.fromPolar;
 
-public record LchUv(double L, double C, double h) implements Lch {
-    public LchUv(double[] doubles) {
+public record CieLchUv(double L, double C, double h) implements Lch {
+    public CieLchUv(double[] doubles) {
         this(doubles[0], doubles[1], doubles[2]);
     }
 
@@ -12,8 +12,8 @@ public record LchUv(double L, double C, double h) implements Lch {
         return new double[]{L, C, h};
     }
 
-    public Luv toLuv() {
-        return new Luv(fromPolar(L, C, h));
+    public CieLuv toLuv() {
+        return new CieLuv(fromPolar(L, C, h));
     }
 
     @Override

@@ -1,6 +1,6 @@
 package kofa.colours.model;
 
-import static java.lang.Math.pow;
+import static java.lang.Math.cbrt;
 
 public class ConversionHelper {
     private ConversionHelper() {
@@ -12,7 +12,7 @@ public class ConversionHelper {
     }
 
     public static double cubeRootOf(double number) {
-        return pow(number, 1.0 / 3.0);
+        return cbrt(number);
     }
 
     // http://www.brucelindbloom.com/LContinuity.html

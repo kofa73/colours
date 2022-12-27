@@ -37,7 +37,7 @@ public class MaxCLabLuvSolver {
             for (int hIndex = 0; hIndex <= H_RESOLUTION; hIndex++) {
                 double L = lOrdinalToL(lIndex);
                 double h = hOrdinalToH(hIndex);
-                maxC_forLh_ab_byLByH[lIndex][hIndex] = solveMaxCForLchAb(new LchAb(L, 0, h));
+                maxC_forLh_ab_byLByH[lIndex][hIndex] = solveMaxCForLchAb(new CieLchAb(L, 0, h));
             }
         });
         return maxC_forLh_ab_byLByH;
@@ -52,7 +52,7 @@ public class MaxCLabLuvSolver {
             for (int hIndex = 0; hIndex <= H_RESOLUTION; hIndex++) {
                 double L = lOrdinalToL(lIndex);
                 double h = hOrdinalToH(hIndex);
-                maxC_forLh_uv_byLByH[lIndex][hIndex] = solveMaxCForLchUv(new LchUv(L, 0, h));
+                maxC_forLh_uv_byLByH[lIndex][hIndex] = solveMaxCForLchUv(new CieLchUv(L, 0, h));
             }
         });
         return maxC_forLh_uv_byLByH;
@@ -66,11 +66,11 @@ public class MaxCLabLuvSolver {
         return 100.0 * lIndex / L_RESOLUTION;
     }
 
-    public double solveMaxCForLchAb(LchAb lch) {
+    public double solveMaxCForLchAb(CieLchAb lch) {
         return solveMaxCForLch(lch, this::lchAbToXyz);
     }
 
-    public double solveMaxCForLchUv(LchUv lch) {
+    public double solveMaxCForLchUv(CieLchUv lch) {
         return solveMaxCForLch(lch, this::lchUvToXyz);
     }
 
@@ -97,11 +97,11 @@ public class MaxCLabLuvSolver {
     }
 
     private Xyz lchAbToXyz(double[] lch) {
-        return new LchAb(lch).toLab().toXyz().usingD65();
+        return new CieLchAb(lch).toLab().toXyz().usingD65();
     }
 
     private Xyz lchUvToXyz(double[] lch) {
-        return new LchUv(lch).toLuv().toXyz().usingD65();
+        return new CieLchUv(lch).toLuv().toXyz().usingD65();
     }
 
     private static final double COMPONENT_MIN = 1E-12;

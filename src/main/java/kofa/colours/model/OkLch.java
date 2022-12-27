@@ -2,8 +2,8 @@ package kofa.colours.model;
 
 import static kofa.colours.model.Lch.fromPolar;
 
-public record LchAb(double L, double C, double h) implements Lch {
-    public LchAb(double[] doubles) {
+public record OkLch(double L, double C, double h) implements Lch {
+    public OkLch(double[] doubles) {
         this(doubles[0], doubles[1], doubles[2]);
     }
 
@@ -12,8 +12,8 @@ public record LchAb(double L, double C, double h) implements Lch {
         return new double[]{L, C, h};
     }
 
-    public Lab toLab() {
-        return new Lab(fromPolar(L, C, h));
+    public OkLab toLab() {
+        return new OkLab(fromPolar(L, C, h));
     }
 
     @Override

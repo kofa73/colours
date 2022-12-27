@@ -18,9 +18,13 @@ public class NumericAssertions {
     private static final double COMPARISON_THRESHOLD = 1E-15;
 
     public static <V extends DoubleVector> void assertIsCloseTo(V actualVector, V expectedVector, Percentage percentage) {
+        assertIsCloseTo(actualVector, expectedVector, percentage, COMPARISON_THRESHOLD);
+    }
+
+    public static <V extends DoubleVector> void assertIsCloseTo(V actualVector, V expectedVector, Percentage percentage, double comparisonThreshold) {
         assertThat(actualVector).hasSameClassAs(expectedVector);
         try {
-            assertIsCloseTo(actualVector.coordinates(), expectedVector.coordinates(), percentage);
+            assertIsCloseTo(actualVector.coordinates(), expectedVector.coordinates(), percentage, comparisonThreshold);
         } catch (AssertionError ae) {
             throw new AssertionError(
                     "Comparison failed for actual = %s and expected = %s".formatted(
@@ -31,11 +35,15 @@ public class NumericAssertions {
     }
 
     public static void assertIsCloseTo(double[] actualVector, double[] expectedVector, Percentage percentage) {
+        assertIsCloseTo(actualVector, expectedVector, percentage, COMPARISON_THRESHOLD);
+    }
+
+    public static void assertIsCloseTo(double[] actualVector, double[] expectedVector, Percentage percentage, double comparisonThreshold) {
         assertThat(actualVector).hasSameSizeAs(expectedVector);
         try {
             assertSoftly(softly -> {
                         for (int row = 0; row < actualVector.length; row++) {
-                            assertIsCloseTo(softly, actualVector[row], expectedVector[row], percentage);
+                            assertIsCloseTo(softly, actualVector[row], expectedVector[row], percentage, comparisonThreshold);
                         }
                     }
             );
@@ -55,9 +63,9 @@ public class NumericAssertions {
         double[] actualDoubles = actualVector.coordinates();
         double[] expectedDoubles = expectedVector.coordinates();
         assertSoftly(softly -> {
-            assertIsCloseTo(softly, actualDoubles[0], expectedDoubles[0], percentage0);
-            assertIsCloseTo(softly, actualDoubles[1], expectedDoubles[1], percentage1);
-            assertIsCloseTo(softly, actualDoubles[2], expectedDoubles[2], percentage2);
+            assertIsCloseTo(softly, actualDoubles[0], expectedDoubles[0], percentage0, COMPARISON_THRESHOLD);
+            assertIsCloseTo(softly, actualDoubles[1], expectedDoubles[1], percentage1, COMPARISON_THRESHOLD);
+            assertIsCloseTo(softly, actualDoubles[2], expectedDoubles[2], percentage2, COMPARISON_THRESHOLD);
         });
     }
 
@@ -71,22 +79,22 @@ public class NumericAssertions {
 
     public static void assertRadiansAreClose(double actualRadians, double expectedRadians) {
         try {
-            assertIsCloseTo(sin(actualRadians), sin(expectedRadians), PRECISE);
-            assertIsCloseTo(cos(actualRadians), cos(expectedRadians), PRECISE);
+            assertIsCloseTo(sin(actualRadians), sin(expectedRadians), PRECISE, COMPARISON_THRESHOLD);
+            assertIsCloseTo(cos(actualRadians), cos(expectedRadians), PRECISE, COMPARISON_THRESHOLD);
         } catch (AssertionError ae) {
             throw new AssertionError("Expecting actual: " + actualRadians + " to be close to " + expectedRadians, ae);
         }
     }
 
     // don't compare tiny numbers, numerical imprecision could cause test failures
-    private static void assertIsCloseTo(double actualValue, double expectedValue, Percentage percentage) {
-        if (Math.abs(actualValue) > COMPARISON_THRESHOLD || Math.abs(expectedValue) > COMPARISON_THRESHOLD) {
+    private static void assertIsCloseTo(double actualValue, double expectedValue, Percentage percentage, double comparisonThreshold) {
+        if (Math.abs(actualValue) > comparisonThreshold || Math.abs(expectedValue) > comparisonThreshold) {
             assertThat(actualValue).isCloseTo(expectedValue, percentage);
         }
     }
 
-    private static void assertIsCloseTo(SoftAssertions softly, double actualValue, double expectedValue, Percentage percentage) {
-        if (Math.abs(actualValue) > COMPARISON_THRESHOLD || Math.abs(expectedValue) > COMPARISON_THRESHOLD) {
+    private static void assertIsCloseTo(SoftAssertions softly, double actualValue, double expectedValue, Percentage percentage, double comparisonThreshold) {
+        if (Math.abs(actualValue) > comparisonThreshold || Math.abs(expectedValue) > comparisonThreshold) {
             softly.assertThat(actualValue).isCloseTo(expectedValue, percentage);
         }
     }

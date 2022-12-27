@@ -15,8 +15,8 @@ class ConverterTest {
     public static final Rec2020 REC2020_663399 = new Rec2020(
             applyInverseOetf(0.30459), applyInverseOetf(0.16817), applyInverseOetf(0.53086)
     );
-    public static final Lab LAB_663399 = new Lab(32.90281, 42.88651, -47.14914);
-    public static final Luv LUV_663399 = new Luv(32.90281, 12.9804, -67.75974);
+    public static final CieLab LAB_663399 = new CieLab(32.90281, 42.88651, -47.14914);
+    public static final CieLuv CIE_LUV_663399 = new CieLuv(32.90281, 12.9804, -67.75974);
 
     public static final Xyz TINY_XYZ = new Xyz(0.5, 1E-4, 1E-5);
 
@@ -71,14 +71,14 @@ class ConverterTest {
 
         // given
         // RGB #663399 -> Luv(32.90281, 12.9804, -67.75974)
-        var luv = new Luv(32.90281, 12.9804, -67.75974);
+        var luv = new CieLuv(32.90281, 12.9804, -67.75974);
 
         // when
         var lchUv = luv.toLch();
 
         // then
         // 280.84448 degrees -> 4.90166086204 radians + wrap-around
-        var expectedLchUv = new LchUv(32.90281, 68.99183, toRadians(280.84448));
+        var expectedLchUv = new CieLchUv(32.90281, 68.99183, toRadians(280.84448));
 
         assertIsCloseTo(lchUv, expectedLchUv, PRECISE);
     }
@@ -87,13 +87,13 @@ class ConverterTest {
     void convert_LCH_uv_to_Luv() {
         // given
         // RGB #663399 -> LCh_uv(32.90281, 68.99183, -280.84448 degrees -> 4.90166086204 radians)
-        var lchUv = new LchUv(32.90281, 68.99183, 4.90166086204);
+        var lchUv = new CieLchUv(32.90281, 68.99183, 4.90166086204);
 
         // when
         var luv = lchUv.toLuv();
 
         // then
-        var expectedLuv = new Luv(32.90281, 12.9804, -67.75974);
+        var expectedLuv = new CieLuv(32.90281, 12.9804, -67.75974);
 
         assertIsCloseTo(luv, expectedLuv, PRECISE);
     }
@@ -103,11 +103,11 @@ class ConverterTest {
         var original_sRGB = new Srgb(1, 1, 1);
         var XYZ_from_RGB = original_sRGB.toXyz();
 
-        Luv luvFromXyz = Luv.from(XYZ_from_RGB).usingWhitePoint(D65_WHITE_XYZ);
+        CieLuv luvFromXyz = CieLuv.from(XYZ_from_RGB).usingWhitePoint(D65_WHITE_XYZ);
 
-        LchUv LCH_from_Luv = luvFromXyz.toLch();
+        CieLchUv LCH_from_Luv = luvFromXyz.toLch();
 
-        Luv Luv_from_LCH = LCH_from_Luv.toLuv();
+        CieLuv Luv_from_LCH = LCH_from_Luv.toLuv();
         assertIsCloseTo(Luv_from_LCH, luvFromXyz, PRECISE);
 
         Xyz Xyz_from_Luv = Luv_from_LCH.toXyz().usingD65();
@@ -122,8 +122,8 @@ class ConverterTest {
         var originalSrgb = new Srgb(1, 1, 1);
         var xyzFromSrgb = originalSrgb.toXyz();
 
-        var luvFromXyzD65 = Luv.from(xyzFromSrgb).usingD65();
-        Luv luvFromXyz = Luv.from(xyzFromSrgb).usingWhitePoint(D65_WHITE_XYZ);
+        var luvFromXyzD65 = CieLuv.from(xyzFromSrgb).usingD65();
+        CieLuv luvFromXyz = CieLuv.from(xyzFromSrgb).usingWhitePoint(D65_WHITE_XYZ);
         assertIsCloseTo(luvFromXyzD65, luvFromXyz, PRECISE);
 
         var lchFromLuv = luvFromXyzD65.toLch();

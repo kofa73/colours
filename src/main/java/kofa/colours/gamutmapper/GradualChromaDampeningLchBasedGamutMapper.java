@@ -24,24 +24,24 @@ public class GradualChromaDampeningLchBasedGamutMapper<L extends Lch> extends Ga
     // the shoulder of the curve; also, the ratio to maxC below which C is not modified
     private final double shoulder;
 
-    public static GradualChromaDampeningLchBasedGamutMapper<LchAb> forLchAb(double shoulder) {
+    public static GradualChromaDampeningLchBasedGamutMapper<CieLchAb> forLchAb(double shoulder) {
         return new GradualChromaDampeningLchBasedGamutMapper<>(
                 shoulder,
-                LchAb.class,
-                lch -> new MaxCLabLuvSolver().solveMaxCForLchAb(lch), xyz -> Lab.from(xyz).usingD65().toLch(),
-                LchAb::new,
+                CieLchAb.class,
+                lch -> new MaxCLabLuvSolver().solveMaxCForLchAb(lch), xyz -> CieLab.from(xyz).usingD65().toLch(),
+                CieLchAb::new,
                 lch -> lch
                         .toLab()
                         .toXyz().usingD65()
         );
     }
 
-    public static GradualChromaDampeningLchBasedGamutMapper<LchUv> forLchUv(double shoulder) {
+    public static GradualChromaDampeningLchBasedGamutMapper<CieLchUv> forLchUv(double shoulder) {
         return new GradualChromaDampeningLchBasedGamutMapper<>(
                 shoulder,
-                LchUv.class,
-                lch -> new MaxCLabLuvSolver().solveMaxCForLchUv(lch), xyz -> Luv.from(xyz).usingD65().toLch(),
-                LchUv::new,
+                CieLchUv.class,
+                lch -> new MaxCLabLuvSolver().solveMaxCForLchUv(lch), xyz -> CieLuv.from(xyz).usingD65().toLch(),
+                CieLchUv::new,
                 lch -> lch
                         .toLuv()
                         .toXyz().usingD65()

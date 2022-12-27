@@ -5,8 +5,8 @@ import kofa.maths.Vector3D;
 import static kofa.colours.model.ConversionHelper.*;
 import static kofa.colours.model.ConvertibleToLch.toPolar;
 
-public record Lab(double L, double a, double b) implements Vector3D, ConvertibleToLch<LchAb> {
-    public Lab(double[] values) {
+public record CieLab(double L, double a, double b) implements Vector3D, ConvertibleToLch<CieLchAb> {
+    public CieLab(double[] values) {
         this(values[0], values[1], values[2]);
     }
 
@@ -15,8 +15,8 @@ public record Lab(double L, double a, double b) implements Vector3D, Convertible
     }
 
     @Override
-    public LchAb toLch() {
-        return new LchAb(toPolar(L, a, b));
+    public CieLchAb toLch() {
+        return new CieLchAb(toPolar(L, a, b));
     }
 
     @Override
@@ -53,7 +53,7 @@ public record Lab(double L, double a, double b) implements Vector3D, Convertible
         }
     }
 
-    public static class XyzLabConverter implements WhitePointXyzAwareConverter<Lab> {
+    public static class XyzLabConverter implements WhitePointXyzAwareConverter<CieLab> {
         private final Xyz xyz;
 
         public XyzLabConverter(Xyz xyz) {
@@ -61,7 +61,7 @@ public record Lab(double L, double a, double b) implements Vector3D, Convertible
         }
 
         @Override
-        public Lab usingWhitePoint(Xyz referenceXyz) {
+        public CieLab usingWhitePoint(Xyz referenceXyz) {
 //            if (xyz.Y() == 0) {
 //                return BLACK;
 //            }
@@ -71,7 +71,7 @@ public record Lab(double L, double a, double b) implements Vector3D, Convertible
             double L = 116 * fy - 16;
             double a = 500 * (fx - fy);
             double b = 200 * (fy - fz);
-            return new Lab(L, a, b);
+            return new CieLab(L, a, b);
         }
 
         private double f(double componentRatio) {

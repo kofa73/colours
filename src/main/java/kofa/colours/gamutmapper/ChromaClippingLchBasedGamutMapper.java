@@ -20,22 +20,22 @@ public class ChromaClippingLchBasedGamutMapper<L extends Lch> extends GamutMappe
     private final ToDoubleFunction<L> maxCFinder;
     private final String name;
 
-    public static ChromaClippingLchBasedGamutMapper<LchAb> forLchAb() {
+    public static ChromaClippingLchBasedGamutMapper<CieLchAb> forLchAb() {
         return new ChromaClippingLchBasedGamutMapper<>(
-                LchAb.class,
-                lch -> new MaxCLabLuvSolver().solveMaxCForLchAb(lch), xyz -> Lab.from(xyz).usingD65().toLch(),
-                LchAb::new,
+                CieLchAb.class,
+                lch -> new MaxCLabLuvSolver().solveMaxCForLchAb(lch), xyz -> CieLab.from(xyz).usingD65().toLch(),
+                CieLchAb::new,
                 lch -> lch
                         .toLab()
                         .toXyz().usingD65()
         );
     }
 
-    public static ChromaClippingLchBasedGamutMapper<LchUv> forLchUv() {
+    public static ChromaClippingLchBasedGamutMapper<CieLchUv> forLchUv() {
         return new ChromaClippingLchBasedGamutMapper<>(
-                LchUv.class,
-                lch -> new MaxCLabLuvSolver().solveMaxCForLchUv(lch), xyz -> Luv.from(xyz).usingD65().toLch(),
-                LchUv::new,
+                CieLchUv.class,
+                lch -> new MaxCLabLuvSolver().solveMaxCForLchUv(lch), xyz -> CieLuv.from(xyz).usingD65().toLch(),
+                CieLchUv::new,
                 lch -> lch
                         .toLuv()
                         .toXyz().usingD65()

@@ -5,10 +5,10 @@ import kofa.maths.Vector3D;
 import static kofa.colours.model.ConversionHelper.*;
 import static kofa.colours.model.ConvertibleToLch.toPolar;
 
-public record Luv(double L, double u, double v) implements Vector3D, ConvertibleToLch<LchUv> {
-    public static final Luv BLACK = new Luv(0, 0, 0);
+public record CieLuv(double L, double u, double v) implements Vector3D, ConvertibleToLch<CieLchUv> {
+    public static final CieLuv BLACK = new CieLuv(0, 0, 0);
 
-    public Luv(double[] doubles) {
+    public CieLuv(double[] doubles) {
         this(doubles[0], doubles[1], doubles[2]);
     }
 
@@ -18,8 +18,8 @@ public record Luv(double L, double u, double v) implements Vector3D, Convertible
     }
 
     @Override
-    public LchUv toLch() {
-        return new LchUv(toPolar(L, u, v));
+    public CieLchUv toLch() {
+        return new CieLchUv(toPolar(L, u, v));
     }
 
     public static XyzLuvConverter from(Xyz xyz) {
@@ -30,14 +30,14 @@ public record Luv(double L, double u, double v) implements Vector3D, Convertible
         return new LuvXyzConverter();
     }
 
-    public static class XyzLuvConverter implements WhitePointXyzUvAwareConverter<Luv> {
+    public static class XyzLuvConverter implements WhitePointXyzUvAwareConverter<CieLuv> {
         private final Xyz xyz;
 
         XyzLuvConverter(Xyz xyz) {
             this.xyz = xyz;
         }
 
-        public Luv usingWhitePoint(Xyz referenceXyz, Uv referenceUv) {
+        public CieLuv usingWhitePoint(Xyz referenceXyz, Uv referenceUv) {
             if (xyz.Y() == 0) {
                 return BLACK;
             }
@@ -53,7 +53,7 @@ public record Luv(double L, double u, double v) implements Vector3D, Convertible
             double u = L13 * (uv.u() - referenceUv.u());
             double v = L13 * (uv.v() - referenceUv.v());
 
-            return new Luv(L, u, v);
+            return new CieLuv(L, u, v);
         }
     }
 

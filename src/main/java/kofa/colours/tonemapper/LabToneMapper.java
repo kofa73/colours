@@ -1,6 +1,6 @@
 package kofa.colours.tonemapper;
 
-import kofa.colours.model.Lab;
+import kofa.colours.model.CieLab;
 import kofa.colours.model.Rec2020;
 import kofa.io.RgbImage;
 import kofa.maths.Solver;
@@ -8,7 +8,7 @@ import kofa.maths.ThanatomanicCurve6;
 
 import java.util.Optional;
 
-public class LabToneMapper implements ToneMapper<Lab> {
+public class LabToneMapper implements ToneMapper<CieLab> {
     private final ThanatomanicCurve6 curve;
 
     public LabToneMapper() {
@@ -62,7 +62,7 @@ public class LabToneMapper implements ToneMapper<Lab> {
     }
 
     @Override
-    public Lab toneMap(Lab input) {
+    public CieLab toneMap(CieLab input) {
         double mappedL;
         if (curve == null) {
             mappedL = input.L();
@@ -73,7 +73,7 @@ public class LabToneMapper implements ToneMapper<Lab> {
         if (mappedL < 0) {
             mappedL = 0;
         }
-        return new Lab(mappedL, input.a(), input.b());
+        return new CieLab(mappedL, input.a(), input.b());
     }
 
     @Override
@@ -87,7 +87,7 @@ public class LabToneMapper implements ToneMapper<Lab> {
                     green,
                     blue
             );
-            var lab = Lab.from(rec2020.toXyz()).usingD65();
+            var lab = CieLab.from(rec2020.toXyz()).usingD65();
             var mappedLab = toneMap(lab);
             var mappedRec2020 = Rec2020.from(mappedLab.toXyz().usingD65());
             return new double[]{mappedRec2020.r(), mappedRec2020.g(), mappedRec2020.b()};
@@ -97,7 +97,7 @@ public class LabToneMapper implements ToneMapper<Lab> {
     private static double maxL(RgbImage image) {
         return image.pixelStream().mapToDouble(rgb -> {
             var rec2020 = new Rec2020(rgb[0], rgb[1], rgb[2]);
-            return Lab.from(rec2020.toXyz()).usingD65().L();
+            return CieLab.from(rec2020.toXyz()).usingD65().L();
         }).max().orElse(0.0);
     }
 }

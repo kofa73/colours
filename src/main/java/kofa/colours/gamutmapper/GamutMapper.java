@@ -59,11 +59,11 @@ public abstract class GamutMapper {
             if (value < -1.0 / 65535 / 2 || value > 1 + 1.0 / 65535 / 2) {
                 var rec2020 = new Rec2020(rec2020Red, rec2020Green, rec2020Blue);
                 var xyzIn = rec2020.toXyz();
-                var labIn = Lab.from(xyzIn).usingD65();
-                var luvIn = Luv.from(xyzIn).usingD65();
+                var labIn = CieLab.from(xyzIn).usingD65();
+                var luvIn = CieLuv.from(xyzIn).usingD65();
                 var xyzOut = mappedPixel.toXyz();
-                var labOut = Lab.from(xyzOut).usingD65();
-                var luvOut = Luv.from(xyzOut).usingD65();
+                var labOut = CieLab.from(xyzOut).usingD65();
+                var luvOut = CieLuv.from(xyzOut).usingD65();
                 throw new RuntimeException(
                         (
                                 "out of gamut at [%d, %d]:%n" +

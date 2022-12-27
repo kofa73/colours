@@ -1,6 +1,6 @@
 package kofa.colours.gamutmapper;
 
-import kofa.colours.model.Lab;
+import kofa.colours.model.CieLab;
 import kofa.colours.model.Srgb;
 import kofa.colours.model.Xyz;
 
@@ -14,9 +14,9 @@ public class BwFromLGamutMapper extends GamutMapper {
 
     @Override
     public Srgb getInsideGamut(Xyz xyz) {
-        var lab = Lab.from(xyz).usingD65().coordinates();
+        var lab = CieLab.from(xyz).usingD65().coordinates();
         lab[1] = 0;
         lab[2] = 0;
-        return Srgb.from(new Lab(lab).toXyz().usingD65());
+        return Srgb.from(new CieLab(lab).toXyz().usingD65());
     }
 }
