@@ -1,9 +1,12 @@
 package kofa.colours.gamutmapper;
 
 import kofa.colours.model.*;
+import kofa.maths.Vector3Constructor;
 
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A gamut mapper type that clips LCh chroma to the maximum value, independently for each pixel.
@@ -13,60 +16,42 @@ import java.util.function.ToDoubleFunction;
  *
  * @param <L> the polar LCh type
  */
-public class ChromaClippingLchBasedGamutMapper<L extends Lch> extends GamutMapper {
-    private final Function<Xyz, L> xyzToLch;
-    private final Function<double[], L> lchCoordinatesToLch;
-    private final Function<L, Xyz> lchToXyz;
-    private final ToDoubleFunction<L> maxCFinder;
+public class ChromaClippingLchBasedGamutMapper<L extends Lch<L, ?>> extends GamutMapper {
+    private final ToDoubleFunction<Srgb> maxCFinder;
     private final String name;
+    private final Vector3Constructor<L> lchConstructor;
+    private final Function<Srgb, L> sRgbToLch;
+    private final Function<L, Srgb> lchToSrgb;
 
     public static ChromaClippingLchBasedGamutMapper<CieLchAb> forLchAb() {
-        return new ChromaClippingLchBasedGamutMapper<>(
-                CieLchAb.class,
-                lch -> new MaxCLabLuvSolver().solveMaxCForLchAb(lch), xyz -> CieLab.from(xyz).usingD65().toLch(),
-                CieLchAb::new,
-                lch -> lch
-                        .toLab()
-                        .toXyz().usingD65()
-        );
+        return new ChromaClippingLchBasedGamutMapper<>(GamutBoundarySearchParams.FOR_CIELAB);
     }
 
     public static ChromaClippingLchBasedGamutMapper<CieLchUv> forLchUv() {
-        return new ChromaClippingLchBasedGamutMapper<>(
-                CieLchUv.class,
-                lch -> new MaxCLabLuvSolver().solveMaxCForLchUv(lch), xyz -> CieLuv.from(xyz).usingD65().toLch(),
-                CieLchUv::new,
-                lch -> lch
-                        .toLuv()
-                        .toXyz().usingD65()
-        );
+        return new ChromaClippingLchBasedGamutMapper<>(GamutBoundarySearchParams.FOR_CIELUV);
+    }
+
+    public static ChromaClippingLchBasedGamutMapper<OkLch> forOkLch() {
+        return new ChromaClippingLchBasedGamutMapper<>(GamutBoundarySearchParams.FOR_OKLAB);
     }
 
     private ChromaClippingLchBasedGamutMapper(
-            Class<L> type,
-            ToDoubleFunction<L> maxCFinder,
-            Function<Xyz, L> xyzToLch,
-            Function<double[], L> lchCoordinatesToLch,
-            Function<L, Xyz> lchToXyz
+            GamutBoundarySearchParams<L> searchParams
     ) {
-        this.name = type.getSimpleName();
-        this.maxCFinder = maxCFinder;
-        this.xyzToLch = xyzToLch;
-        this.lchCoordinatesToLch = lchCoordinatesToLch;
-        this.lchToXyz = lchToXyz;
+        requireNonNull(searchParams);
+        this.name = searchParams.type().getSimpleName();
+        this.sRgbToLch = requireNonNull(searchParams.sRgbToLch());
+        this.lchToSrgb = requireNonNull(searchParams.lchToSrgb());
+        this.lchConstructor = requireNonNull(searchParams.lchConstructor());
+        this.maxCFinder = sRgb -> new MaxCLabLuvSolver<L>(searchParams).solveMaxCForLch(sRgb);
     }
 
     @Override
-    public Srgb getInsideGamut(Xyz xyz) {
-        var lch = xyzToLch.apply(xyz);
-        var cAtGamutBoundary = maxCFinder.applyAsDouble(lch);
-        return Srgb.from(
-                lchToXyz.apply(
-                        lchCoordinatesToLch.apply(
-                                new double[]{lch.L(), cAtGamutBoundary, lch.h()}
-                        )
-                )
-        );
+    public Srgb getInsideGamut(Srgb sRgb) {
+        var cAtGamutBoundary = maxCFinder.applyAsDouble(sRgb);
+        L lchFromInput = sRgbToLch.apply(sRgb);
+        L lchWithChromaAtGamutBoundary = lchConstructor.createFrom(lchFromInput.l(), cAtGamutBoundary, lchFromInput.h());
+        return lchToSrgb.apply(lchWithChromaAtGamutBoundary);
     }
 
     @Override

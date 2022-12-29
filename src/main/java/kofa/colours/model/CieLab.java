@@ -1,27 +1,26 @@
 package kofa.colours.model;
 
-import kofa.maths.Vector3D;
-
 import static kofa.colours.model.ConversionHelper.*;
-import static kofa.colours.model.ConvertibleToLch.toPolar;
 
-public record CieLab(double L, double a, double b) implements Vector3D, ConvertibleToLch<CieLchAb> {
-    public CieLab(double[] values) {
-        this(values[0], values[1], values[2]);
+public class CieLab extends ConvertibleToLch<CieLab, CieLchAb> {
+    public CieLab(double l, double a, double b) {
+        super(l, a, b, CieLchAb::new);
+    }
+
+    public double l() {
+        return coordinate1;
+    }
+
+    public double a() {
+        return coordinate2;
+    }
+
+    public double b() {
+        return coordinate3;
     }
 
     public static XyzLabConverter from(Xyz xyz) {
         return new XyzLabConverter(xyz);
-    }
-
-    @Override
-    public CieLchAb toLch() {
-        return new CieLchAb(toPolar(L, a, b));
-    }
-
-    @Override
-    public double[] coordinates() {
-        return new double[]{L, a, b};
     }
 
     public LabXyzConverter toXyz() {
@@ -32,14 +31,14 @@ public record CieLab(double L, double a, double b) implements Vector3D, Converti
         @Override
         public Xyz usingWhitePoint(Xyz reference) {
             var fy = fy();
-            var fx = a / 500 + fy;
-            var fz = fy - b / 200;
+            var fx = a() / 500 + fy;
+            var fz = fy - b() / 200;
             var xr = fxz(fx);
-            var yr = L > KAPPA_EPSILON ?
+            var yr = l() > KAPPA_EPSILON ?
                     cubeOf(fy) :
-                    L / KAPPA;
+                    l() / KAPPA;
             var zr = fxz(fz);
-            return new Xyz(xr * reference.X(), yr * reference.Y(), zr * reference.Z());
+            return new Xyz(xr * reference.x(), yr * reference.y(), zr * reference.z());
         }
 
         private double fxz(double value) {
@@ -49,7 +48,7 @@ public record CieLab(double L, double a, double b) implements Vector3D, Converti
         }
 
         private double fy() {
-            return (L + 16) / 116;
+            return (l() + 16) / 116;
         }
     }
 
@@ -62,12 +61,9 @@ public record CieLab(double L, double a, double b) implements Vector3D, Converti
 
         @Override
         public CieLab usingWhitePoint(Xyz referenceXyz) {
-//            if (xyz.Y() == 0) {
-//                return BLACK;
-//            }
-            double fx = f(xyz.X() / referenceXyz.X());
-            double fy = f(xyz.Y() / referenceXyz.Y());
-            double fz = f(xyz.Z() / referenceXyz.Z());
+            double fx = f(xyz.x() / referenceXyz.x());
+            double fy = f(xyz.y() / referenceXyz.y());
+            double fz = f(xyz.z() / referenceXyz.z());
             double L = 116 * fy - 16;
             double a = 500 * (fx - fy);
             double b = 200 * (fy - fz);
@@ -79,5 +75,10 @@ public record CieLab(double L, double a, double b) implements Vector3D, Converti
                     cubeRootOf(componentRatio) :
                     (KAPPA * componentRatio + 16) / 116;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "%s(%f, %f, %f)".formatted(this.getClass().getSimpleName(), l(), a(), b());
     }
 }

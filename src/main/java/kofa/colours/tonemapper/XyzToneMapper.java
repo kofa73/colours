@@ -47,7 +47,7 @@ public class XyzToneMapper implements ToneMapper<Xyz> {
                                     1 :
                                     0;
                 });
-                shoulder = shoulderSolver.solve(shoulderSearchLow, shoulderSearchLow + 0.01, (shoulderSearchLow + shoulderSearchLow + 0.01) / 2, 0);
+                shoulder = shoulderSolver.solve(shoulderSearchLow, shoulderSearchLow + 0.01, 0);
                 if (shoulder.isEmpty()) {
                     shoulderSearchLow -= 0.01;
                 }
@@ -66,14 +66,14 @@ public class XyzToneMapper implements ToneMapper<Xyz> {
     public Xyz toneMap(Xyz input) {
         double mappedY;
         if (curve == null) {
-            mappedY = input.Y();
+            mappedY = input.y();
         } else {
-            mappedY = applyCurve(curve, input.Y());
+            mappedY = applyCurve(curve, input.y());
         }
         if (mappedY < 0) {
             mappedY = 0;
         }
-        return new Xyz(input.X(), mappedY, input.Z());
+        return new Xyz(input.x(), mappedY, input.z());
     }
 
     @Override
@@ -97,7 +97,7 @@ public class XyzToneMapper implements ToneMapper<Xyz> {
     private static double maxY(RgbImage image) {
         return image.pixelStream().mapToDouble(rgb -> {
             var rec2020 = new Rec2020(rgb[0], rgb[1], rgb[2]);
-            return rec2020.toXyz().Y();
+            return rec2020.toXyz().y();
         }).max().orElse(0.0);
     }
 }

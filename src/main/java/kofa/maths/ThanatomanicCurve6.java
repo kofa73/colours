@@ -15,10 +15,10 @@ public class ThanatomanicCurve6 implements Curve {
     }
 
     public ThanatomanicCurve6(double gradient, double shoulderStart) {
-        checkArgument(gradient > 0, "gradient must be > 0");
-        checkArgument(shoulderStart >= 0, "shoulderStart must be >= 0");
+        checkArgument(gradient > 0, "gradient must be > 0, but was %s", gradient);
+        checkArgument(shoulderStart >= 0, "shoulderStart must be >= 0, but was %s", shoulderStart);
         double shoulderStartUpperBound = 1 / gradient;
-        checkArgument(shoulderStart < shoulderStartUpperBound, "shoulderStart must be < 1 / gradient = %s", shoulderStartUpperBound);
+        checkArgument(shoulderStart < shoulderStartUpperBound, "shoulderStart must be < 1 / gradient = %s, but was %s", shoulderStartUpperBound, shoulderStart);
         this.gradient = gradient;
         this.shoulderStart = shoulderStart;
         mappedValueOfShoulderStart = gradient * shoulderStart;

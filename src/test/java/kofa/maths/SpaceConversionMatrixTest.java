@@ -21,7 +21,7 @@ class SpaceConversionMatrixTest {
         Interim result = sourceToInterim.multiply(new Source(29, 31, 37));
 
         // then
-        assertThat(result.coordinates()).containsExactly(336, 1025, 1933);
+        assertThat(result.coordinates()).containsExactly(336.0, 1025.0, 1933.0);
     }
 
     @Test
@@ -66,35 +66,24 @@ class SpaceConversionMatrixTest {
 
         var target2 = sourceToTarget.multiply(source);
 
-        assertThat(target1.coordinates()).contains(target2.coordinates());
+        assertThat(target1.coordinates()).containsExactlyElementsOf(target2.coordinates().boxed().toList());
     }
 
-    private record Source(double a, double b, double c) implements Vector3D {
-        @Override
-        public double[] coordinates() {
-            return new double[]{a, b, c};
-        }
-    }
-
-    private record Interim(double a, double b, double c) implements Vector3D {
-        Interim(double[] values) {
-            this(values[0], values[1], values[2]);
-        }
-
-        @Override
-        public double[] coordinates() {
-            return new double[]{a, b, c};
+    private static class Source extends Vector3 {
+        Source(double coordinate1, double coordinate2, double coordinate3) {
+            super(coordinate1, coordinate2, coordinate3);
         }
     }
 
-    private record Target(double a, double b, double c) implements Vector3D {
-        Target(double[] values) {
-            this(values[0], values[1], values[2]);
+    private static class Interim extends Vector3 {
+        protected Interim(double coordinate1, double coordinate2, double coordinate3) {
+            super(coordinate1, coordinate2, coordinate3);
         }
+    }
 
-        @Override
-        public double[] coordinates() {
-            return new double[]{a, b, c};
+    private static class Target extends Vector3 {
+        protected Target(double coordinate1, double coordinate2, double coordinate3) {
+            super(coordinate1, coordinate2, coordinate3);
         }
     }
 }

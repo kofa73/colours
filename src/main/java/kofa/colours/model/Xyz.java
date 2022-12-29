@@ -1,20 +1,37 @@
 package kofa.colours.model;
 
-import kofa.maths.Vector3D;
+import kofa.maths.Vector3;
 
-public record Xyz(double X, double Y, double Z) implements Vector3D {
-    public Xyz(double[] doubles) {
-        this(doubles[0], doubles[1], doubles[2]);
+import static java.lang.Math.abs;
+
+public class Xyz extends Vector3 {
+    public Xyz(double x, double y, double z) {
+        super(x, y, z);
     }
 
-    @Override
-    public double[] coordinates() {
-        return new double[]{X, Y, Z};
+    public double x() {
+        return coordinate1;
+    }
+
+    public double y() {
+        return coordinate2;
+    }
+
+    public double z() {
+        return coordinate3;
+    }
+
+    public boolean isBlack() {
+        return abs(y()) < 1E-6;
+    }
+
+    public boolean isWhite() {
+        return abs(1 - y()) < 1E-6;
     }
 
 
     @Override
     public String toString() {
-        return "%s[%f, %f, %f]".formatted(getClass().getSimpleName(), X, Y, Z);
+        return "%s(%f, %f, %f)".formatted(this.getClass().getSimpleName(), x(), y(), z());
     }
 }

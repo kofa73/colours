@@ -4,11 +4,17 @@ import org.junit.jupiter.api.Test;
 
 import static kofa.NumericAssertions.PRECISE;
 import static kofa.NumericAssertions.assertIsCloseTo;
+import static kofa.colours.model.ConversionHelper.D65_WHITE_XYZ_IEC_61966_2_1;
 import static kofa.colours.model.ConverterTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 
 class Rec2020Test {
+    @Test
+    void white() {
+        assertIsCloseTo(new Rec2020(1, 1, 1).toXyz(), D65_WHITE_XYZ_IEC_61966_2_1, PRECISE);
+    }
+
     @Test
     void values() {
         assertThat(

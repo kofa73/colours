@@ -1,7 +1,6 @@
 package kofa;
 
-import kofa.maths.DoubleVector;
-import kofa.maths.Vector3D;
+import kofa.maths.Vector3;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.data.Percentage;
 
@@ -17,14 +16,14 @@ public class NumericAssertions {
     public static final Percentage ROUGH = Percentage.withPercentage(5);
     private static final double COMPARISON_THRESHOLD = 1E-15;
 
-    public static <V extends DoubleVector> void assertIsCloseTo(V actualVector, V expectedVector, Percentage percentage) {
+    public static <V extends Vector3> void assertIsCloseTo(V actualVector, V expectedVector, Percentage percentage) {
         assertIsCloseTo(actualVector, expectedVector, percentage, COMPARISON_THRESHOLD);
     }
 
-    public static <V extends DoubleVector> void assertIsCloseTo(V actualVector, V expectedVector, Percentage percentage, double comparisonThreshold) {
+    public static <V extends Vector3> void assertIsCloseTo(V actualVector, V expectedVector, Percentage percentage, double comparisonThreshold) {
         assertThat(actualVector).hasSameClassAs(expectedVector);
         try {
-            assertIsCloseTo(actualVector.coordinates(), expectedVector.coordinates(), percentage, comparisonThreshold);
+            assertIsCloseTo(actualVector.coordinates().toArray(), expectedVector.coordinates().toArray(), percentage, comparisonThreshold);
         } catch (AssertionError ae) {
             throw new AssertionError(
                     "Comparison failed for actual = %s and expected = %s".formatted(
@@ -56,12 +55,12 @@ public class NumericAssertions {
         }
     }
 
-    public static <V extends Vector3D> void assertIsCloseTo(
+    public static <V extends Vector3> void assertIsCloseTo(
             V actualVector, V expectedVector,
             Percentage percentage0, Percentage percentage1, Percentage percentage2
     ) {
-        double[] actualDoubles = actualVector.coordinates();
-        double[] expectedDoubles = expectedVector.coordinates();
+        double[] actualDoubles = actualVector.coordinates().toArray();
+        double[] expectedDoubles = expectedVector.coordinates().toArray();
         assertSoftly(softly -> {
             assertIsCloseTo(softly, actualDoubles[0], expectedDoubles[0], percentage0, COMPARISON_THRESHOLD);
             assertIsCloseTo(softly, actualDoubles[1], expectedDoubles[1], percentage1, COMPARISON_THRESHOLD);

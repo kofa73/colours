@@ -1,7 +1,6 @@
 package kofa.colours.gamutmapper;
 
 import kofa.colours.model.Srgb;
-import kofa.colours.model.Xyz;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -9,11 +8,15 @@ import static java.lang.Math.min;
 public class SrgbClippingGamutMapper extends GamutMapper {
 
     @Override
-    public Srgb getInsideGamut(Xyz xyz) {
-        var rgb = Srgb.from(xyz).coordinates();
-        for (int i = 0; i < rgb.length; i++) {
-            rgb[i] = max(0, min(rgb[i], 1));
-        }
-        return new Srgb(rgb);
+    public Srgb getInsideGamut(Srgb sRgb) {
+        return new Srgb(
+                clip(sRgb.r()),
+                clip(sRgb.g()),
+                clip(sRgb.b())
+        );
+    }
+
+    private double clip(double value) {
+        return max(0, min(value, 1));
     }
 }

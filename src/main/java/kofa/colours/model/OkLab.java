@@ -1,20 +1,16 @@
 package kofa.colours.model;
 
 import kofa.maths.SpaceConversionMatrix;
-import kofa.maths.Vector3D;
+import kofa.maths.Vector3;
 
-import static kofa.colours.model.ConversionHelper.cubeOf;
+import static java.lang.Math.abs;
+import static kofa.colours.model.ConversionHelper.cubeOfFloat;
 import static kofa.colours.model.ConversionHelper.cubeRootOf;
-import static kofa.colours.model.ConvertibleToLch.toPolar;
 
 /**
  * OKLab from https://bottosson.github.io/posts/oklab/
  */
-public record OkLab(double L, double a, double b) implements Vector3D, ConvertibleToLch<OkLch> {
-    public OkLab(double[] values) {
-        this(values[0], values[1], values[2]);
-    }
-
+public class OkLab extends ConvertibleToLch<OkLab, OkLch> {
     private static final SpaceConversionMatrix<Xyz, Lms> XYZ_TO_LMS = new SpaceConversionMatrix<>(
             Lms::new,
             new double[][]{
@@ -37,6 +33,22 @@ public record OkLab(double L, double a, double b) implements Vector3D, Convertib
 
     private static final SpaceConversionMatrix<OkLab, LmsPrime> LAB_TO_LMS_PRIME = LMS_PRIME_TO_LAB.invert(LmsPrime::new);
 
+    public OkLab(double l, double a, double b) {
+        super(l, a, b, OkLch::new);
+    }
+
+    public double l() {
+        return coordinate1;
+    }
+
+    public double a() {
+        return coordinate2;
+    }
+
+    public double b() {
+        return coordinate3;
+    }
+
     public static OkLab from(Xyz xyz) {
         Lms lms = XYZ_TO_LMS.multiply(xyz);
         LmsPrime lmsPrime = LmsPrime.from(lms);
@@ -44,36 +56,37 @@ public record OkLab(double L, double a, double b) implements Vector3D, Convertib
     }
 
     public Xyz toXyz() {
-        LmsPrime lmsPrime = LAB_TO_LMS_PRIME.multiply(this);
+        LmsPrime lmsPrime = LAB_TO_LMS_PRIME.multiplyFloat(this);
         Lms lms = lmsPrime.toLms();
-        return LMS_TO_XYZ.multiply(lms);
+        return LMS_TO_XYZ.multiplyFloat(lms);
     }
 
-    @Override
-    public OkLch toLch() {
-        return new OkLch(toPolar(L, a, b));
+    private static double zeroOr(double x) {
+        return abs(x) < 1E-4 ? 0 : x;
     }
 
-    @Override
-    public double[] coordinates() {
-        return new double[]{L, a, b};
-    }
-
-    private static record LmsPrime(double lPrime, double mPrime, double sPrime) implements Vector3D {
-        public LmsPrime(double[] coordinates) {
-            this(coordinates[0], coordinates[1], coordinates[2]);
+    private static class LmsPrime extends Vector3 {
+        LmsPrime(double lPrime, double mPrime, double sPrime) {
+            super(lPrime, mPrime, sPrime);
         }
 
-        @Override
-        public double[] coordinates() {
-            return new double[]{lPrime, mPrime, sPrime};
+        double lPrime() {
+            return coordinate1;
+        }
+
+        double mPrime() {
+            return coordinate2;
+        }
+
+        double sPrime() {
+            return coordinate3;
         }
 
         Lms toLms() {
             return new Lms(
-                    cubeOf(lPrime),
-                    cubeOf(mPrime),
-                    cubeOf(sPrime)
+                    cubeOfFloat(lPrime()),
+                    cubeOfFloat(mPrime()),
+                    cubeOfFloat(sPrime())
             );
         }
 
@@ -84,5 +97,42 @@ public record OkLab(double L, double a, double b) implements Vector3D, Convertib
                     cubeRootOf(lms.s())
             );
         }
+    }
+
+    @Override
+    public String toString() {
+        return "%s(%f, %f, %f)".formatted(this.getClass().getSimpleName(), l(), a(), b());
+    }
+
+    public static OkLab from(Srgb sRgb) {
+        double l = 0.4122214708 * sRgb.r() + 0.5363325363 * sRgb.g() + 0.0514459929 * sRgb.b();
+        double m = 0.2119034982 * sRgb.r() + 0.6806995451 * sRgb.g() + 0.1073969566 * sRgb.b();
+        double s = 0.0883024619 * sRgb.r() + 0.2817188376 * sRgb.g() + 0.6299787005 * sRgb.b();
+
+        double lPrime = cubeRootOf(l);
+        double mPrime = cubeRootOf(m);
+        double sPrime = cubeRootOf(s);
+
+        return new OkLab(
+                0.2104542553 * lPrime + 0.7936177850 * mPrime - 0.0040720468 * sPrime,
+                1.9779984951 * lPrime - 2.4285922050 * mPrime + 0.4505937099 * sPrime,
+                0.0259040371 * lPrime + 0.7827717662 * mPrime - 0.8086757660 * sPrime
+        );
+    }
+
+    public Srgb toSrgb() {
+        double lPrime = l() + 0.3963377774 * a() + 0.2158037573 * b();
+        double mPrime = l() - 0.1055613458 * a() - 0.0638541728 * b();
+        double sPrime = l() - 0.0894841775 * a() - 1.2914855480 * b();
+
+        double l = lPrime * lPrime * lPrime;
+        double m = mPrime * mPrime * mPrime;
+        double s = sPrime * sPrime * sPrime;
+
+        return new Srgb(
+                +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+                -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+                -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
+        );
     }
 }

@@ -1,14 +1,26 @@
 package kofa.colours.model;
 
-import kofa.maths.Vector3D;
+import kofa.maths.Vector3;
 
-public record Lms(double l, double m, double s) implements Vector3D {
-    public Lms(double[] coordinates) {
-        this(coordinates[0], coordinates[1], coordinates[2]);
+public class Lms extends Vector3 {
+    protected Lms(double l, double m, double s) {
+        super(l, m, s);
+    }
+
+    double l() {
+        return coordinate1;
+    }
+
+    double m() {
+        return coordinate2;
+    }
+
+    double s() {
+        return coordinate3;
     }
 
     @Override
-    public double[] coordinates() {
-        return new double[]{l, m, s};
+    public String toString() {
+        return "%s(%f, %f, %f)".formatted(this.getClass().getSimpleName(), l(), m(), s());
     }
 }

@@ -80,11 +80,8 @@ public class RgbImage {
     }
 
     private void forEachPixel(PixelConsumer consumer, boolean parallel) {
-        IntStream range = IntStream.range(0, height);
-        if (parallel) {
-            range = range.parallel();
-        }
-        range.forEach(row -> {
+        IntStream rows = IntStream.range(0, height);
+        (parallel ? rows.parallel() : rows).forEach(row -> {
             for (int column = 0; column < raster.getWidth(); column++) {
                 consumer.consume(
                         row, column,

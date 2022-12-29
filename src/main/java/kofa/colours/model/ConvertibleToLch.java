@@ -1,18 +1,29 @@
 package kofa.colours.model;
 
+import kofa.maths.Vector3;
+import kofa.maths.Vector3Constructor;
+
 import static java.lang.Math.*;
 
 /**
  * Expresses that a colour space can be converted into LCh
  *
+ * @param <S> the concrete scalar subtype
  * @param <L> the concrete LCh subtype
  */
-public interface ConvertibleToLch<L extends Lch> {
-    static double[] toPolar(double L, double abscissa, double ordinate) {
-        var C = sqrt(abscissa * abscissa + ordinate * ordinate);
-        var h = atan2(ordinate, abscissa);
-        return new double[]{L, C, h < 0 ? h + 2 * PI : h};
+public abstract class ConvertibleToLch<S extends ConvertibleToLch<S, L>, L extends Lch<L, S>> extends Vector3 {
+    private final Vector3Constructor<L> lchConstructor;
+
+    protected ConvertibleToLch(double coordinate1, double coordinate2, double coordinate3, Vector3Constructor<L> lchConstructor) {
+        super(coordinate1, coordinate2, coordinate3);
+        this.lchConstructor = lchConstructor;
     }
 
-    L toLch();
+    public final L toLch() {
+        var c = sqrt(coordinate2 * coordinate2 + coordinate3 * coordinate3);
+        var h = atan2(coordinate3, coordinate2);
+        return lchConstructor.createFrom(coordinate1, c, h < 0 ? h + 2 * PI : h);
+    }
+
+
 }

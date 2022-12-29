@@ -1,25 +1,12 @@
 package kofa.colours.model;
 
-import kofa.maths.Vector3D;
-
 import static kofa.colours.model.ConversionHelper.*;
-import static kofa.colours.model.ConvertibleToLch.toPolar;
 
-public record CieLuv(double L, double u, double v) implements Vector3D, ConvertibleToLch<CieLchUv> {
+public class CieLuv extends ConvertibleToLch<CieLuv, CieLchUv> {
     public static final CieLuv BLACK = new CieLuv(0, 0, 0);
 
-    public CieLuv(double[] doubles) {
-        this(doubles[0], doubles[1], doubles[2]);
-    }
-
-    @Override
-    public double[] coordinates() {
-        return new double[]{L, u, v};
-    }
-
-    @Override
-    public CieLchUv toLch() {
-        return new CieLchUv(toPolar(L, u, v));
+    public CieLuv(double l, double u, double v) {
+        super(l, u, v, CieLchUv::new);
     }
 
     public static XyzLuvConverter from(Xyz xyz) {
@@ -38,11 +25,11 @@ public record CieLuv(double L, double u, double v) implements Vector3D, Converti
         }
 
         public CieLuv usingWhitePoint(Xyz referenceXyz, Uv referenceUv) {
-            if (xyz.Y() == 0) {
+            if (xyz.y() == 0) {
                 return BLACK;
             }
             // http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_Luv.html
-            double yr = xyz.Y() / referenceXyz.Y();
+            double yr = xyz.y() / referenceXyz.y();
 
             var uv = Uv.from(xyz);
 
@@ -61,16 +48,16 @@ public record CieLuv(double L, double u, double v) implements Vector3D, Converti
 
         @Override
         public Xyz usingWhitePoint(Xyz referenceXyz, Uv referenceUv) {
-            double referenceY = referenceXyz.Y();
+            double referenceY = referenceXyz.y();
 
-            double L13 = 13 * L;
+            double L13 = 13 * l();
 
-            double uPrime = u / L13 + referenceUv.u();
-            double vPrime = v / L13 + referenceUv.v();
+            double uPrime = u() / L13 + referenceUv.u();
+            double vPrime = v() / L13 + referenceUv.v();
 
-            double Y = L > KAPPA_EPSILON ?
-                    referenceY * cubeOf((L + 16) / 116) :
-                    referenceY * L / KAPPA;
+            double Y = l() > KAPPA_EPSILON ?
+                    referenceY * cubeOf((l() + 16) / 116) :
+                    referenceY * l() / KAPPA;
 
             double denominator = 4 * vPrime;
             double X = Y * 9 * uPrime / denominator;
@@ -78,6 +65,23 @@ public record CieLuv(double L, double u, double v) implements Vector3D, Converti
 
             return new Xyz(X, Y, Z);
         }
+    }
+
+    public double l() {
+        return coordinate1;
+    }
+
+    public double u() {
+        return coordinate2;
+    }
+
+    public double v() {
+        return coordinate3;
+    }
+
+    @Override
+    public final String toString() {
+        return "%s(%f, %f, %f)".formatted(getClass().getSimpleName(), l(), u(), v());
     }
 }
 

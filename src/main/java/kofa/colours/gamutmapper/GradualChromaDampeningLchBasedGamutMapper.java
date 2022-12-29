@@ -2,6 +2,7 @@ package kofa.colours.gamutmapper;
 
 import kofa.colours.model.*;
 import kofa.maths.ThanatomanicCurve6;
+import kofa.maths.Vector3Constructor;
 
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
@@ -14,77 +15,76 @@ import java.util.function.ToDoubleFunction;
  *
  * @param <L> the polar LCh type
  */
-public class GradualChromaDampeningLchBasedGamutMapper<L extends Lch> extends GamutMapper {
-    private final Function<Xyz, L> xyzToLch;
-    private final Function<double[], L> lchCoordinatesToLch;
-    private final Function<L, Xyz> lchToXyz;
-    private final ToDoubleFunction<L> maxCFinder;
+public class GradualChromaDampeningLchBasedGamutMapper<L extends Lch<L, ?>> extends GamutMapper {
+    private final ToDoubleFunction<Srgb> maxCFinder;
     private final String name;
     private final ThanatomanicCurve6 dampeningCurve;
     // the shoulder of the curve; also, the ratio to maxC below which C is not modified
     private final double shoulder;
+    private final Function<Srgb, L> sRgbToLch;
+    private final Function<L, Srgb> lchToSrgb;
+    private final Vector3Constructor<L> lchConstructor;
 
     public static GradualChromaDampeningLchBasedGamutMapper<CieLchAb> forLchAb(double shoulder) {
         return new GradualChromaDampeningLchBasedGamutMapper<>(
                 shoulder,
-                CieLchAb.class,
-                lch -> new MaxCLabLuvSolver().solveMaxCForLchAb(lch), xyz -> CieLab.from(xyz).usingD65().toLch(),
-                CieLchAb::new,
-                lch -> lch
-                        .toLab()
-                        .toXyz().usingD65()
+                GamutBoundarySearchParams.FOR_CIELAB
         );
     }
 
     public static GradualChromaDampeningLchBasedGamutMapper<CieLchUv> forLchUv(double shoulder) {
         return new GradualChromaDampeningLchBasedGamutMapper<>(
                 shoulder,
-                CieLchUv.class,
-                lch -> new MaxCLabLuvSolver().solveMaxCForLchUv(lch), xyz -> CieLuv.from(xyz).usingD65().toLch(),
-                CieLchUv::new,
-                lch -> lch
-                        .toLuv()
-                        .toXyz().usingD65()
+                GamutBoundarySearchParams.FOR_CIELUV
+        );
+    }
+
+    public static GradualChromaDampeningLchBasedGamutMapper<OkLch> forOkLch(double shoulder) {
+        return new GradualChromaDampeningLchBasedGamutMapper<>(
+                shoulder,
+                GamutBoundarySearchParams.FOR_OKLAB
         );
     }
 
     private GradualChromaDampeningLchBasedGamutMapper(
             double shoulder,
-            Class<L> type,
-            ToDoubleFunction<L> maxCFinder,
-            Function<Xyz, L> xyzToLch,
-            Function<double[], L> lchCoordinatesToLch,
-            Function<L, Xyz> lchToXyz
+            GamutBoundarySearchParams<L> searchParams
     ) {
         super(true);
-        this.name = type.getSimpleName();
-        this.maxCFinder = maxCFinder;
-        this.xyzToLch = xyzToLch;
-        this.lchCoordinatesToLch = lchCoordinatesToLch;
-        this.lchToXyz = lchToXyz;
-        this.dampeningCurve = new ThanatomanicCurve6(1, shoulder);
         this.shoulder = shoulder;
+        this.name = searchParams.type().getSimpleName();
+        this.dampeningCurve = new ThanatomanicCurve6(1, shoulder);
+        this.sRgbToLch = searchParams.sRgbToLch();
+        this.lchToSrgb = searchParams.lchToSrgb();
+        this.lchConstructor = searchParams.lchConstructor();
+        this.maxCFinder = sRgb -> new MaxCLabLuvSolver<>(searchParams).solveMaxCForLch(sRgb);
     }
 
     @Override
-    public Srgb getInsideGamut(Xyz xyz) {
-        var lch = xyzToLch.apply(xyz);
-        var cAtGamutBoundary = maxCFinder.applyAsDouble(lch);
-        double originalC = lch.C();
-        double dampenedC;
-        var ratioToMaxC = originalC / cAtGamutBoundary;
-        if (ratioToMaxC > shoulder) {
-            var curveValue = dampeningCurve.mappedValueOf(ratioToMaxC);
-            dampenedC = curveValue * cAtGamutBoundary;
-        } else {
-            dampenedC = originalC;
+    public Srgb getInsideGamut(Srgb sRgb) {
+        var originalLch = sRgbToLch.apply(sRgb);
+        if (sRgb.isBlack()) {
+            return Srgb.BLACK;
         }
-        return Srgb.from(
-                lchToXyz.apply(
-                        lchCoordinatesToLch.apply(
-                                new double[]{lch.L(), dampenedC, lch.h()}
-                        )
-                )
+        if (sRgb.isWhite()) {
+            return Srgb.WHITE;
+        }
+        var cAtGamutBoundary = maxCFinder.applyAsDouble(sRgb);
+        double originalC = originalLch.c();
+        double dampenedC;
+        if (cAtGamutBoundary != 0) {
+            var ratioToMaxC = originalC / cAtGamutBoundary;
+            if (ratioToMaxC > shoulder) {
+                var curveValue = dampeningCurve.mappedValueOf(ratioToMaxC);
+                dampenedC = curveValue * cAtGamutBoundary;
+            } else {
+                dampenedC = originalC;
+            }
+        } else {
+            dampenedC = 0;
+        }
+        return lchToSrgb.apply(
+                lchConstructor.createFrom(originalLch.l(), dampenedC, originalLch.h())
         );
     }
 

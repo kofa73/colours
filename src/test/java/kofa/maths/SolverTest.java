@@ -3,7 +3,6 @@ package kofa.maths;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -16,11 +15,11 @@ class SolverTest {
         // requires 116 iterations in the Solver
         double evilValue = 1.7023637E38;
 
-        Function<Double, Double> errorFunction = squareRootError(evilValue);
+        PrimitiveDoubleToDoubleFunction errorFunction = squareRootError(evilValue);
         Solver solver = new Solver(errorFunction);
 
         // when
-        Optional<Double> solution = solver.solve(0, evilValue, 0, threshold);
+        Optional<Double> solution = solver.solve(0, evilValue, threshold);
 
         // then
         assertThat(solution).isPresent()
@@ -35,7 +34,7 @@ class SolverTest {
         Solver solver = new Solver(squareRootError(10));
 
         // when
-        Optional<Double> solution = solver.solve(0, 1, 0.5, 0.001);
+        Optional<Double> solution = solver.solve(0, 1, 0.001);
 
         // then
         assertThat(solution).isEmpty();
@@ -47,18 +46,18 @@ class SolverTest {
         double value = 123456789012.34567890123;
 
         Solver solver = new Solver(doubleBasedSquareRootError(value));
-        Optional<Double> solution = solver.solve(0, value, 1, 0);
+        Optional<Double> solution = solver.solve(0, value, 0);
 
         assertThat(solution).isEmpty();
         // we came close, but did not get a precise solution due to limited numeric precision
         assertThat(solver.lastValue() * solver.lastValue()).isCloseTo(value, within(1E-4));
     }
 
-    private static Function<Double, Double> squareRootError(double value) {
+    private static PrimitiveDoubleToDoubleFunction squareRootError(double value) {
         return guess -> guess * guess - value;
     }
 
-    private static Function<Double, Double> doubleBasedSquareRootError(double value) {
+    private static PrimitiveDoubleToDoubleFunction doubleBasedSquareRootError(double value) {
         return guess -> {
             double error = guess * guess - value;
             return error == 0 ? 0d :

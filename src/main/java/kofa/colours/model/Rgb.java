@@ -1,24 +1,22 @@
 package kofa.colours.model;
 
 import kofa.maths.SpaceConversionMatrix;
-import kofa.maths.Vector3D;
+import kofa.maths.Vector3;
 
+import java.util.function.DoublePredicate;
+
+import static java.lang.Math.abs;
 import static org.apache.commons.math3.linear.MatrixUtils.createRealMatrix;
 import static org.apache.commons.math3.linear.MatrixUtils.inverse;
 
-public abstract class Rgb<S extends Rgb<S>> implements Vector3D {
-    private final double r;
-    private final double g;
-    private final double b;
-
-    Rgb(double[] doubles) {
-        this(doubles[0], doubles[1], doubles[2]);
-    }
-
+/**
+ * Models any RGB space.
+ *
+ * @param <S> the subtype
+ */
+public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
     Rgb(double r, double g, double b) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
+        super(r, g, b);
     }
 
     protected abstract SpaceConversionMatrix<S, Xyz> toXyzMatrix();
@@ -27,18 +25,17 @@ public abstract class Rgb<S extends Rgb<S>> implements Vector3D {
         return toXyzMatrix().multiply((S) this);
     }
 
-    @Override
-    public double[] coordinates() {
-        return new double[]{r, g, b};
+    public boolean anyCoordinateMatches(DoublePredicate predicate) {
+        return coordinates().anyMatch(predicate);
     }
 
     @Override
     public String toString() {
-        return "%s[%f, %f, %f]".formatted(getClass().getSimpleName(), r, g, b);
+        return "%s(%f, %f, %f)".formatted(getClass().getSimpleName(), r(), g(), b());
     }
 
     public boolean isOutOfGamut() {
-        return r < 0 || r > 1 || g < 0 || g > 1 || b < 0 || b > 1;
+        return r() < 0 || r() > 1 || g() < 0 || g() > 1 || b() < 0 || b() > 1;
     }
 
     public static double[][] calculateToXyzMatrix(
@@ -63,7 +60,7 @@ public abstract class Rgb<S extends Rgb<S>> implements Vector3D {
                         {Yr, Yg, Yb},
                         {Zr, Zg, Zb}
                 }
-        )).operate(new double[]{referenceWhite.X(), referenceWhite.Y(), referenceWhite.Z()});
+        )).operate(new double[]{referenceWhite.x(), referenceWhite.y(), referenceWhite.z()});
 
         double Sr = S[0];
         double Sg = S[1];
@@ -77,14 +74,22 @@ public abstract class Rgb<S extends Rgb<S>> implements Vector3D {
     }
 
     public double r() {
-        return r;
+        return coordinate1;
     }
 
     public double g() {
-        return g;
+        return coordinate2;
     }
 
     public double b() {
-        return b;
+        return coordinate3;
+    }
+
+    public boolean isBlack() {
+        return abs(r()) < 1E-6 && abs(g()) < 1E-6 && abs(b()) < 1E-6;
+    }
+
+    public boolean isWhite() {
+        return abs(1 - r()) < 1E-6 && abs(1 - g()) < 1E-6 && abs(1 - b()) < 1E-6;
     }
 }

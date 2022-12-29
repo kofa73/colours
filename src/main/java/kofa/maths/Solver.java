@@ -1,13 +1,12 @@
 package kofa.maths;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Math.abs;
 
 public class Solver {
-    private final Function<Double, Double> errorFunction;
+    private final PrimitiveDoubleToDoubleFunction errorFunction;
     private double low;
     private double high;
     private double current;
@@ -17,12 +16,12 @@ public class Solver {
      * @param errorFunction the function to evaluate the current guess. Must return < 0 if the guess is too low,
      *                      0 if the guess is perfect, > 0 if too high
      */
-    public Solver(Function<Double, Double> errorFunction) {
+    public Solver(PrimitiveDoubleToDoubleFunction errorFunction) {
         this.errorFunction = errorFunction;
     }
 
-    public Optional<Double> solve(double lowerBound, double upperBound, double startingPoint, double threshold) {
-        initParams(lowerBound, upperBound, startingPoint, threshold);
+    public Optional<Double> solve(double lowerBound, double upperBound, double threshold) {
+        initParams(lowerBound, upperBound, threshold);
         return doSolve();
     }
 
@@ -47,21 +46,15 @@ public class Solver {
         return solution;
     }
 
-    private void initParams(double lowerBound, double upperBound, double startingPoint, double threshold) {
+    private void initParams(double lowerBound, double upperBound, double threshold) {
         checkArgument(
                 lowerBound < upperBound,
                 "lowerBound %s must be < upperBound %s",
                 lowerBound, upperBound
         );
-        checkArgument(
-                lowerBound <= startingPoint && upperBound >= startingPoint,
-                "startingPoint %s must be in [%s, %s]",
-                startingPoint, lowerBound, upperBound
-        );
-        checkArgument(threshold >= 0, "threshold %s must be >= 0", threshold);
+        checkArgument(threshold >= 0, "threshold %s must be >= 0, but was %s", threshold);
         this.low = lowerBound;
         this.high = upperBound;
-        this.current = startingPoint;
         this.threshold = threshold;
     }
 

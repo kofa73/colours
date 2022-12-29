@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static java.lang.Math.toRadians;
 import static kofa.NumericAssertions.*;
-import static kofa.colours.model.ConversionHelper.D65_WHITE_XYZ;
+import static kofa.colours.model.ConversionHelper.D65_WHITE_XYZ_IEC_61966_2_1;
 import static kofa.colours.model.Rec2020.applyInverseOetf;
 
 class ConverterTest {
@@ -103,14 +103,14 @@ class ConverterTest {
         var original_sRGB = new Srgb(1, 1, 1);
         var XYZ_from_RGB = original_sRGB.toXyz();
 
-        CieLuv luvFromXyz = CieLuv.from(XYZ_from_RGB).usingWhitePoint(D65_WHITE_XYZ);
+        CieLuv luvFromXyz = CieLuv.from(XYZ_from_RGB).usingWhitePoint(D65_WHITE_XYZ_IEC_61966_2_1);
 
         CieLchUv LCH_from_Luv = luvFromXyz.toLch();
 
         CieLuv Luv_from_LCH = LCH_from_Luv.toLuv();
         assertIsCloseTo(Luv_from_LCH, luvFromXyz, PRECISE);
 
-        Xyz Xyz_from_Luv = Luv_from_LCH.toXyz().usingD65();
+        Xyz Xyz_from_Luv = Luv_from_LCH.toXyz().usingD65_IEC_61966_2_1();
         assertIsCloseTo(Xyz_from_Luv, XYZ_from_RGB, PRECISE);
 
         var sRGB_from_XYZ = Srgb.from(Xyz_from_Luv);
@@ -122,8 +122,8 @@ class ConverterTest {
         var originalSrgb = new Srgb(1, 1, 1);
         var xyzFromSrgb = originalSrgb.toXyz();
 
-        var luvFromXyzD65 = CieLuv.from(xyzFromSrgb).usingD65();
-        CieLuv luvFromXyz = CieLuv.from(xyzFromSrgb).usingWhitePoint(D65_WHITE_XYZ);
+        var luvFromXyzD65 = CieLuv.from(xyzFromSrgb).usingD65_IEC_61966_2_1();
+        CieLuv luvFromXyz = CieLuv.from(xyzFromSrgb).usingWhitePoint(D65_WHITE_XYZ_IEC_61966_2_1);
         assertIsCloseTo(luvFromXyzD65, luvFromXyz, PRECISE);
 
         var lchFromLuv = luvFromXyzD65.toLch();
@@ -131,9 +131,9 @@ class ConverterTest {
         var luvFromLch = lchFromLuv.toLuv();
         assertIsCloseTo(luvFromLch, luvFromXyzD65, PRECISE);
 
-        var xyzFromLuvD65 = luvFromLch.toXyz().usingD65();
+        var xyzFromLuvD65 = luvFromLch.toXyz().usingD65_IEC_61966_2_1();
         assertIsCloseTo(xyzFromLuvD65, xyzFromSrgb, PRECISE);
-        var xyzFromLuv = luvFromLch.toXyz().usingWhitePoint(D65_WHITE_XYZ);
+        var xyzFromLuv = luvFromLch.toXyz().usingWhitePoint(D65_WHITE_XYZ_IEC_61966_2_1);
         assertIsCloseTo(xyzFromLuvD65, xyzFromLuv, PRECISE);
 
         var sRgbFromXyz = Srgb.from(xyzFromLuvD65);

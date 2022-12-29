@@ -2,11 +2,13 @@ package kofa.colours.gamutmapper;
 
 import kofa.colours.model.*;
 import kofa.io.RgbImage;
+import kofa.maths.Vector3Constructor;
 
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
 import static java.lang.Math.max;
+import static java.util.Objects.requireNonNull;
 
 /**
  * A gamut mapper type that desaturates all colours by scaling LCh's C using the same value such that all colours fit inside sRGB.
@@ -15,61 +17,54 @@ import static java.lang.Math.max;
  *
  * @param <L> the LCh subtype
  */
-public class DesaturatingLchBasedGamutMapper<L extends Lch> extends GamutMapper {
+public class DesaturatingLchBasedGamutMapper<L extends Lch<L, ?>> extends GamutMapper {
     private final String name;
-    private final Function<Xyz, L> xyzToLchConverter;
-    private final Function<double[], L> polarCoordinatesToLchConverter;
-    private final Function<L, Xyz> lchToXyzConverter;
+    private final Vector3Constructor<L> lchConstructor;
+    private final Function<Srgb, L> sRgbToLch;
+    private final Function<L, Srgb> lchToSrgb;
     private double cDivisor = 0;
 
     public static DesaturatingLchBasedGamutMapper<CieLchAb> forLchAb(RgbImage image) {
         return new DesaturatingLchBasedGamutMapper<>(
                 image,
-                CieLchAb.class,
-                lch -> new MaxCLabLuvSolver().solveMaxCForLchAb(lch),
-                xyz -> CieLab.from(xyz).usingD65().toLch(),
-                CieLchAb::new,
-                lch -> lch
-                        .toLab()
-                        .toXyz().usingD65()
+                GamutBoundarySearchParams.FOR_CIELAB
         );
     }
 
     public static DesaturatingLchBasedGamutMapper<CieLchUv> forLchUv(RgbImage image) {
         return new DesaturatingLchBasedGamutMapper<>(
                 image,
-                CieLchUv.class,
-                lch -> new MaxCLabLuvSolver().solveMaxCForLchUv(lch),
-                xyz -> CieLuv.from(xyz).usingD65().toLch(),
-                CieLchUv::new,
-                lch -> lch
-                        .toLuv()
-                        .toXyz().usingD65()
+                GamutBoundarySearchParams.FOR_CIELUV
+        );
+    }
+
+    public static DesaturatingLchBasedGamutMapper<OkLch> forOkLch(RgbImage image) {
+        return new DesaturatingLchBasedGamutMapper<>(
+                image,
+                GamutBoundarySearchParams.FOR_OKLAB
         );
     }
 
     private DesaturatingLchBasedGamutMapper(
             RgbImage image,
-            Class<L> type,
-            ToDoubleFunction<L> maxCFinder,
-            Function<Xyz, L> xyzToLchConverter,
-            Function<double[], L> polarCoordinatesToLchConverter,
-            Function<L, Xyz> polarCoordinatesToXyzConverter
-    ) {
+            GamutBoundarySearchParams<L> searchParams) {
         super(true);
-        this.name = type.getSimpleName();
-        this.xyzToLchConverter = xyzToLchConverter;
-        this.polarCoordinatesToLchConverter = polarCoordinatesToLchConverter;
-        this.lchToXyzConverter = polarCoordinatesToXyzConverter;
+        this.name = searchParams.type().getSimpleName();
+        this.sRgbToLch = requireNonNull(searchParams.sRgbToLch());
+        this.lchToSrgb = requireNonNull(searchParams.lchToSrgb());
+        this.lchConstructor = requireNonNull(searchParams.lchConstructor());
+
+        ToDoubleFunction<Srgb> maxCFinder = sRgb -> new MaxCLabLuvSolver<L>(searchParams).solveMaxCForLch(sRgb);
 
         image.forEachPixelSequentially((row, column, red, green, blue) -> {
             var rec2020 = new Rec2020(red, green, blue);
-            if (rec2020.toSRGB().isOutOfGamut()) {
-                var lch = xyzToLchConverter.apply(rec2020.toXyz());
-                if (lch.C() != 0) {
-                    var maxC = maxCFinder.applyAsDouble(lch);
+            Srgb sRgb = rec2020.toSRGB();
+            if (sRgb.isOutOfGamut()) {
+                var lch = searchParams.sRgbToLch().apply(sRgb);
+                if (lch.c() != 0) {
+                    var maxC = maxCFinder.applyAsDouble(sRgb);
                     if (maxC != 0) {
-                        cDivisor = max(cDivisor, lch.C() / maxC);
+                        cDivisor = max(cDivisor, lch.c() / maxC);
                     }
                 }
             }
@@ -79,16 +74,11 @@ public class DesaturatingLchBasedGamutMapper<L extends Lch> extends GamutMapper 
     }
 
     @Override
-    public Srgb getInsideGamut(Xyz xyz) {
-        var lch = xyzToLchConverter.apply(xyz);
-        var reducedC = lch.C() / cDivisor;
-        return Srgb.from(
-                lchToXyzConverter.apply(
-                        polarCoordinatesToLchConverter.apply(
-                                new double[]{lch.L(), reducedC, lch.h()}
-                        )
-                )
-        );
+    public Srgb getInsideGamut(Srgb sRgb) {
+        L lchFromInput = sRgbToLch.apply(sRgb);
+        double reducedC = lchFromInput.c() / cDivisor;
+        L lchWithChromaAtGamutBoundary = lchConstructor.createFrom(lchFromInput.l(), reducedC, lchFromInput.h());
+        return lchToSrgb.apply(lchWithChromaAtGamutBoundary);
     }
 
     @Override

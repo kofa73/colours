@@ -2,19 +2,19 @@ package kofa.maths;
 
 import org.apache.commons.math3.linear.MatrixUtils;
 
-public class SpaceConversionMatrix<I extends Vector3D, O extends Vector3D> {
+public class SpaceConversionMatrix<I extends Vector3, O extends Vector3> {
     private final double[][] matrix;
-    private final Vector3D.ConstructorFromArray<O> resultConstructor;
+    private final Vector3Constructor<O> resultConstructor;
 
     public SpaceConversionMatrix(
-            Vector3D.ConstructorFromArray<O> resultConstructor,
+            Vector3Constructor<O> resultConstructor,
             double[][] matrix
     ) {
         this.resultConstructor = resultConstructor;
         this.matrix = matrix;
     }
 
-    public SpaceConversionMatrix<O, I> invert(Vector3D.ConstructorFromArray<I> resultConstructor) {
+    public SpaceConversionMatrix<O, I> invert(Vector3Constructor<I> resultConstructor) {
         return new SpaceConversionMatrix<>(
                 resultConstructor,
                 MatrixUtils.inverse(MatrixUtils.createRealMatrix(matrix)).getData()
@@ -22,15 +22,20 @@ public class SpaceConversionMatrix<I extends Vector3D, O extends Vector3D> {
     }
 
     public O multiply(I vector) {
-        var doubles = vector.coordinates();
-        var result = new double[3];
-        result[0] = matrix[0][0] * doubles[0] + matrix[0][1] * doubles[1] + matrix[0][2] * doubles[2];
-        result[1] = matrix[1][0] * doubles[0] + matrix[1][1] * doubles[1] + matrix[1][2] * doubles[2];
-        result[2] = matrix[2][0] * doubles[0] + matrix[2][1] * doubles[1] + matrix[2][2] * doubles[2];
-        return resultConstructor.createNew(result);
+        double r1 = matrix[0][0] * vector.coordinate1 + matrix[0][1] * vector.coordinate2 + matrix[0][2] * vector.coordinate3;
+        double r2 = matrix[1][0] * vector.coordinate1 + matrix[1][1] * vector.coordinate2 + matrix[1][2] * vector.coordinate3;
+        double r3 = matrix[2][0] * vector.coordinate1 + matrix[2][1] * vector.coordinate2 + matrix[2][2] * vector.coordinate3;
+        return resultConstructor.createFrom(r1, r2, r3);
     }
 
-    public <S extends Vector3D> SpaceConversionMatrix<S, O> multiply(SpaceConversionMatrix<S, I> multiplicand) {
+    public O multiplyFloat(I vector) {
+        double r1 = (float) matrix[0][0] * (float) vector.coordinate1 + (float) matrix[0][1] * (float) vector.coordinate2 + (float) matrix[0][2] * (float) vector.coordinate3;
+        double r2 = (float) matrix[1][0] * (float) vector.coordinate1 + (float) matrix[1][1] * (float) vector.coordinate2 + (float) matrix[1][2] * (float) vector.coordinate3;
+        double r3 = (float) matrix[2][0] * (float) vector.coordinate1 + (float) matrix[2][1] * (float) vector.coordinate2 + (float) matrix[2][2] * (float) vector.coordinate3;
+        return resultConstructor.createFrom(r1, r2, r3);
+    }
+
+    public <S extends Vector3> SpaceConversionMatrix<S, O> multiply(SpaceConversionMatrix<S, I> multiplicand) {
         double[][] otherValues = multiplicand.matrix;
 
         var cell00 = matrix[0][0] * otherValues[0][0] + matrix[0][1] * otherValues[1][0] + matrix[0][2] * otherValues[2][0];

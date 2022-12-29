@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static kofa.NumericAssertions.PRECISE;
 import static kofa.NumericAssertions.assertIsCloseTo;
-import static kofa.colours.model.ConversionHelper.D65_WHITE_XYZ;
+import static kofa.colours.model.ConversionHelper.D65_WHITE_XYZ_IEC_61966_2_1;
 import static kofa.colours.model.Rgb.calculateToXyzMatrix;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,7 +16,7 @@ class RgbTest {
                 0.6400, 0.3300,
                 0.3000, 0.6000,
                 0.1500, 0.0600,
-                D65_WHITE_XYZ
+                D65_WHITE_XYZ_IEC_61966_2_1
         );
 
         // values of sRGB to XYZ matrix from http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
