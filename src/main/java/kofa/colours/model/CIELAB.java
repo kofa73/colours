@@ -2,12 +2,12 @@ package kofa.colours.model;
 
 import static kofa.colours.model.ConversionHelper.*;
 
-public class CieLab extends ConvertibleToLch<CieLab, CieLchAb> {
-    public CieLab(double l, double a, double b) {
-        super(l, a, b, CieLchAb::new);
+public class CIELAB extends ConvertibleToLch<CIELAB, CIELCh_ab> {
+    public CIELAB(double l, double a, double b) {
+        super(l, a, b, CIELCh_ab::new);
     }
 
-    public double l() {
+    public double L() {
         return coordinate1;
     }
 
@@ -19,7 +19,7 @@ public class CieLab extends ConvertibleToLch<CieLab, CieLchAb> {
         return coordinate3;
     }
 
-    public static XyzLabConverter from(Xyz xyz) {
+    public static XyzLabConverter from(CIEXYZ xyz) {
         return new XyzLabConverter(xyz);
     }
 
@@ -27,18 +27,18 @@ public class CieLab extends ConvertibleToLch<CieLab, CieLchAb> {
         return new LabXyzConverter();
     }
 
-    public class LabXyzConverter implements WhitePointXyzAwareConverter<Xyz> {
+    public class LabXyzConverter implements WhitePointXyzAwareConverter<CIEXYZ> {
         @Override
-        public Xyz usingWhitePoint(Xyz reference) {
+        public CIEXYZ usingWhitePoint(CIEXYZ reference) {
             var fy = fy();
             var fx = a() / 500 + fy;
             var fz = fy - b() / 200;
             var xr = fxz(fx);
-            var yr = l() > KAPPA_EPSILON ?
+            var yr = L() > KAPPA_EPSILON ?
                     cubeOf(fy) :
-                    l() / KAPPA;
+                    L() / KAPPA;
             var zr = fxz(fz);
-            return new Xyz(xr * reference.x(), yr * reference.y(), zr * reference.z());
+            return new CIEXYZ(xr * reference.X(), yr * reference.Y(), zr * reference.Z());
         }
 
         private double fxz(double value) {
@@ -48,26 +48,26 @@ public class CieLab extends ConvertibleToLch<CieLab, CieLchAb> {
         }
 
         private double fy() {
-            return (l() + 16) / 116;
+            return (L() + 16) / 116;
         }
     }
 
-    public static class XyzLabConverter implements WhitePointXyzAwareConverter<CieLab> {
-        private final Xyz xyz;
+    public static class XyzLabConverter implements WhitePointXyzAwareConverter<CIELAB> {
+        private final CIEXYZ xyz;
 
-        public XyzLabConverter(Xyz xyz) {
+        public XyzLabConverter(CIEXYZ xyz) {
             this.xyz = xyz;
         }
 
         @Override
-        public CieLab usingWhitePoint(Xyz referenceXyz) {
-            double fx = f(xyz.x() / referenceXyz.x());
-            double fy = f(xyz.y() / referenceXyz.y());
-            double fz = f(xyz.z() / referenceXyz.z());
+        public CIELAB usingWhitePoint(CIEXYZ referenceXyz) {
+            double fx = f(xyz.X() / referenceXyz.X());
+            double fy = f(xyz.Y() / referenceXyz.Y());
+            double fz = f(xyz.Z() / referenceXyz.Z());
             double L = 116 * fy - 16;
             double a = 500 * (fx - fy);
             double b = 200 * (fy - fz);
-            return new CieLab(L, a, b);
+            return new CIELAB(L, a, b);
         }
 
         private double f(double componentRatio) {
@@ -79,6 +79,6 @@ public class CieLab extends ConvertibleToLch<CieLab, CieLchAb> {
 
     @Override
     public String toString() {
-        return "%s(%f, %f, %f)".formatted(this.getClass().getSimpleName(), l(), a(), b());
+        return "%s(%f, %f, %f)".formatted(this.getClass().getSimpleName(), L(), a(), b());
     }
 }

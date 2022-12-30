@@ -52,9 +52,9 @@ public abstract class GamutMapper {
             int row, int column,
             double rec2020Red, double rec2020Green, double rec2020Blue) {
         // if error is greater than what 16-bit integer rounding would mask, die
-//        if (mappedPixel.anyCoordinateMatches(value -> value < -1.0 / 65535 / 2 || value > 1 + 1.0 / 65535 / 2)) {
-//            throw exception(mappedPixel, row, column, rec2020Red, rec2020Green, rec2020Blue);
-//        }
+        if (mappedPixel.anyCoordinateMatches(value -> value < -1.0 / 65535 / 2 || value > 1 + 1.0 / 65535 / 2)) {
+            throw exception(mappedPixel, row, column, rec2020Red, rec2020Green, rec2020Blue);
+        }
         return mappedPixel.isOutOfGamut() ?
                 // clip away any remaining tiny error
                 new Srgb(
@@ -68,13 +68,13 @@ public abstract class GamutMapper {
     private static RuntimeException exception(Srgb mappedPixel, int row, int column, double rec2020Red, double rec2020Green, double rec2020Blue) {
         var rec2020 = new Rec2020(rec2020Red, rec2020Green, rec2020Blue);
         var xyzIn = rec2020.toXyz();
-        var cieLabIn = CieLab.from(xyzIn).usingD65_IEC_61966_2_1();
-        var cieLuvIn = CieLuv.from(xyzIn).usingD65_IEC_61966_2_1();
-        var okLabIn = OkLab.from(xyzIn);
+        var cieLabIn = CIELAB.from(xyzIn).usingD65_IEC_61966_2_1();
+        var cieLuvIn = CIELUV.from(xyzIn).usingD65_IEC_61966_2_1();
+        var okLabIn = OkLAB.from(xyzIn);
         var xyzOut = mappedPixel.toXyz();
-        var cieLabOut = CieLab.from(xyzOut).usingD65_IEC_61966_2_1();
-        var cieLuvOut = CieLuv.from(xyzOut).usingD65_IEC_61966_2_1();
-        var okLabOut = OkLab.from(xyzOut);
+        var cieLabOut = CIELAB.from(xyzOut).usingD65_IEC_61966_2_1();
+        var cieLuvOut = CIELUV.from(xyzOut).usingD65_IEC_61966_2_1();
+        var okLabOut = OkLAB.from(xyzOut);
         RuntimeException error = new RuntimeException(
                 (
                         "out of gamut at [%d, %d]:%n" +

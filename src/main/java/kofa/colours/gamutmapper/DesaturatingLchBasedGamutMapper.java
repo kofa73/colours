@@ -20,14 +20,14 @@ import static java.util.Objects.requireNonNull;
  * @param <S> the base colour space
  * @param <P> the corresponding polar LCh type
  */
-public class DesaturatingLchBasedGamutMapper<P extends Lch<P, S>, S extends ConvertibleToLch<S, P>> extends GamutMapper {
+public class DesaturatingLchBasedGamutMapper<P extends LCh<P, S>, S extends ConvertibleToLch<S, P>> extends GamutMapper {
     private final String name;
     private final Vector3Constructor<P> lchConstructor;
     private final Function<Srgb, P> sRgbToLch;
     private final Function<P, Srgb> lchToSrgb;
     private double cDivisor = 0;
 
-    public static DesaturatingLchBasedGamutMapper<CieLchAb, CieLab> forLchAb(RgbImage image) {
+    public static DesaturatingLchBasedGamutMapper<CIELCh_ab, CIELAB> forLchAb(RgbImage image) {
         return new DesaturatingLchBasedGamutMapper<>(
                 image,
                 GamutBoundarySearchParams.FOR_CIELAB,
@@ -35,7 +35,7 @@ public class DesaturatingLchBasedGamutMapper<P extends Lch<P, S>, S extends Conv
         );
     }
 
-    public static DesaturatingLchBasedGamutMapper<CieLchUv, CieLuv> forLchUv(RgbImage image) {
+    public static DesaturatingLchBasedGamutMapper<CIELCh_uv, CIELUV> forLchUv(RgbImage image) {
         return new DesaturatingLchBasedGamutMapper<>(
                 image,
                 GamutBoundarySearchParams.FOR_CIELUV,
@@ -43,7 +43,7 @@ public class DesaturatingLchBasedGamutMapper<P extends Lch<P, S>, S extends Conv
         );
     }
 
-    public static DesaturatingLchBasedGamutMapper<OkLch, OkLab> forOkLch(RgbImage image) {
+    public static DesaturatingLchBasedGamutMapper<OkLCh, OkLAB> forOkLch(RgbImage image) {
         return new DesaturatingLchBasedGamutMapper<>(
                 image,
                 GamutBoundarySearchParams.FOR_OKLAB,

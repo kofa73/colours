@@ -4,11 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import static java.lang.Math.toRadians;
 import static kofa.NumericAssertions.*;
-import static kofa.colours.model.ConversionHelper.D65_WHITE_XYZ_IEC_61966_2_1;
 import static kofa.colours.model.ConverterTest.XYZ_663399;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class XyzTest {
+class CIEXYZTest {
     @Test
     void toDoubles() {
         assertThat(
@@ -20,30 +19,30 @@ class XyzTest {
     void toLuvUsingWhitePoint() {
         // from https://ajalt.github.io/colormath/converter/
         assertIsCloseTo(
-                CieLuv.from(XYZ_663399).usingD65_IEC_61966_2_1(),
-                new CieLuv(32.90281, 12.9804, -67.75974),
+                CIELUV.from(XYZ_663399).usingD65_IEC_61966_2_1(),
+                new CIELUV(32.90281, 12.9804, -67.75974),
                 PRECISE
         );
         double expected_hRadians = toRadians(6.1006);
         assertIsCloseTo(
                 // 154/255 = 0.60392; 58/255 = 0.22745, 61/255 = 0.23922
-                CieLuv
+                CIELUV
                         .from(
                                 new Rec2020(154.0 / 255, 58.0 / 255, 61.0 / 255).toXyz()
-                        ).usingWhitePoint(D65_WHITE_XYZ_IEC_61966_2_1)
+                        ).usingWhitePoint(CIEXYZ.D65_WHITE_IEC_61966_2_1)
                         .toLch(),
-                new CieLchUv(63.91936, 83.81409, expected_hRadians),
+                new CIELCh_uv(63.91936, 83.81409, expected_hRadians),
                 // picked from UI
                 PRECISE, PRECISE, LENIENT
         );
         assertIsCloseTo(
                 // linear Rec709 reading from a photo in darktable
-                CieLuv.from(
+                CIELUV.from(
                                 new Srgb(217.0 / 255, 46.0 / 255, 59.0 / 255).toXyz()
-                        ).usingWhitePoint(D65_WHITE_XYZ_IEC_61966_2_1)
+                        ).usingWhitePoint(CIEXYZ.D65_WHITE_IEC_61966_2_1)
                         .toLch(),
                 // LCh from https://ajalt.github.io/colormath/converter/, h in degrees
-                new CieLchUv(63.91936, 83.81409, toRadians(6.1006)),
+                new CIELCh_uv(63.91936, 83.81409, toRadians(6.1006)),
                 // allow some slack because of the integers
                 PRECISE, LENIENT, ROUGH
         );

@@ -5,7 +5,7 @@ import kofa.maths.Vector3Constructor;
 
 import java.util.function.Function;
 
-public record GamutBoundarySearchParams<L extends Lch<L, ?>>(
+public record GamutBoundarySearchParams<L extends LCh<L, ?>>(
         Class<L> type,
         Function<Srgb, L> sRgbToLch,
         Function<L, Srgb> lchToSrgb,
@@ -13,31 +13,31 @@ public record GamutBoundarySearchParams<L extends Lch<L, ?>>(
         double roughChromaSearchStep, double solutionThreshold,
         double maxL) {
 
-    public static final GamutBoundarySearchParams<CieLchAb> FOR_CIELAB = new GamutBoundarySearchParams<>(
-            CieLchAb.class,
-            sRgb -> CieLab.from(sRgb.toXyz()).usingD65_IEC_61966_2_1().toLch(),
+    public static final GamutBoundarySearchParams<CIELCh_ab> FOR_CIELAB = new GamutBoundarySearchParams<>(
+            CIELCh_ab.class,
+            sRgb -> CIELAB.from(sRgb.toXyz()).usingD65_IEC_61966_2_1().toLch(),
             lch -> Srgb.from(lch.toLab().toXyz().usingD65_IEC_61966_2_1()),
-            CieLchAb::new,
+            CIELCh_ab::new,
             1,
             1E-6,
             100
     );
 
-    public static final GamutBoundarySearchParams<CieLchUv> FOR_CIELUV = new GamutBoundarySearchParams<>(
-            CieLchUv.class,
-            sRgb -> CieLuv.from(sRgb.toXyz()).usingD65_IEC_61966_2_1().toLch(),
+    public static final GamutBoundarySearchParams<CIELCh_uv> FOR_CIELUV = new GamutBoundarySearchParams<>(
+            CIELCh_uv.class,
+            sRgb -> CIELUV.from(sRgb.toXyz()).usingD65_IEC_61966_2_1().toLch(),
             lch -> Srgb.from(lch.toLuv().toXyz().usingD65_IEC_61966_2_1()),
-            CieLchUv::new,
+            CIELCh_uv::new,
             1,
             1E-6,
             100
     );
 
-    public static final GamutBoundarySearchParams<OkLch> FOR_OKLAB = new GamutBoundarySearchParams<>(
-            OkLch.class,
-            sRgb -> OkLab.from(sRgb).toLch(),
+    public static final GamutBoundarySearchParams<OkLCh> FOR_OKLAB = new GamutBoundarySearchParams<>(
+            OkLCh.class,
+            sRgb -> OkLAB.from(sRgb).toLch(),
             lch -> lch.toLab().toSrgb(),
-            OkLch::new,
+            OkLCh::new,
             1,
             1E-6,
             1

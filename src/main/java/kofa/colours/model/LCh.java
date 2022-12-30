@@ -9,14 +9,14 @@ import static java.lang.Math.*;
  * LCh representation
  *
  * @param <L> the polar Lch subtype
- * @param <S> the scalar subtype
+ * @param <V> the vector subtype
  */
-public abstract class Lch<L extends Lch<L, S>, S extends ConvertibleToLch<S, L>> extends Vector3 {
-    private final Vector3Constructor<S> scalarConstructor;
+public abstract class LCh<L extends LCh<L, V>, V extends ConvertibleToLch<V, L>> extends Vector3 {
+    private final Vector3Constructor<V> vectorConstructor;
 
-    protected Lch(double l, double c, double h, Vector3Constructor<S> scalarConstructor) {
+    protected LCh(double l, double c, double h, Vector3Constructor<V> vectorConstructor) {
         super(l, c, h);
-        this.scalarConstructor = scalarConstructor;
+        this.vectorConstructor = vectorConstructor;
     }
 
     public final double l() {
@@ -36,8 +36,8 @@ public abstract class Lch<L extends Lch<L, S>, S extends ConvertibleToLch<S, L>>
         return hueDegrees > 360 ? hueDegrees - 360 : (hueDegrees < 0 ? hueDegrees + 360 : hueDegrees);
     }
 
-    protected final S toScalar() {
-        return scalarConstructor.createFrom(l(), c() * cos(h()), c() * sin(h()));
+    protected final V toVector() {
+        return vectorConstructor.createFrom(l(), c() * cos(h()), c() * sin(h()));
     }
 
     @Override

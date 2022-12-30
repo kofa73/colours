@@ -18,7 +18,7 @@ import java.util.function.ToDoubleFunction;
  *
  * @param <P> the polar LCh type
  */
-public class GradualChromaDampeningLchBasedGamutMapper<P extends Lch<P, S>, S extends ConvertibleToLch<S, P>> extends GamutMapper {
+public class GradualChromaDampeningLchBasedGamutMapper<P extends LCh<P, S>, S extends ConvertibleToLch<S, P>> extends GamutMapper {
     private final ToDoubleFunction<Srgb> maxCFinder;
     private final String name;
     private final ThanatomanicCurve6 dampeningCurve;
@@ -28,7 +28,7 @@ public class GradualChromaDampeningLchBasedGamutMapper<P extends Lch<P, S>, S ex
     private final Function<P, Srgb> lchToSrgb;
     private final Vector3Constructor<P> lchConstructor;
 
-    public static GradualChromaDampeningLchBasedGamutMapper<CieLchAb, CieLab> forLchAb(double shoulder, RgbImage image) {
+    public static GradualChromaDampeningLchBasedGamutMapper<CIELCh_ab, CIELAB> forLchAb(double shoulder, RgbImage image) {
         return new GradualChromaDampeningLchBasedGamutMapper<>(
                 shoulder,
                 GamutBoundarySearchParams.FOR_CIELAB,
@@ -37,7 +37,7 @@ public class GradualChromaDampeningLchBasedGamutMapper<P extends Lch<P, S>, S ex
         );
     }
 
-    public static GradualChromaDampeningLchBasedGamutMapper<CieLchUv, CieLuv> forLchUv(double shoulder, RgbImage image) {
+    public static GradualChromaDampeningLchBasedGamutMapper<CIELCh_uv, CIELUV> forLchUv(double shoulder, RgbImage image) {
         return new GradualChromaDampeningLchBasedGamutMapper<>(
                 shoulder,
                 GamutBoundarySearchParams.FOR_CIELUV,
@@ -46,7 +46,7 @@ public class GradualChromaDampeningLchBasedGamutMapper<P extends Lch<P, S>, S ex
         );
     }
 
-    public static GradualChromaDampeningLchBasedGamutMapper<OkLch, OkLab> forOkLch(double shoulder, RgbImage image) {
+    public static GradualChromaDampeningLchBasedGamutMapper<OkLCh, OkLAB> forOkLch(double shoulder, RgbImage image) {
         return new GradualChromaDampeningLchBasedGamutMapper<>(
                 shoulder,
                 GamutBoundarySearchParams.FOR_OKLAB,

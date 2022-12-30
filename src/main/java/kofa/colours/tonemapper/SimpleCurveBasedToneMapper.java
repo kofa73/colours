@@ -1,8 +1,8 @@
 package kofa.colours.tonemapper;
 
-import kofa.colours.model.CieLab;
-import kofa.colours.model.CieLuv;
-import kofa.colours.model.OkLab;
+import kofa.colours.model.CIELAB;
+import kofa.colours.model.CIELUV;
+import kofa.colours.model.OkLAB;
 import kofa.colours.model.Rec2020;
 import kofa.io.RgbImage;
 import kofa.maths.Solver;
@@ -27,15 +27,15 @@ public class SimpleCurveBasedToneMapper<S> implements ToneMapper<S> {
     private final BiFunction<S, Double, S> constructorWithMappedBrightness;
     private final ToDoubleFunction<S> brightnessFunction;
 
-    public static SimpleCurveBasedToneMapper<CieLab> forCieLab(RgbImage image) {
+    public static SimpleCurveBasedToneMapper<CIELAB> forCieLab(RgbImage image) {
         return new SimpleCurveBasedToneMapper<>(image, ToneMappingParams.FOR_CIELAB);
     }
 
-    public static SimpleCurveBasedToneMapper<CieLuv> forCieLuv(RgbImage image) {
+    public static SimpleCurveBasedToneMapper<CIELUV> forCieLuv(RgbImage image) {
         return new SimpleCurveBasedToneMapper<>(image, ToneMappingParams.FOR_CIELUV);
     }
 
-    public static SimpleCurveBasedToneMapper<OkLab> forOkLab(RgbImage image) {
+    public static SimpleCurveBasedToneMapper<OkLAB> forOkLab(RgbImage image) {
         return new SimpleCurveBasedToneMapper<>(image, ToneMappingParams.FOR_OKLAB);
     }
 

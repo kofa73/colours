@@ -1,6 +1,6 @@
 package kofa.colours.gamutmapper;
 
-import kofa.colours.model.Lch;
+import kofa.colours.model.LCh;
 import kofa.colours.model.Srgb;
 import kofa.maths.PrimitiveDoubleToDoubleFunction;
 import kofa.maths.Solver;
@@ -16,7 +16,7 @@ import static java.util.Objects.requireNonNull;
  * Tries to find max C values for LCh(ab) and LCh(uv) by scanning the LCh spaces in L and h, solving for
  * C where at least one sRGB components is 0 or 1.
  */
-public class MaxCLabLuvSolver<L extends Lch<L, ?>> {
+public class MaxCLabLuvSolver<L extends LCh<L, ?>> {
     private final Function<Srgb, L> sRgbToLch;
     private final Function<L, Srgb> lchToSrgb;
     private final Vector3Constructor<L> lchConstructor;

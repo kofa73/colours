@@ -20,14 +20,14 @@ import static java.util.Objects.requireNonNull;
  * @param <S> the base colour space
  * @param <P> the corresponding polar LCh type
  */
-public class ChromaClippingLchBasedGamutMapper<P extends Lch<P, S>, S extends ConvertibleToLch<S, P>> extends GamutMapper {
+public class ChromaClippingLchBasedGamutMapper<P extends LCh<P, S>, S extends ConvertibleToLch<S, P>> extends GamutMapper {
     private final ToDoubleFunction<Srgb> maxCFinder;
     private final String name;
     private final Vector3Constructor<P> lchConstructor;
     private final Function<Srgb, P> sRgbToLch;
     private final Function<P, Srgb> lchToSrgb;
 
-    public static ChromaClippingLchBasedGamutMapper<CieLchAb, CieLab> forLchAb(RgbImage image) {
+    public static ChromaClippingLchBasedGamutMapper<CIELCh_ab, CIELAB> forLchAb(RgbImage image) {
         return new ChromaClippingLchBasedGamutMapper<>(
                 GamutBoundarySearchParams.FOR_CIELAB,
                 SimpleCurveBasedToneMapper.forCieLab(image),
@@ -35,7 +35,7 @@ public class ChromaClippingLchBasedGamutMapper<P extends Lch<P, S>, S extends Co
         );
     }
 
-    public static ChromaClippingLchBasedGamutMapper<CieLchUv, CieLuv> forLchUv(RgbImage image) {
+    public static ChromaClippingLchBasedGamutMapper<CIELCh_uv, CIELUV> forLchUv(RgbImage image) {
         return new ChromaClippingLchBasedGamutMapper<>(
                 GamutBoundarySearchParams.FOR_CIELUV,
                 SimpleCurveBasedToneMapper.forCieLuv(image),
@@ -43,7 +43,7 @@ public class ChromaClippingLchBasedGamutMapper<P extends Lch<P, S>, S extends Co
         );
     }
 
-    public static ChromaClippingLchBasedGamutMapper<OkLch, OkLab> forOkLch(RgbImage image) {
+    public static ChromaClippingLchBasedGamutMapper<OkLCh, OkLAB> forOkLch(RgbImage image) {
         return new ChromaClippingLchBasedGamutMapper<>(
                 GamutBoundarySearchParams.FOR_OKLAB,
                 SimpleCurveBasedToneMapper.forOkLab(image),

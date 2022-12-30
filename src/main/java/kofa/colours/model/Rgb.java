@@ -19,9 +19,9 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
         super(r, g, b);
     }
 
-    protected abstract SpaceConversionMatrix<S, Xyz> toXyzMatrix();
+    protected abstract SpaceConversionMatrix<S, CIEXYZ> toXyzMatrix();
 
-    public Xyz toXyz() {
+    public CIEXYZ toXyz() {
         return toXyzMatrix().multiply((S) this);
     }
 
@@ -42,7 +42,7 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
             double xr, double yr,
             double xg, double yg,
             double xb, double yb,
-            Xyz referenceWhite
+            CIEXYZ referenceWhite
     ) {
         double Xr = xr / yr;
         double Yr = 1;
@@ -60,7 +60,7 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
                         {Yr, Yg, Yb},
                         {Zr, Zg, Zb}
                 }
-        )).operate(new double[]{referenceWhite.x(), referenceWhite.y(), referenceWhite.z()});
+        )).operate(new double[]{referenceWhite.X(), referenceWhite.Y(), referenceWhite.Z()});
 
         double Sr = S[0];
         double Sg = S[1];

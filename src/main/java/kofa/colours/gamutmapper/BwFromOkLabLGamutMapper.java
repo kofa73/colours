@@ -1,6 +1,6 @@
 package kofa.colours.gamutmapper;
 
-import kofa.colours.model.OkLab;
+import kofa.colours.model.OkLAB;
 import kofa.colours.model.Srgb;
 import kofa.colours.tonemapper.SimpleCurveBasedToneMapper;
 import kofa.io.RgbImage;
@@ -15,7 +15,7 @@ public class BwFromOkLabLGamutMapper extends GamutMapper {
 
     @Override
     public Srgb getInsideGamut(Srgb srgb) {
-        var lab = OkLab.from(srgb);
-        return new OkLab(lab.l(), 0, 0).toSrgb();
+        var lab = OkLAB.from(srgb);
+        return new OkLAB(lab.L(), 0, 0).toSrgb();
     }
 }
