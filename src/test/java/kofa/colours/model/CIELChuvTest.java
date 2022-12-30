@@ -13,7 +13,7 @@ class CIELChuvTest {
 
     @Test
     void white() {
-        assertIsCloseTo(new CIELCh_uv(100, 0, 0).toLuv().toXyz().usingD65_2DegreeStandardObserver(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE);
+        assertIsCloseTo(new CIELCh_uv(100, 0, 0).toLuv().toXyz().usingD65_2DegreeStandardObserver(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
     }
 
     @Test

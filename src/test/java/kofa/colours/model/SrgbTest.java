@@ -2,15 +2,14 @@ package kofa.colours.model;
 
 import org.junit.jupiter.api.Test;
 
-import static kofa.NumericAssertions.PRECISE;
-import static kofa.NumericAssertions.assertIsCloseTo;
+import static kofa.NumericAssertions.*;
 import static kofa.colours.model.ConverterTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SrgbTest {
     @Test
     void white() {
-        assertIsCloseTo(new Srgb(1, 1, 1).toXyz(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE);
+        assertIsCloseTo(new Srgb(1, 1, 1).toXyz(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
     }
 
     @Test
@@ -62,5 +61,35 @@ class SrgbTest {
         assertIsCloseTo(sRgbFromXyz[0], new double[]{3.2404542, -1.5371385, -0.4985314}, PRECISE);
         assertIsCloseTo(sRgbFromXyz[1], new double[]{-0.9692660, 1.8760108, 0.0415560}, PRECISE);
         assertIsCloseTo(sRgbFromXyz[2], new double[]{0.0556434, -0.2040259, 1.0572252}, PRECISE);
+    }
+
+    @Test
+    void sRgb_Xyz_Rec2020() {
+        // given - some random area average value picked in darktable with linear rec709/sRGB
+        var sRgb = new Srgb(89 / 255.0, 115 / 255.0, 177 / 255.0);
+
+        // when
+        var xyz = sRgb.toXyz();
+        var rec2020 = Rec2020.from(xyz);
+
+        // then - same area average value picked in darktable with rec2020
+        var expectedRec2020 = new Rec2020(101 / 255.0, 114 / 255.0, 170 / 255.0);
+        // all integers, so need a lenient comparison
+        assertIsCloseTo(rec2020, expectedRec2020, ROUGH, LENIENT, PRECISE);
+    }
+
+    @Test
+    void sRgb_Xyz_Rec2020_doubles() {
+        // given - some random area average value picked in darktable with linear rec709/sRGB
+        var sRgb = new Srgb(0.089, 0.115, 0.177);
+
+        // when
+        var xyz = sRgb.toXyz();
+        var rec2020 = Rec2020.from(xyz);
+
+        // then - same area average value picked in darktable with rec2020
+        var expectedRec2020 = new Rec2020(0.101, 0.114, 0.170);
+        // were read from a UI, so need more lenient comparison
+        assertIsCloseTo(rec2020, expectedRec2020, ROUGH, LENIENT, PRECISE);
     }
 }

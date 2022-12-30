@@ -79,8 +79,8 @@ public class NumericAssertions {
 
     public static void assertRadiansAreClose(double actualRadians, double expectedRadians) {
         try {
-            assertIsCloseTo(sin(actualRadians), sin(expectedRadians), PRECISE, COMPARISON_THRESHOLD);
-            assertIsCloseTo(cos(actualRadians), cos(expectedRadians), PRECISE, COMPARISON_THRESHOLD);
+            assertIsCloseTo(sin(actualRadians), sin(expectedRadians), EXACT, COMPARISON_THRESHOLD);
+            assertIsCloseTo(cos(actualRadians), cos(expectedRadians), EXACT, COMPARISON_THRESHOLD);
         } catch (AssertionError ae) {
             throw new AssertionError("Expecting actual: " + actualRadians + " to be close to " + expectedRadians, ae);
         }

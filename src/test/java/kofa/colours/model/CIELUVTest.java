@@ -3,8 +3,7 @@ package kofa.colours.model;
 import org.junit.jupiter.api.Test;
 
 import static java.lang.Math.toRadians;
-import static kofa.NumericAssertions.PRECISE;
-import static kofa.NumericAssertions.assertIsCloseTo;
+import static kofa.NumericAssertions.*;
 import static kofa.colours.model.ConverterTest.CIE_LUV_663399;
 import static kofa.colours.model.ConverterTest.XYZ_663399;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,7 +24,7 @@ class CIELUVTest {
         assertIsCloseTo(
                 CIE_LUV_663399.toLch(),
                 new CIELCh_uv(32.90281, 68.99183, hRadians),
-                PRECISE
+                EXACT
         );
     }
 
@@ -41,7 +40,7 @@ class CIELUVTest {
     @Test
     void toXyz_white() {
         CIEXYZ whiteXyz = new CIELUV(100, 0, 0).toXyz().usingD65_2DegreeStandardObserver();
-        assertIsCloseTo(whiteXyz, CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE);
+        assertIsCloseTo(whiteXyz, CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
     }
 
     @Test
@@ -49,7 +48,7 @@ class CIELUVTest {
         assertIsCloseTo(
                 new CIELUV(0, 0, 0).toXyz().usingD65_2DegreeStandardObserver(),
                 new CIEXYZ(0, 0, 0),
-                PRECISE
+                EXACT
         );
         assertThat(new CIELUV(0, 100, -100).toXyz().usingD65_2DegreeStandardObserver().Y()).isEqualTo(0);
     }
@@ -78,7 +77,7 @@ class CIELUVTest {
         assertIsCloseTo(
                 CIELUV.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DegreeStandardObserver(),
                 new CIELUV(100, 0, 0),
-                PRECISE
+                EXACT
         );
     }
 
@@ -88,7 +87,7 @@ class CIELUVTest {
         assertIsCloseTo(
                 CIELUV.from(new CIEXYZ(100, 0, -100)).usingD65_2DegreeStandardObserver(),
                 new CIELUV(0, 0, 0),
-                PRECISE
+                EXACT
         );
     }
 
@@ -99,5 +98,20 @@ class CIELUVTest {
                 new CIELUV(7.99999, 1, 1),
                 PRECISE
         );
+    }
+
+    @Test
+    void convert_LCH_uv_to_Luv() {
+        // given
+        // RGB #663399 -> LCh_uv(32.90281, 68.99183, -280.84448 degrees -> 4.90166086204 radians)
+        var lchUv = new CIELCh_uv(32.90281, 68.99183, 4.90166086204);
+
+        // when
+        var luv = lchUv.toLuv();
+
+        // then
+        var expectedLuv = new CIELUV(32.90281, 12.9804, -67.75974);
+
+        assertIsCloseTo(luv, expectedLuv, PRECISE);
     }
 }

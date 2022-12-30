@@ -24,19 +24,19 @@ class OkLABTest {
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void xyzToLabToXyz(CIEXYZ xyz, OkLAB ignored) {
-        assertIsCloseTo(OkLAB.from(xyz).toXyz(), xyz, PRECISE, 1E-7);
+        assertIsCloseTo(OkLAB.from(xyz).toXyz(), xyz, EXACT, 1E-7);
     }
 
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void labToXyzToLab(CIEXYZ ignored, OkLAB lab) {
-        assertIsCloseTo(OkLAB.from(lab.toXyz()), lab, PRECISE, 1E-7);
+        assertIsCloseTo(OkLAB.from(lab.toXyz()), lab, EXACT, 1E-7);
     }
 
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void fromXyz_rounded(CIEXYZ xyz, OkLAB expectedOkLab) {
-        assertIsCloseTo(roundToThreeDecimals(OkLAB.from(xyz)), expectedOkLab, PRECISE);
+        assertIsCloseTo(roundToThreeDecimals(OkLAB.from(xyz)), expectedOkLab, EXACT);
     }
 
     @ParameterizedTest

@@ -20,36 +20,6 @@ class ConverterTest {
     public static final CIEXYZ TINY_XYZ = new CIEXYZ(0.5, 1E-4, 1E-5);
 
     @Test
-    void sRgb_Xyz_Rec2020() {
-        // given - some random area average value picked in darktable with linear rec709/sRGB
-        var sRgb = new Srgb(89 / 255.0, 115 / 255.0, 177 / 255.0);
-
-        // when
-        var xyz = sRgb.toXyz();
-        var rec2020 = Rec2020.from(xyz);
-
-        // then - same area average value picked in darktable with rec2020
-        var expectedRec2020 = new Rec2020(101 / 255.0, 114 / 255.0, 170 / 255.0);
-        // all integers, so need a lenient comparison
-        assertIsCloseTo(rec2020, expectedRec2020, ROUGH, LENIENT, PRECISE);
-    }
-
-    @Test
-    void sRgb_Xyz_Rec2020_doubles() {
-        // given - some random area average value picked in darktable with linear rec709/sRGB
-        var sRgb = new Srgb(0.089, 0.115, 0.177);
-
-        // when
-        var xyz = sRgb.toXyz();
-        var rec2020 = Rec2020.from(xyz);
-
-        // then - same area average value picked in darktable with rec2020
-        var expectedRec2020 = new Rec2020(0.101, 0.114, 0.170);
-        // were read from a UI, so need more lenient comparison
-        assertIsCloseTo(rec2020, expectedRec2020, ROUGH, LENIENT, PRECISE);
-    }
-
-    @Test
     void rec2020_Xyz_sRgb() {
         var originalRec2020 = new Rec2020(101 / 255.0, 114 / 255.0, 170 / 255.0);
 
@@ -79,23 +49,10 @@ class ConverterTest {
         // 280.84448 degrees -> 4.90166086204 radians + wrap-around
         var expectedLchUv = new CIELCh_uv(32.90281, 68.99183, toRadians(280.84448));
 
-        assertIsCloseTo(lchUv, expectedLchUv, PRECISE);
+        assertIsCloseTo(lchUv, expectedLchUv, EXACT);
     }
 
-    @Test
-    void convert_LCH_uv_to_Luv() {
-        // given
-        // RGB #663399 -> LCh_uv(32.90281, 68.99183, -280.84448 degrees -> 4.90166086204 radians)
-        var lchUv = new CIELCh_uv(32.90281, 68.99183, 4.90166086204);
 
-        // when
-        var luv = lchUv.toLuv();
-
-        // then
-        var expectedLuv = new CIELUV(32.90281, 12.9804, -67.75974);
-
-        assertIsCloseTo(luv, expectedLuv, PRECISE);
-    }
 
     @Test
     void white_roundtrip() {
@@ -107,13 +64,13 @@ class ConverterTest {
         CIELCh_uv LCH_from_Luv = luvFromXyz.toLch();
 
         CIELUV Luv_from_LCH = LCH_from_Luv.toLuv();
-        assertIsCloseTo(Luv_from_LCH, luvFromXyz, PRECISE);
+        assertIsCloseTo(Luv_from_LCH, luvFromXyz, EXACT);
 
         CIEXYZ Xyz_from_Luv = Luv_from_LCH.toXyz().usingD65_2DegreeStandardObserver();
-        assertIsCloseTo(Xyz_from_Luv, XYZ_from_RGB, PRECISE);
+        assertIsCloseTo(Xyz_from_Luv, XYZ_from_RGB, EXACT);
 
         var sRGB_from_XYZ = Srgb.from(Xyz_from_Luv);
-        assertIsCloseTo(sRGB_from_XYZ, original_sRGB, PRECISE);
+        assertIsCloseTo(sRGB_from_XYZ, original_sRGB, EXACT);
     }
 
     @Test
@@ -123,19 +80,19 @@ class ConverterTest {
 
         var luvFromXyzD65 = CIELUV.from(xyzFromSrgb).usingD65_2DegreeStandardObserver();
         CIELUV luvFromXyz = CIELUV.from(xyzFromSrgb).usingWhitePoint(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
-        assertIsCloseTo(luvFromXyzD65, luvFromXyz, PRECISE);
+        assertIsCloseTo(luvFromXyzD65, luvFromXyz, EXACT);
 
         var lchFromLuv = luvFromXyzD65.toLch();
 
         var luvFromLch = lchFromLuv.toLuv();
-        assertIsCloseTo(luvFromLch, luvFromXyzD65, PRECISE);
+        assertIsCloseTo(luvFromLch, luvFromXyzD65, EXACT);
 
         var xyzFromLuvD65 = luvFromLch.toXyz().usingD65_2DegreeStandardObserver();
-        assertIsCloseTo(xyzFromLuvD65, xyzFromSrgb, PRECISE);
+        assertIsCloseTo(xyzFromLuvD65, xyzFromSrgb, EXACT);
         var xyzFromLuv = luvFromLch.toXyz().usingWhitePoint(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
-        assertIsCloseTo(xyzFromLuvD65, xyzFromLuv, PRECISE);
+        assertIsCloseTo(xyzFromLuvD65, xyzFromLuv, EXACT);
 
         var sRgbFromXyz = Srgb.from(xyzFromLuvD65);
-        assertIsCloseTo(sRgbFromXyz, originalSrgb, PRECISE);
+        assertIsCloseTo(sRgbFromXyz, originalSrgb, EXACT);
     }
 }

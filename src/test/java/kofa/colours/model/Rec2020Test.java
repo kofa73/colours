@@ -2,8 +2,7 @@ package kofa.colours.model;
 
 import org.junit.jupiter.api.Test;
 
-import static kofa.NumericAssertions.PRECISE;
-import static kofa.NumericAssertions.assertIsCloseTo;
+import static kofa.NumericAssertions.*;
 import static kofa.colours.model.ConverterTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
@@ -11,7 +10,7 @@ import static org.assertj.core.data.Offset.offset;
 class Rec2020Test {
     @Test
     void white() {
-        assertIsCloseTo(new Rec2020(1, 1, 1).toXyz(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE);
+        assertIsCloseTo(new Rec2020(1, 1, 1).toXyz(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
     }
 
     @Test
@@ -54,9 +53,9 @@ class Rec2020Test {
     void toXyzMatrix() {
         var rec2020ToXyz = Rec2020.TO_XYZ.values();
         // https://colour.readthedocs.io/en/v0.3.7/colour.models.dataset.rec_2020.html#colour.models.dataset.rec_2020.REC_2020_TO_XYZ_MATRIX
-        assertIsCloseTo(rec2020ToXyz[0], new double[]{6.36953507E-01, 1.44619185E-01, 1.68855854E-01}, PRECISE);
-        assertIsCloseTo(rec2020ToXyz[1], new double[]{2.62698339E-01, 6.78008766E-01, 5.92928953E-02}, PRECISE);
-        assertIsCloseTo(rec2020ToXyz[2], new double[]{4.99407097E-17, 2.80731358E-02, 1.06082723E+00}, PRECISE);
+        assertIsCloseTo(rec2020ToXyz[0], new double[]{6.36953507E-01, 1.44619185E-01, 1.68855854E-01}, EXACT);
+        assertIsCloseTo(rec2020ToXyz[1], new double[]{2.62698339E-01, 6.78008766E-01, 5.92928953E-02}, EXACT);
+        assertIsCloseTo(rec2020ToXyz[2], new double[]{4.99407097E-17, 2.80731358E-02, 1.06082723E+00}, EXACT);
     }
 
     @Test

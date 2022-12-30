@@ -3,8 +3,7 @@ package kofa.colours.model;
 import org.junit.jupiter.api.Test;
 
 import static java.lang.Math.toRadians;
-import static kofa.NumericAssertions.PRECISE;
-import static kofa.NumericAssertions.assertIsCloseTo;
+import static kofa.NumericAssertions.*;
 import static kofa.colours.model.ConverterTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,12 +27,12 @@ class CIELABTest {
         assertIsCloseTo(
                 CIELAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DegreeStandardObserver(),
                 new CIELAB(100, 0, 0),
-                PRECISE
+                EXACT
         );
         assertIsCloseTo(
                 CIELAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DegreeStandardObserver(),
                 new CIELAB(100, 0, 0),
-                PRECISE
+                EXACT
         );
     }
 
@@ -42,7 +41,7 @@ class CIELABTest {
         assertIsCloseTo(
                 CIELAB.from(new CIEXYZ(0, 0, 0)).usingD65_2DegreeStandardObserver(),
                 new CIELAB(0, 0, 0),
-                PRECISE
+                EXACT
         );
     }
 
@@ -58,7 +57,7 @@ class CIELABTest {
         assertIsCloseTo(
                 CIELAB.from(ConverterTest.TINY_XYZ).usingD65_2DegreeStandardObserver().toXyz().usingD65_2DegreeStandardObserver(),
                 TINY_XYZ,
-                PRECISE
+                EXACT
         );
     }
 
@@ -67,7 +66,7 @@ class CIELABTest {
         assertIsCloseTo(
                 new CIELAB(100, 0, 0).toXyz().usingD65_2DegreeStandardObserver(),
                 CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER,
-                PRECISE
+                EXACT
         );
     }
 
@@ -76,7 +75,7 @@ class CIELABTest {
         assertIsCloseTo(
                 new CIELAB(0, 0, 0).toXyz().usingD65_2DegreeStandardObserver(),
                 new CIEXYZ(0, 0, 0),
-                PRECISE
+                EXACT
         );
         assertThat(new CIELAB(0, 100, -100).toXyz().usingD65_2DegreeStandardObserver().Y()).isEqualTo(0);
     }
