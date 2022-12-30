@@ -36,6 +36,6 @@ public record UV(double u, double v) {
 
     @Override
     public String toString() {
-        return "%s(%f, %f)".formatted(this.getClass().getSimpleName(), u(), v());
+        return "%s(%f, %f)".formatted(this.getClass().getSimpleName(), u, v);
     }
 }
