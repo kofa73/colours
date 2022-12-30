@@ -2,6 +2,8 @@ package kofa.colours.model;
 
 import kofa.maths.Vector3;
 
+import java.util.stream.DoubleStream;
+
 public class CIExyY extends Vector3 {
     // According to http://www.brucelindbloom.com/Eqn_XYZ_to_xyY.html, should return xy of reference white
     // Here, we hardcode D65, as that's what both sRGB and Rec2020 uses, but theoretically that's not OK.
@@ -11,20 +13,37 @@ public class CIExyY extends Vector3 {
     public static final CIExyY D65_BLACK_2DEGREE_STANDARD_OBSERVER = new CIExyY(D65_WHITE_2DEGREE_STANDARD_OBSERVER.x(), D65_WHITE_2DEGREE_STANDARD_OBSERVER.y(), 0);
     public static final CIExyY D65_BLACK_10DEGREE_SUPPLEMENTARY_OBSERVER = new CIExyY(D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER.x(), D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER.y(), 0);
 
+    private final double x;
+    private final double y;
+    private final double Y;
+
     protected CIExyY(double x, double y, double Y) {
         super(x, y, Y);
+        this.x = x;
+        this.y = y;
+        this.Y = Y;
+    }
+
+    @Override
+    public DoubleStream coordinates() {
+        return DoubleStream.of(x, y, Y);
+    }
+
+    @Override
+    public String toString() {
+        return Vector3.format(this, x, y, Y);
     }
 
     public double x() {
-        return coordinate1;
+        return x;
     }
 
     public double y() {
-        return coordinate2;
+        return y;
     }
 
     public double Y() {
-        return coordinate3;
+        return Y;
     }
 
     public CIEXYZ toXyz() {
@@ -32,10 +51,10 @@ public class CIExyY extends Vector3 {
             return CIEXYZ.BLACK;
         }
 
-        double yr = Y() / y();
-        double xyzX = x() * yr;
-        double xyzY = Y();
-        double xyzZ = (1 - x() - y()) * yr;
+        double yr = Y / y;
+        double xyzX = x * yr;
+        double xyzY = Y;
+        double xyzZ = (1 - x - y) * yr;
 
         return new CIEXYZ(xyzX, xyzY, xyzZ);
     }
@@ -54,9 +73,5 @@ public class CIExyY extends Vector3 {
         double y = Y / denominator;
 
         return new CIExyY(x, y, Y);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(D65_BLACK_2DEGREE_STANDARD_OBSERVER);
     }
 }

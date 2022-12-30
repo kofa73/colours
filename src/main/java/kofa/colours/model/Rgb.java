@@ -3,7 +3,7 @@ package kofa.colours.model;
 import kofa.maths.SpaceConversionMatrix;
 import kofa.maths.Vector3;
 
-import java.util.function.DoublePredicate;
+import java.util.stream.DoubleStream;
 
 import static java.lang.Math.abs;
 import static org.apache.commons.math3.linear.MatrixUtils.createRealMatrix;
@@ -15,18 +15,21 @@ import static org.apache.commons.math3.linear.MatrixUtils.inverse;
  * @param <S> the subtype
  */
 public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
-    Rgb(double r, double g, double b) {
+    private final double r;
+    private final double g;
+    private final double b;
+
+    protected Rgb(double r, double g, double b) {
         super(r, g, b);
+        this.r = r;
+        this.g = g;
+        this.b = b;
     }
 
     protected abstract SpaceConversionMatrix<S, CIEXYZ> toXyzMatrix();
 
     public CIEXYZ toXyz() {
         return toXyzMatrix().multiply((S) this);
-    }
-
-    public boolean anyCoordinateMatches(DoublePredicate predicate) {
-        return coordinates().anyMatch(predicate);
     }
 
     public boolean isOutOfGamut() {
@@ -69,15 +72,15 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
     }
 
     public double r() {
-        return coordinate1;
+        return r;
     }
 
     public double g() {
-        return coordinate2;
+        return g;
     }
 
     public double b() {
-        return coordinate3;
+        return b;
     }
 
     public boolean isBlack() {
@@ -86,5 +89,15 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
 
     public boolean isWhite() {
         return abs(1 - r()) < 1E-6 && abs(1 - g()) < 1E-6 && abs(1 - b()) < 1E-6;
+    }
+
+    @Override
+    public DoubleStream coordinates() {
+        return DoubleStream.of(r, g, b);
+    }
+
+    @Override
+    public String toString() {
+        return Vector3.format(this, r, g, b);
     }
 }

@@ -81,7 +81,7 @@ public class GradualChromaDampeningLchBasedGamutMapper<P extends LCh<P, S>, S ex
             return Srgb.WHITE;
         }
         var cAtGamutBoundary = maxCFinder.applyAsDouble(sRgb);
-        double originalC = originalLch.c();
+        double originalC = originalLch.C();
         double dampenedC;
         if (cAtGamutBoundary != 0) {
             var ratioToMaxC = originalC / cAtGamutBoundary;
@@ -95,7 +95,7 @@ public class GradualChromaDampeningLchBasedGamutMapper<P extends LCh<P, S>, S ex
             dampenedC = 0;
         }
         return lchToSrgb.apply(
-                lchConstructor.createFrom(originalLch.l(), dampenedC, originalLch.h())
+                lchConstructor.createFrom(originalLch.L(), dampenedC, originalLch.h())
         );
     }
 

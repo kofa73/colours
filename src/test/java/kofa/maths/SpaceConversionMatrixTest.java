@@ -2,6 +2,8 @@ package kofa.maths;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.stream.DoubleStream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SpaceConversionMatrixTest {
@@ -70,20 +72,71 @@ class SpaceConversionMatrixTest {
     }
 
     private static class Source extends Vector3 {
+        final double coordinate1;
+        final double coordinate2;
+        final double coordinate3;
+
         Source(double coordinate1, double coordinate2, double coordinate3) {
             super(coordinate1, coordinate2, coordinate3);
+            this.coordinate1 = coordinate1;
+            this.coordinate2 = coordinate2;
+            this.coordinate3 = coordinate3;
+        }
+
+        @Override
+        public DoubleStream coordinates() {
+            return DoubleStream.of(coordinate1, coordinate2, coordinate3);
+        }
+
+        @Override
+        public String toString() {
+            return Vector3.format(this, coordinate1, coordinate2, coordinate3);
         }
     }
 
     private static class Interim extends Vector3 {
-        protected Interim(double coordinate1, double coordinate2, double coordinate3) {
+        final double coordinate1;
+        final double coordinate2;
+        final double coordinate3;
+
+        Interim(double coordinate1, double coordinate2, double coordinate3) {
             super(coordinate1, coordinate2, coordinate3);
+            this.coordinate1 = coordinate1;
+            this.coordinate2 = coordinate2;
+            this.coordinate3 = coordinate3;
+        }
+
+        @Override
+        public DoubleStream coordinates() {
+            return DoubleStream.of(coordinate1, coordinate2, coordinate3);
+        }
+
+        @Override
+        public String toString() {
+            return Vector3.format(this, coordinate1, coordinate2, coordinate3);
         }
     }
 
     private static class Target extends Vector3 {
-        protected Target(double coordinate1, double coordinate2, double coordinate3) {
+        final double coordinate1;
+        final double coordinate2;
+        final double coordinate3;
+
+        Target(double coordinate1, double coordinate2, double coordinate3) {
             super(coordinate1, coordinate2, coordinate3);
+            this.coordinate1 = coordinate1;
+            this.coordinate2 = coordinate2;
+            this.coordinate3 = coordinate3;
+        }
+
+        @Override
+        public DoubleStream coordinates() {
+            return DoubleStream.of(coordinate1, coordinate2, coordinate3);
+        }
+
+        @Override
+        public String toString() {
+            return Vector3.format(this, coordinate1, coordinate2, coordinate3);
         }
     }
 }

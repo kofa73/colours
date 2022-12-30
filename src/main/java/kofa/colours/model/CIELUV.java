@@ -1,24 +1,32 @@
 package kofa.colours.model;
 
+import kofa.maths.Vector3;
+
 import static kofa.colours.model.ConversionHelper.*;
 
 public class CIELUV extends ConvertibleToLch<CIELUV, CIELCh_uv> {
     public static final CIELUV BLACK = new CIELUV(0, 0, 0);
 
-    public CIELUV(double l, double u, double v) {
-        super(l, u, v, CIELCh_uv::new);
+    private final double u;
+    private final double v;
+
+    public CIELUV(double L, double u, double v) {
+        super(L, u, v, CIELCh_uv::new);
+        this.u = u;
+        this.v = v;
     }
 
-    public double L() {
-        return coordinate1;
+    @Override
+    public String toString() {
+        return Vector3.format(this, L, u, v);
     }
 
     public double u() {
-        return coordinate2;
+        return u;
     }
 
     public double v() {
-        return coordinate3;
+        return v;
     }
 
     public static XyzLuvConverter from(CIEXYZ xyz) {

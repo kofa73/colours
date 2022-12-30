@@ -2,21 +2,9 @@ package kofa.colours.model;
 
 import static kofa.colours.model.ConversionHelper.*;
 
-public class CIELAB extends ConvertibleToLch<CIELAB, CIELCh_ab> {
-    public CIELAB(double l, double a, double b) {
-        super(l, a, b, CIELCh_ab::new);
-    }
-
-    public double L() {
-        return coordinate1;
-    }
-
-    public double a() {
-        return coordinate2;
-    }
-
-    public double b() {
-        return coordinate3;
+public class CIELAB extends LAB<CIELAB, CIELCh_ab> {
+    public CIELAB(double L, double a, double b) {
+        super(L, a, b, CIELCh_ab::new);
     }
 
     public static XyzLabConverter from(CIEXYZ xyz) {
@@ -31,12 +19,12 @@ public class CIELAB extends ConvertibleToLch<CIELAB, CIELCh_ab> {
         @Override
         public CIEXYZ usingWhitePoint(CIEXYZ reference) {
             var fy = fy();
-            var fx = a() / 500 + fy;
-            var fz = fy - b() / 200;
+            var fx = a / 500 + fy;
+            var fz = fy - b / 200;
             var xr = fxz(fx);
-            var yr = L() > KAPPA_EPSILON ?
+            var yr = L > KAPPA_EPSILON ?
                     cubeOf(fy) :
-                    L() / KAPPA;
+                    L / KAPPA;
             var zr = fxz(fz);
             return new CIEXYZ(xr * reference.X(), yr * reference.Y(), zr * reference.Z());
         }
@@ -48,7 +36,7 @@ public class CIELAB extends ConvertibleToLch<CIELAB, CIELCh_ab> {
         }
 
         private double fy() {
-            return (L() + 16) / 116;
+            return (L + 16) / 116;
         }
     }
 

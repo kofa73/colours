@@ -39,7 +39,7 @@ public class MaxCLabLuvSolver<L extends LCh<L, ?>> {
 
     public double solveMaxCForLch(Srgb inputSrgb) {
         L lch = sRgbToLch.apply(inputSrgb);
-        double l = lch.l();
+        double l = lch.L();
         if (l >= maxL || l <= 0 || inputSrgb.isBlack() || inputSrgb.isWhite()) {
             return 0;
         }

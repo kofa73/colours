@@ -2,6 +2,8 @@ package kofa.colours.model;
 
 import kofa.maths.Vector3;
 
+import java.util.stream.DoubleStream;
+
 import static java.lang.Math.abs;
 
 public class CIEXYZ extends Vector3 {
@@ -15,20 +17,37 @@ public class CIEXYZ extends Vector3 {
     public static final CIEXYZ D65_WHITE_2DEGREE_STANDARD_OBSERVER = CIExyY.D65_WHITE_2DEGREE_STANDARD_OBSERVER.toXyz();
     public static final CIEXYZ D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER = CIExyY.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER.toXyz();
 
+    private final double X;
+    private final double Y;
+    private final double Z;
+
     public CIEXYZ(double X, double Y, double Z) {
         super(X, Y, Z);
+        this.X = X;
+        this.Y = Y;
+        this.Z = Z;
+    }
+
+    @Override
+    public DoubleStream coordinates() {
+        return DoubleStream.of(X, Y, Z);
+    }
+
+    @Override
+    public String toString() {
+        return Vector3.format(this, X, Y, Z);
     }
 
     public double X() {
-        return coordinate1;
+        return X;
     }
 
     public double Y() {
-        return coordinate2;
+        return Y;
     }
 
     public double Z() {
-        return coordinate3;
+        return Z;
     }
 
     public boolean isBlack() {

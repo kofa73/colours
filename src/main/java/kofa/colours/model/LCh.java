@@ -3,45 +3,58 @@ package kofa.colours.model;
 import kofa.maths.Vector3;
 import kofa.maths.Vector3Constructor;
 
+import java.util.stream.DoubleStream;
+
 import static java.lang.Math.*;
 
 /**
  * LCh representation
  *
- * @param <L> the polar Lch subtype
+ * @param <P> the polar Lch subtype
  * @param <V> the vector subtype
  */
-public abstract class LCh<L extends LCh<L, V>, V extends ConvertibleToLch<V, L>> extends Vector3 {
+public abstract class LCh<P extends LCh<P, V>, V extends ConvertibleToLch<V, P>> extends Vector3 {
     private final Vector3Constructor<V> vectorConstructor;
+    private final double L;
+    private final double C;
+    private final double h;
 
-    protected LCh(double l, double c, double h, Vector3Constructor<V> vectorConstructor) {
-        super(l, c, h);
+    protected LCh(double L, double C, double h, Vector3Constructor<V> vectorConstructor) {
+        super(L, C, h);
+        this.L = L;
+        this.C = C;
+        this.h = h;
         this.vectorConstructor = vectorConstructor;
     }
 
-    public final double l() {
-        return coordinate1;
+    public final double L() {
+        return L;
     }
 
-    public final double c() {
-        return coordinate2;
+    public final double C() {
+        return C;
     }
 
     public final double h() {
-        return coordinate3;
+        return h;
     }
 
     public final double hueInDegrees() {
-        var hueDegrees = toDegrees(h());
+        var hueDegrees = toDegrees(h);
         return hueDegrees > 360 ? hueDegrees - 360 : (hueDegrees < 0 ? hueDegrees + 360 : hueDegrees);
     }
 
     protected final V toVector() {
-        return vectorConstructor.createFrom(l(), c() * cos(h()), c() * sin(h()));
+        return vectorConstructor.createFrom(L, C * cos(h), C * sin(h));
     }
 
     @Override
     public final String toString() {
-        return "%s (%.8f, %.8f, %.8f)".formatted(super.toString(), l(), c(), hueInDegrees());
+        return "%s (%.8f, %.8f, %.8f)".formatted(Vector3.format(this, L, C, h), L, C, hueInDegrees());
+    }
+
+    @Override
+    public final DoubleStream coordinates() {
+        return DoubleStream.of(L, C, h);
     }
 }

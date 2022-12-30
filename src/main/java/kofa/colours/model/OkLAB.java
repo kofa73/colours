@@ -3,13 +3,15 @@ package kofa.colours.model;
 import kofa.maths.SpaceConversionMatrix;
 import kofa.maths.Vector3;
 
+import java.util.stream.DoubleStream;
+
 import static kofa.colours.model.ConversionHelper.cubeOf;
 import static kofa.colours.model.ConversionHelper.cubeRootOf;
 
 /**
  * OKLab from https://bottosson.github.io/posts/oklab/
  */
-public class OkLAB extends ConvertibleToLch<OkLAB, OkLCh> {
+public class OkLAB extends LAB<OkLAB, OkLCh> {
     private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS = new SpaceConversionMatrix<>(
             LMS::new,
             new double[][]{
@@ -36,18 +38,6 @@ public class OkLAB extends ConvertibleToLch<OkLAB, OkLCh> {
         super(l, a, b, OkLCh::new);
     }
 
-    public double L() {
-        return coordinate1;
-    }
-
-    public double a() {
-        return coordinate2;
-    }
-
-    public double b() {
-        return coordinate3;
-    }
-
     public static OkLAB from(CIEXYZ xyz) {
         LMS lms = XYZ_TO_LMS.multiply(xyz);
         LMSPrime lmsPrime = LMSPrime.from(lms);
@@ -61,35 +51,40 @@ public class OkLAB extends ConvertibleToLch<OkLAB, OkLCh> {
     }
 
     private static class LMSPrime extends Vector3 {
+        private final double lPrime;
+        private final double mPrime;
+        private final double sPrime;
+
         LMSPrime(double lPrime, double mPrime, double sPrime) {
             super(lPrime, mPrime, sPrime);
+            this.lPrime = lPrime;
+            this.mPrime = mPrime;
+            this.sPrime = sPrime;
         }
 
-        double lPrime() {
-            return coordinate1;
+        @Override
+        public DoubleStream coordinates() {
+            return DoubleStream.of(lPrime, mPrime, sPrime);
         }
 
-        double mPrime() {
-            return coordinate2;
-        }
-
-        double sPrime() {
-            return coordinate3;
+        @Override
+        public String toString() {
+            return Vector3.format(this, lPrime, mPrime, sPrime);
         }
 
         LMS toLms() {
             return new LMS(
-                    cubeOf(lPrime()),
-                    cubeOf(mPrime()),
-                    cubeOf(sPrime())
+                    cubeOf(lPrime),
+                    cubeOf(mPrime),
+                    cubeOf(sPrime)
             );
         }
 
         static LMSPrime from(LMS lms) {
             return new LMSPrime(
-                    cubeRootOf(lms.l()),
-                    cubeRootOf(lms.m()),
-                    cubeRootOf(lms.s())
+                    cubeRootOf(lms.l),
+                    cubeRootOf(lms.m),
+                    cubeRootOf(lms.s)
             );
         }
     }
@@ -127,20 +122,25 @@ public class OkLAB extends ConvertibleToLch<OkLAB, OkLCh> {
     }
 
     private static class LMS extends Vector3 {
+        private final double l;
+        private final double m;
+        private final double s;
+
         protected LMS(double l, double m, double s) {
             super(l, m, s);
+            this.l = l;
+            this.m = m;
+            this.s = s;
         }
 
-        double l() {
-            return coordinate1;
+        @Override
+        public DoubleStream coordinates() {
+            return DoubleStream.of(l, m, s);
         }
 
-        double m() {
-            return coordinate2;
-        }
-
-        double s() {
-            return coordinate3;
+        @Override
+        public String toString() {
+            return Vector3.format(this, l, m, s);
         }
     }
 }
