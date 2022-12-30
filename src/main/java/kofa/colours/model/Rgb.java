@@ -29,11 +29,6 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
         return coordinates().anyMatch(predicate);
     }
 
-    @Override
-    public String toString() {
-        return "%s(%f, %f, %f)".formatted(getClass().getSimpleName(), r(), g(), b());
-    }
-
     public boolean isOutOfGamut() {
         return r() < 0 || r() > 1 || g() < 0 || g() > 1 || b() < 0 || b() > 1;
     }

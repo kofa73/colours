@@ -15,8 +15,8 @@ public record GamutBoundarySearchParams<L extends LCh<L, ?>>(
 
     public static final GamutBoundarySearchParams<CIELCh_ab> FOR_CIELAB = new GamutBoundarySearchParams<>(
             CIELCh_ab.class,
-            sRgb -> CIELAB.from(sRgb.toXyz()).usingD65_IEC_61966_2_1().toLch(),
-            lch -> Srgb.from(lch.toLab().toXyz().usingD65_IEC_61966_2_1()),
+            sRgb -> CIELAB.from(sRgb.toXyz()).usingD65_2DegreeStandardObserver().toLch(),
+            lch -> Srgb.from(lch.toLab().toXyz().usingD65_2DegreeStandardObserver()),
             CIELCh_ab::new,
             1,
             1E-6,
@@ -25,8 +25,8 @@ public record GamutBoundarySearchParams<L extends LCh<L, ?>>(
 
     public static final GamutBoundarySearchParams<CIELCh_uv> FOR_CIELUV = new GamutBoundarySearchParams<>(
             CIELCh_uv.class,
-            sRgb -> CIELUV.from(sRgb.toXyz()).usingD65_IEC_61966_2_1().toLch(),
-            lch -> Srgb.from(lch.toLuv().toXyz().usingD65_IEC_61966_2_1()),
+            sRgb -> CIELUV.from(sRgb.toXyz()).usingD65_2DegreeStandardObserver().toLch(),
+            lch -> Srgb.from(lch.toLuv().toXyz().usingD65_2DegreeStandardObserver()),
             CIELCh_uv::new,
             1,
             1E-6,

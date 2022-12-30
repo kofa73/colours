@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SrgbTest {
     @Test
     void white() {
-        assertIsCloseTo(new Srgb(1, 1, 1).toXyz(), CIEXYZ.D65_WHITE_IEC_61966_2_1, PRECISE);
+        assertIsCloseTo(new Srgb(1, 1, 1).toXyz(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE);
     }
 
     @Test

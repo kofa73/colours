@@ -82,10 +82,5 @@ public class CIELUV extends ConvertibleToLch<CIELUV, CIELCh_uv> {
             return new CIEXYZ(X, Y, Z);
         }
     }
-
-    @Override
-    public final String toString() {
-        return "%s(%f, %f, %f)".formatted(getClass().getSimpleName(), L(), u(), v());
-    }
 }
 

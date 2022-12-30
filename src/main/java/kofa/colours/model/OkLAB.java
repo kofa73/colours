@@ -94,11 +94,6 @@ public class OkLAB extends ConvertibleToLch<OkLAB, OkLCh> {
         }
     }
 
-    @Override
-    public String toString() {
-        return "%s(%f, %f, %f)".formatted(this.getClass().getSimpleName(), L(), a(), b());
-    }
-
     public static OkLAB from(Srgb sRgb) {
         double l = 0.4122214708 * sRgb.r() + 0.5363325363 * sRgb.g() + 0.0514459929 * sRgb.b();
         double m = 0.2119034982 * sRgb.r() + 0.6806995451 * sRgb.g() + 0.1073969566 * sRgb.b();
@@ -146,11 +141,6 @@ public class OkLAB extends ConvertibleToLch<OkLAB, OkLCh> {
 
         double s() {
             return coordinate3;
-        }
-
-        @Override
-        public String toString() {
-            return "%s(%f, %f, %f)".formatted(this.getClass().getSimpleName(), l(), m(), s());
         }
     }
 }

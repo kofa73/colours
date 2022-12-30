@@ -76,9 +76,4 @@ public class CIELAB extends ConvertibleToLch<CIELAB, CIELCh_ab> {
                     (KAPPA * componentRatio + 16) / 116;
         }
     }
-
-    @Override
-    public String toString() {
-        return "%s(%f, %f, %f)".formatted(this.getClass().getSimpleName(), L(), a(), b());
-    }
 }

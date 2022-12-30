@@ -17,7 +17,7 @@ class CIELABTest {
     @Test
     void fromXyz() {
         assertIsCloseTo(
-                CIELAB.from(XYZ_663399).usingD65_IEC_61966_2_1(),
+                CIELAB.from(XYZ_663399).usingD65_2DegreeStandardObserver(),
                 LAB_663399,
                 PRECISE
         );
@@ -26,12 +26,12 @@ class CIELABTest {
     @Test
     void fromXyz_white() {
         assertIsCloseTo(
-                CIELAB.from(CIEXYZ.D65_WHITE_IEC_61966_2_1).usingD65_IEC_61966_2_1(),
+                CIELAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DegreeStandardObserver(),
                 new CIELAB(100, 0, 0),
                 PRECISE
         );
         assertIsCloseTo(
-                CIELAB.from(CIEXYZ.D65_WHITE_IEC_61966_2_1).usingD65_IEC_61966_2_1(),
+                CIELAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DegreeStandardObserver(),
                 new CIELAB(100, 0, 0),
                 PRECISE
         );
@@ -40,7 +40,7 @@ class CIELABTest {
     @Test
     void fromXyz_black() {
         assertIsCloseTo(
-                CIELAB.from(new CIEXYZ(0, 0, 0)).usingD65_IEC_61966_2_1(),
+                CIELAB.from(new CIEXYZ(0, 0, 0)).usingD65_2DegreeStandardObserver(),
                 new CIELAB(0, 0, 0),
                 PRECISE
         );
@@ -49,14 +49,14 @@ class CIELABTest {
     @Test
     void toXyz() {
         assertIsCloseTo(
-                LAB_663399.toXyz().usingD65_IEC_61966_2_1(),
+                LAB_663399.toXyz().usingD65_2DegreeStandardObserver(),
                 XYZ_663399,
                 PRECISE
         );
 
         // other branch of conditional
         assertIsCloseTo(
-                CIELAB.from(ConverterTest.TINY_XYZ).usingD65_IEC_61966_2_1().toXyz().usingD65_IEC_61966_2_1(),
+                CIELAB.from(ConverterTest.TINY_XYZ).usingD65_2DegreeStandardObserver().toXyz().usingD65_2DegreeStandardObserver(),
                 TINY_XYZ,
                 PRECISE
         );
@@ -65,8 +65,8 @@ class CIELABTest {
     @Test
     void toXyz_white() {
         assertIsCloseTo(
-                new CIELAB(100, 0, 0).toXyz().usingD65_IEC_61966_2_1(),
-                CIEXYZ.D65_WHITE_IEC_61966_2_1,
+                new CIELAB(100, 0, 0).toXyz().usingD65_2DegreeStandardObserver(),
+                CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER,
                 PRECISE
         );
     }
@@ -74,11 +74,11 @@ class CIELABTest {
     @Test
     void toXyz_black() {
         assertIsCloseTo(
-                new CIELAB(0, 0, 0).toXyz().usingD65_IEC_61966_2_1(),
+                new CIELAB(0, 0, 0).toXyz().usingD65_2DegreeStandardObserver(),
                 new CIEXYZ(0, 0, 0),
                 PRECISE
         );
-        assertThat(new CIELAB(0, 100, -100).toXyz().usingD65_IEC_61966_2_1().Y()).isEqualTo(0);
+        assertThat(new CIELAB(0, 100, -100).toXyz().usingD65_2DegreeStandardObserver().Y()).isEqualTo(0);
     }
 
     @Test

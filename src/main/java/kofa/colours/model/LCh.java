@@ -42,6 +42,6 @@ public abstract class LCh<L extends LCh<L, V>, V extends ConvertibleToLch<V, L>>
 
     @Override
     public final String toString() {
-        return "%s(%f, %f, %f) (%f, %f, %f)".formatted(getClass().getSimpleName(), l(), c(), h(), l(), c(), hueInDegrees());
+        return "%s (%.8f, %.8f, %.8f)".formatted(super.toString(), l(), c(), hueInDegrees());
     }
 }

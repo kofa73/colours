@@ -15,7 +15,7 @@ class RgbTest {
                 0.6400, 0.3300,
                 0.3000, 0.6000,
                 0.1500, 0.0600,
-                CIEXYZ.D65_WHITE_IEC_61966_2_1
+                CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER
         );
 
         // values of sRGB to XYZ matrix from http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html

@@ -56,11 +56,6 @@ public class CIExyY extends Vector3 {
         return new CIExyY(x, y, Y);
     }
 
-    @Override
-    public String toString() {
-        return "%s(%f, %f, %f))".formatted(this.getClass().getSimpleName(), x(), y(), Y());
-    }
-
     public static void main(String[] args) {
         System.out.println(D65_BLACK_2DEGREE_STANDARD_OBSERVER);
     }

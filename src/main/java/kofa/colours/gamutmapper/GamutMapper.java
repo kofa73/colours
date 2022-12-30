@@ -68,12 +68,12 @@ public abstract class GamutMapper {
     private static RuntimeException exception(Srgb mappedPixel, int row, int column, double rec2020Red, double rec2020Green, double rec2020Blue) {
         var rec2020 = new Rec2020(rec2020Red, rec2020Green, rec2020Blue);
         var xyzIn = rec2020.toXyz();
-        var cieLabIn = CIELAB.from(xyzIn).usingD65_IEC_61966_2_1();
-        var cieLuvIn = CIELUV.from(xyzIn).usingD65_IEC_61966_2_1();
+        var cieLabIn = CIELAB.from(xyzIn).usingD65_2DegreeStandardObserver();
+        var cieLuvIn = CIELUV.from(xyzIn).usingD65_2DegreeStandardObserver();
         var okLabIn = OkLAB.from(xyzIn);
         var xyzOut = mappedPixel.toXyz();
-        var cieLabOut = CIELAB.from(xyzOut).usingD65_IEC_61966_2_1();
-        var cieLuvOut = CIELUV.from(xyzOut).usingD65_IEC_61966_2_1();
+        var cieLabOut = CIELAB.from(xyzOut).usingD65_2DegreeStandardObserver();
+        var cieLuvOut = CIELUV.from(xyzOut).usingD65_2DegreeStandardObserver();
         var okLabOut = OkLAB.from(xyzOut);
         RuntimeException error = new RuntimeException(
                 (

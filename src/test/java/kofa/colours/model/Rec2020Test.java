@@ -11,7 +11,7 @@ import static org.assertj.core.data.Offset.offset;
 class Rec2020Test {
     @Test
     void white() {
-        assertIsCloseTo(new Rec2020(1, 1, 1).toXyz(), CIEXYZ.D65_WHITE_IEC_61966_2_1, PRECISE);
+        assertIsCloseTo(new Rec2020(1, 1, 1).toXyz(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE);
     }
 
     @Test

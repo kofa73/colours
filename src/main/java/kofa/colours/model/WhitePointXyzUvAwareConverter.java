@@ -1,11 +1,12 @@
 package kofa.colours.model;
 
-import static kofa.colours.model.CIEXYZ.D65_WHITE_IEC_61966_2_1;
-import static kofa.colours.model.UV.D65_WHITE_UV_IEC_61966_2_1;
-
 interface WhitePointXyzUvAwareConverter<T> extends WhitePointXyzAwareConverter<T> {
     default T usingD65_IEC_61966_2_1() {
-        return usingWhitePoint(D65_WHITE_IEC_61966_2_1, D65_WHITE_UV_IEC_61966_2_1);
+        return usingWhitePoint(CIEXYZ.D65_WHITE_IEC_61966_2_1, UV.D65_IEC_61966_2_1);
+    }
+
+    default T usingD65_2DEGREE_STANDARD_OBSERVER() {
+        return usingWhitePoint(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, UV.D65_2DEGREE_STANDARD_OBSERVER);
     }
 
     @Override

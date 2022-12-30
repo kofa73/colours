@@ -19,4 +19,9 @@ public abstract class Vector3 {
     public DoubleStream coordinates() {
         return DoubleStream.of(coordinate1, coordinate2, coordinate3);
     }
+
+    @Override
+    public String toString() {
+        return "%s(%.8f, %.8f, %.8f))".formatted(this.getClass().getSimpleName(), coordinate1, coordinate2, coordinate3);
+    }
 }

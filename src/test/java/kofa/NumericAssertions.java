@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 public class NumericAssertions {
+    public static final Percentage EXACT = Percentage.withPercentage(1E-5);
     public static final Percentage PRECISE = Percentage.withPercentage(0.06);
     public static final Percentage LENIENT = Percentage.withPercentage(0.2);
     public static final Percentage ROUGH = Percentage.withPercentage(5);

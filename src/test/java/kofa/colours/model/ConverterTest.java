@@ -102,14 +102,14 @@ class ConverterTest {
         var original_sRGB = new Srgb(1, 1, 1);
         var XYZ_from_RGB = original_sRGB.toXyz();
 
-        CIELUV luvFromXyz = CIELUV.from(XYZ_from_RGB).usingWhitePoint(CIEXYZ.D65_WHITE_IEC_61966_2_1);
+        CIELUV luvFromXyz = CIELUV.from(XYZ_from_RGB).usingWhitePoint(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
 
         CIELCh_uv LCH_from_Luv = luvFromXyz.toLch();
 
         CIELUV Luv_from_LCH = LCH_from_Luv.toLuv();
         assertIsCloseTo(Luv_from_LCH, luvFromXyz, PRECISE);
 
-        CIEXYZ Xyz_from_Luv = Luv_from_LCH.toXyz().usingD65_IEC_61966_2_1();
+        CIEXYZ Xyz_from_Luv = Luv_from_LCH.toXyz().usingD65_2DegreeStandardObserver();
         assertIsCloseTo(Xyz_from_Luv, XYZ_from_RGB, PRECISE);
 
         var sRGB_from_XYZ = Srgb.from(Xyz_from_Luv);
@@ -121,8 +121,8 @@ class ConverterTest {
         var originalSrgb = new Srgb(1, 1, 1);
         var xyzFromSrgb = originalSrgb.toXyz();
 
-        var luvFromXyzD65 = CIELUV.from(xyzFromSrgb).usingD65_IEC_61966_2_1();
-        CIELUV luvFromXyz = CIELUV.from(xyzFromSrgb).usingWhitePoint(CIEXYZ.D65_WHITE_IEC_61966_2_1);
+        var luvFromXyzD65 = CIELUV.from(xyzFromSrgb).usingD65_2DegreeStandardObserver();
+        CIELUV luvFromXyz = CIELUV.from(xyzFromSrgb).usingWhitePoint(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
         assertIsCloseTo(luvFromXyzD65, luvFromXyz, PRECISE);
 
         var lchFromLuv = luvFromXyzD65.toLch();
@@ -130,9 +130,9 @@ class ConverterTest {
         var luvFromLch = lchFromLuv.toLuv();
         assertIsCloseTo(luvFromLch, luvFromXyzD65, PRECISE);
 
-        var xyzFromLuvD65 = luvFromLch.toXyz().usingD65_IEC_61966_2_1();
+        var xyzFromLuvD65 = luvFromLch.toXyz().usingD65_2DegreeStandardObserver();
         assertIsCloseTo(xyzFromLuvD65, xyzFromSrgb, PRECISE);
-        var xyzFromLuv = luvFromLch.toXyz().usingWhitePoint(CIEXYZ.D65_WHITE_IEC_61966_2_1);
+        var xyzFromLuv = luvFromLch.toXyz().usingWhitePoint(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
         assertIsCloseTo(xyzFromLuvD65, xyzFromLuv, PRECISE);
 
         var sRgbFromXyz = Srgb.from(xyzFromLuvD65);

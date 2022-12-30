@@ -38,10 +38,4 @@ public class CIEXYZ extends Vector3 {
     public boolean isWhite() {
         return abs(1 - Y()) < 1E-6;
     }
-
-
-    @Override
-    public String toString() {
-        return "%s(%f, %f, %f)".formatted(this.getClass().getSimpleName(), X(), Y(), Z());
-    }
 }

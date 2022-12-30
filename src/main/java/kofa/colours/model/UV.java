@@ -4,8 +4,8 @@ import static kofa.colours.model.CIEXYZ.D65_WHITE_ASTM_E308_01;
 import static kofa.colours.model.CIEXYZ.D65_WHITE_IEC_61966_2_1;
 
 public record UV(double u, double v) {
-    public static final UV D65_WHITE_UV_ASTM_E308_01 = UV.from(D65_WHITE_ASTM_E308_01);
-    public static final UV D65_WHITE_UV_IEC_61966_2_1 = UV.from(D65_WHITE_IEC_61966_2_1);
+    public static final UV D65_ASTM_E308_01 = UV.from(D65_WHITE_ASTM_E308_01);
+    public static final UV D65_IEC_61966_2_1 = UV.from(D65_WHITE_IEC_61966_2_1);
 
     public static final UV D65_2DEGREE_STANDARD_OBSERVER = UV.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
     public static final UV D65_10DEGREE_SUPPLEMENTARY_OBSERVER = UV.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
