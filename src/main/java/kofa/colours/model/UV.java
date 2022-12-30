@@ -13,13 +13,13 @@ public record UV(double u, double v) {
     public static UV from(CIEXYZ xyz) {
         var denominator = denominatorXyzForUv(xyz);
         return new UV(
-                uPrime(xyz.X(), denominator),
-                vPrime(xyz.Y(), denominator)
+                uPrime(xyz.X, denominator),
+                vPrime(xyz.Y, denominator)
         );
     }
 
     private static double denominatorXyzForUv(CIEXYZ xyz) {
-        var denominator = xyz.X() + 15 * xyz.Y() + 3 * xyz.Z();
+        var denominator = xyz.X + 15 * xyz.Y + 3 * xyz.Z;
         if (denominator == 0) {
             denominator = 1E-9;
         }

@@ -90,9 +90,9 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     }
 
     public static OkLAB from(Srgb sRgb) {
-        double l = 0.4122214708 * sRgb.r() + 0.5363325363 * sRgb.g() + 0.0514459929 * sRgb.b();
-        double m = 0.2119034982 * sRgb.r() + 0.6806995451 * sRgb.g() + 0.1073969566 * sRgb.b();
-        double s = 0.0883024619 * sRgb.r() + 0.2817188376 * sRgb.g() + 0.6299787005 * sRgb.b();
+        double l = 0.4122214708 * sRgb.r + 0.5363325363 * sRgb.g + 0.0514459929 * sRgb.b;
+        double m = 0.2119034982 * sRgb.r + 0.6806995451 * sRgb.g + 0.1073969566 * sRgb.b;
+        double s = 0.0883024619 * sRgb.r + 0.2817188376 * sRgb.g + 0.6299787005 * sRgb.b;
 
         double lPrime = cubeRootOf(l);
         double mPrime = cubeRootOf(m);
@@ -106,9 +106,9 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     }
 
     public Srgb toSrgb() {
-        double lPrime = L() + 0.3963377774 * a() + 0.2158037573 * b();
-        double mPrime = L() - 0.1055613458 * a() - 0.0638541728 * b();
-        double sPrime = L() - 0.0894841775 * a() - 1.2914855480 * b();
+        double lPrime = L + 0.3963377774 * a + 0.2158037573 * b;
+        double mPrime = L - 0.1055613458 * a - 0.0638541728 * b;
+        double sPrime = L - 0.0894841775 * a - 1.2914855480 * b;
 
         double l = lPrime * lPrime * lPrime;
         double m = mPrime * mPrime * mPrime;

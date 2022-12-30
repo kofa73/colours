@@ -15,9 +15,9 @@ import static java.lang.Math.*;
  */
 public abstract class LCh<P extends LCh<P, V>, V extends ConvertibleToLch<V, P>> extends Vector3 {
     private final Vector3Constructor<V> vectorConstructor;
-    private final double L;
-    private final double C;
-    private final double h;
+    public final double L;
+    public final double C;
+    public final double h;
 
     protected LCh(double L, double C, double h, Vector3Constructor<V> vectorConstructor) {
         super(L, C, h);
@@ -25,18 +25,6 @@ public abstract class LCh<P extends LCh<P, V>, V extends ConvertibleToLch<V, P>>
         this.C = C;
         this.h = h;
         this.vectorConstructor = vectorConstructor;
-    }
-
-    public final double L() {
-        return L;
-    }
-
-    public final double C() {
-        return C;
-    }
-
-    public final double h() {
-        return h;
     }
 
     public final double hueInDegrees() {

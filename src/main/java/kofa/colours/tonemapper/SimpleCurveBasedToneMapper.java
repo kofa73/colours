@@ -120,7 +120,7 @@ public class SimpleCurveBasedToneMapper<S> implements ToneMapper<S> {
             var lSpaceRepresentation = rec2020ToMappingSpace.apply(rec2020);
             var mappedLSpaceRepresentation = toneMap(lSpaceRepresentation);
             var mappedRec2020 = mappingSpaceToRec2020.apply(mappedLSpaceRepresentation);
-            return new double[]{mappedRec2020.r(), mappedRec2020.g(), mappedRec2020.b()};
+            return new double[]{mappedRec2020.r, mappedRec2020.g, mappedRec2020.b};
         });
     }
 

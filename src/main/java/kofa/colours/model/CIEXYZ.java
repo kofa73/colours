@@ -17,9 +17,9 @@ public class CIEXYZ extends Vector3 {
     public static final CIEXYZ D65_WHITE_2DEGREE_STANDARD_OBSERVER = CIExyY.D65_WHITE_2DEGREE_STANDARD_OBSERVER.toXyz();
     public static final CIEXYZ D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER = CIExyY.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER.toXyz();
 
-    private final double X;
-    private final double Y;
-    private final double Z;
+    public final double X;
+    public final double Y;
+    public final double Z;
 
     public CIEXYZ(double X, double Y, double Z) {
         super(X, Y, Z);
@@ -38,23 +38,11 @@ public class CIEXYZ extends Vector3 {
         return Vector3.format(this, X, Y, Z);
     }
 
-    public double X() {
-        return X;
-    }
-
-    public double Y() {
-        return Y;
-    }
-
-    public double Z() {
-        return Z;
-    }
-
     public boolean isBlack() {
-        return -BLACK_LEVEL < Y() && Y() < BLACK_LEVEL;
+        return -BLACK_LEVEL < Y && Y < BLACK_LEVEL;
     }
 
     public boolean isWhite() {
-        return abs(1 - Y()) < 1E-6;
+        return abs(1 - Y) < 1E-6;
     }
 }

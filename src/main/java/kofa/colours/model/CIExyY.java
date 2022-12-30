@@ -10,12 +10,12 @@ public class CIExyY extends Vector3 {
     // https://en.wikipedia.org/wiki/Illuminant_D65#Definition
     public static final CIExyY D65_WHITE_2DEGREE_STANDARD_OBSERVER = new CIExyY(0.31271, 0.32902, 1);
     public static final CIExyY D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER = new CIExyY(0.31382, 0.33100, 1);
-    public static final CIExyY D65_BLACK_2DEGREE_STANDARD_OBSERVER = new CIExyY(D65_WHITE_2DEGREE_STANDARD_OBSERVER.x(), D65_WHITE_2DEGREE_STANDARD_OBSERVER.y(), 0);
-    public static final CIExyY D65_BLACK_10DEGREE_SUPPLEMENTARY_OBSERVER = new CIExyY(D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER.x(), D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER.y(), 0);
+    public static final CIExyY D65_BLACK_2DEGREE_STANDARD_OBSERVER = new CIExyY(D65_WHITE_2DEGREE_STANDARD_OBSERVER.x, D65_WHITE_2DEGREE_STANDARD_OBSERVER.y, 0);
+    public static final CIExyY D65_BLACK_10DEGREE_SUPPLEMENTARY_OBSERVER = new CIExyY(D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER.x, D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER.y, 0);
 
-    private final double x;
-    private final double y;
-    private final double Y;
+    public final double x;
+    public final double y;
+    public final double Y;
 
     protected CIExyY(double x, double y, double Y) {
         super(x, y, Y);
@@ -34,20 +34,8 @@ public class CIExyY extends Vector3 {
         return Vector3.format(this, x, y, Y);
     }
 
-    public double x() {
-        return x;
-    }
-
-    public double y() {
-        return y;
-    }
-
-    public double Y() {
-        return Y;
-    }
-
     public CIEXYZ toXyz() {
-        if (y() == 0) {
+        if (y == 0) {
             return CIEXYZ.BLACK;
         }
 
@@ -63,13 +51,13 @@ public class CIExyY extends Vector3 {
         if (xyz.isBlack()) {
             return D65_BLACK_2DEGREE_STANDARD_OBSERVER;
         }
-        double denominator = xyz.X() + xyz.Y() + xyz.Z();
+        double denominator = xyz.X + xyz.Y + xyz.Z;
         if (denominator == 0) {
             return D65_BLACK_2DEGREE_STANDARD_OBSERVER;
         }
 
-        double Y = xyz.Y();
-        double x = xyz.X() / denominator;
+        double Y = xyz.Y;
+        double x = xyz.X / denominator;
         double y = Y / denominator;
 
         return new CIExyY(x, y, Y);

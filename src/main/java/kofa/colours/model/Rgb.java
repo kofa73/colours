@@ -15,9 +15,9 @@ import static org.apache.commons.math3.linear.MatrixUtils.inverse;
  * @param <S> the subtype
  */
 public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
-    private final double r;
-    private final double g;
-    private final double b;
+    public final double r;
+    public final double g;
+    public final double b;
 
     protected Rgb(double r, double g, double b) {
         super(r, g, b);
@@ -33,7 +33,7 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
     }
 
     public boolean isOutOfGamut() {
-        return r() < 0 || r() > 1 || g() < 0 || g() > 1 || b() < 0 || b() > 1;
+        return r < 0 || r > 1 || g < 0 || g > 1 || b < 0 || b > 1;
     }
 
     public static double[][] calculateToXyzMatrix(
@@ -58,7 +58,7 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
                         {Yr, Yg, Yb},
                         {Zr, Zg, Zb}
                 }
-        )).operate(new double[]{referenceWhite.X(), referenceWhite.Y(), referenceWhite.Z()});
+        )).operate(new double[]{referenceWhite.X, referenceWhite.Y, referenceWhite.Z});
 
         double Sr = S[0];
         double Sg = S[1];
@@ -71,24 +71,12 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
         };
     }
 
-    public double r() {
-        return r;
-    }
-
-    public double g() {
-        return g;
-    }
-
-    public double b() {
-        return b;
-    }
-
     public boolean isBlack() {
-        return abs(r()) < 1E-6 && abs(g()) < 1E-6 && abs(b()) < 1E-6;
+        return abs(r) < 1E-6 && abs(g) < 1E-6 && abs(b) < 1E-6;
     }
 
     public boolean isWhite() {
-        return abs(1 - r()) < 1E-6 && abs(1 - g()) < 1E-6 && abs(1 - b()) < 1E-6;
+        return abs(1 - r) < 1E-6 && abs(1 - g) < 1E-6 && abs(1 - b) < 1E-6;
     }
 
     @Override

@@ -39,11 +39,11 @@ public class MaxCLabLuvSolver<L extends LCh<L, ?>> {
 
     public double solveMaxCForLch(Srgb inputSrgb) {
         L lch = sRgbToLch.apply(inputSrgb);
-        double l = lch.L();
+        double l = lch.L;
         if (l >= maxL || l <= 0 || inputSrgb.isBlack() || inputSrgb.isWhite()) {
             return 0;
         }
-        double h = lch.h();
+        double h = lch.h;
         double cOutOfGamut = 0;
         do {
             cOutOfGamut += roughChromaSearchStep;

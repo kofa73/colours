@@ -14,7 +14,7 @@ import static java.lang.Math.*;
  * @param <P> the concrete polar LCh subtype
  */
 public abstract class ConvertibleToLch<V extends ConvertibleToLch<V, P>, P extends LCh<P, V>> extends Vector3 {
-    protected final double L;
+    public final double L;
     private final double colour1;
     private final double colour2;
 
@@ -28,16 +28,15 @@ public abstract class ConvertibleToLch<V extends ConvertibleToLch<V, P>, P exten
         this.lchConstructor = lchConstructor;
     }
 
-    public final double L() {
-        return L;
-    }
-
     public final P toLch() {
         var c = sqrt(colour1 * colour1 + colour2 * colour2);
         var h = atan2(colour2, colour1);
         return lchConstructor.createFrom(L, c, h < 0 ? h + 2 * PI : h);
     }
 
+    public final double L() {
+        return L;
+    }
 
     @Override
     public final DoubleStream coordinates() {

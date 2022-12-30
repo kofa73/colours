@@ -70,7 +70,7 @@ public class ChromaClippingLchBasedGamutMapper<P extends LCh<P, S>, S extends Co
     public Srgb getInsideGamut(Srgb sRgb) {
         var cAtGamutBoundary = maxCFinder.applyAsDouble(sRgb);
         P lchFromInput = sRgbToLch.apply(sRgb);
-        P lchWithChromaAtGamutBoundary = lchConstructor.createFrom(lchFromInput.L(), cAtGamutBoundary, lchFromInput.h());
+        P lchWithChromaAtGamutBoundary = lchConstructor.createFrom(lchFromInput.L, cAtGamutBoundary, lchFromInput.h);
         return lchToSrgb.apply(lchWithChromaAtGamutBoundary);
     }
 

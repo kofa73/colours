@@ -26,7 +26,7 @@ public class Srgb extends Rgb<Srgb> {
     }
 
     public static Srgb from(CIEXYZ xyz) {
-        return xyz.Y() >= 1 ? WHITE : FROM_XYZ.multiply(xyz);
+        return xyz.Y >= 1 ? WHITE : FROM_XYZ.multiply(xyz);
     }
 
     public Rec2020 toRec2020() {

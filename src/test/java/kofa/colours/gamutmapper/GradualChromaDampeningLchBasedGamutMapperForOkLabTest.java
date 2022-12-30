@@ -13,7 +13,7 @@ class GradualChromaDampeningLchBasedGamutMapperForOkLabTest {
     void solverWorks() {
         var lch = new OkLCh(0.9995662130364427, 0.739506239487755, 0.7176225917093684);
         System.out.println(lch.toLab().toSrgb());
-        Assertions.assertThat(new Solver(clipDetectorForLch(lch.L(), lch.h())).solve(0, 0.1, 0))
+        Assertions.assertThat(new Solver(clipDetectorForLch(lch.L, lch.h)).solve(0, 0.1, 0))
                 .isPresent()
                 .hasValueSatisfying(value -> Assertions.assertThat(value).isCloseTo(0, Offset.offset(1E-3)));
     }
