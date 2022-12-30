@@ -11,6 +11,9 @@ public abstract class Vector3 {
         this.coordinate1 = coordinate1;
         this.coordinate2 = coordinate2;
         this.coordinate3 = coordinate3;
+        if (Double.isNaN(coordinate1) || Double.isNaN(coordinate2) || Double.isNaN(coordinate3)) {
+            System.out.println(this);
+        }
     }
 
     public DoubleStream coordinates() {

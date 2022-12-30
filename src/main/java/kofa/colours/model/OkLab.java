@@ -4,7 +4,7 @@ import kofa.maths.SpaceConversionMatrix;
 import kofa.maths.Vector3;
 
 import static java.lang.Math.abs;
-import static kofa.colours.model.ConversionHelper.cubeOfFloat;
+import static kofa.colours.model.ConversionHelper.cubeOf;
 import static kofa.colours.model.ConversionHelper.cubeRootOf;
 
 /**
@@ -56,9 +56,9 @@ public class OkLab extends ConvertibleToLch<OkLab, OkLch> {
     }
 
     public Xyz toXyz() {
-        LmsPrime lmsPrime = LAB_TO_LMS_PRIME.multiplyFloat(this);
+        LmsPrime lmsPrime = LAB_TO_LMS_PRIME.multiply(this);
         Lms lms = lmsPrime.toLms();
-        return LMS_TO_XYZ.multiplyFloat(lms);
+        return LMS_TO_XYZ.multiply(lms);
     }
 
     private static double zeroOr(double x) {
@@ -84,9 +84,9 @@ public class OkLab extends ConvertibleToLch<OkLab, OkLch> {
 
         Lms toLms() {
             return new Lms(
-                    cubeOfFloat(lPrime()),
-                    cubeOfFloat(mPrime()),
-                    cubeOfFloat(sPrime())
+                    cubeOf(lPrime()),
+                    cubeOf(mPrime()),
+                    cubeOf(sPrime())
             );
         }
 

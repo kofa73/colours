@@ -28,12 +28,12 @@ public class SpaceConversionMatrix<I extends Vector3, O extends Vector3> {
         return resultConstructor.createFrom(r1, r2, r3);
     }
 
-    public O multiplyFloat(I vector) {
-        double r1 = (float) matrix[0][0] * (float) vector.coordinate1 + (float) matrix[0][1] * (float) vector.coordinate2 + (float) matrix[0][2] * (float) vector.coordinate3;
-        double r2 = (float) matrix[1][0] * (float) vector.coordinate1 + (float) matrix[1][1] * (float) vector.coordinate2 + (float) matrix[1][2] * (float) vector.coordinate3;
-        double r3 = (float) matrix[2][0] * (float) vector.coordinate1 + (float) matrix[2][1] * (float) vector.coordinate2 + (float) matrix[2][2] * (float) vector.coordinate3;
-        return resultConstructor.createFrom(r1, r2, r3);
-    }
+//    public O multiplyFloat(I vector) {
+//        double r1 = (float) matrix[0][0] * (float) vector.coordinate1 + (float) matrix[0][1] * (float) vector.coordinate2 + (float) matrix[0][2] * (float) vector.coordinate3;
+//        double r2 = (float) matrix[1][0] * (float) vector.coordinate1 + (float) matrix[1][1] * (float) vector.coordinate2 + (float) matrix[1][2] * (float) vector.coordinate3;
+//        double r3 = (float) matrix[2][0] * (float) vector.coordinate1 + (float) matrix[2][1] * (float) vector.coordinate2 + (float) matrix[2][2] * (float) vector.coordinate3;
+//        return resultConstructor.createFrom(r1, r2, r3);
+//    }
 
     public <S extends Vector3> SpaceConversionMatrix<S, O> multiply(SpaceConversionMatrix<S, I> multiplicand) {
         double[][] otherValues = multiplicand.matrix;

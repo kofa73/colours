@@ -1,6 +1,7 @@
 package kofa.colours.gamutmapper;
 
 import kofa.colours.model.*;
+import kofa.colours.tonemapper.ToneMapper;
 import kofa.io.RgbImage;
 
 import static java.lang.Math.max;
@@ -12,12 +13,14 @@ import static java.lang.Math.min;
 public abstract class GamutMapper {
     private final boolean processInGamutPixels;
 
-    protected GamutMapper() {
-        this.processInGamutPixels = false;
+    protected GamutMapper(ToneMapper<?> toneMapper, RgbImage image) {
+        this(false, toneMapper, image);
     }
 
-    protected GamutMapper(boolean processInGamutPixels) {
+    protected GamutMapper(boolean processInGamutPixels, ToneMapper<?> toneMapper, RgbImage image) {
         this.processInGamutPixels = processInGamutPixels;
+        image.init();
+        toneMapper.toneMap(image);
     }
 
     public void mapToSrgb(RgbImage image) {

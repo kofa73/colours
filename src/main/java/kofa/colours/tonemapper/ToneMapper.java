@@ -8,7 +8,5 @@ import kofa.io.RgbImage;
  * @param <S> the colour space the instance uses
  */
 public interface ToneMapper<S> {
-    S toneMap(S input);
-
     void toneMap(RgbImage image);
 }

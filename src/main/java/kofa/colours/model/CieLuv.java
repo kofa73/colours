@@ -9,6 +9,18 @@ public class CieLuv extends ConvertibleToLch<CieLuv, CieLchUv> {
         super(l, u, v, CieLchUv::new);
     }
 
+    public double l() {
+        return coordinate1;
+    }
+
+    public double u() {
+        return coordinate2;
+    }
+
+    public double v() {
+        return coordinate3;
+    }
+
     public static XyzLuvConverter from(Xyz xyz) {
         return new XyzLuvConverter(xyz);
     }
@@ -25,7 +37,7 @@ public class CieLuv extends ConvertibleToLch<CieLuv, CieLchUv> {
         }
 
         public CieLuv usingWhitePoint(Xyz referenceXyz, Uv referenceUv) {
-            if (xyz.y() == 0) {
+            if (xyz.isBlack()) {
                 return BLACK;
             }
             // http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_Luv.html
@@ -48,6 +60,10 @@ public class CieLuv extends ConvertibleToLch<CieLuv, CieLchUv> {
 
         @Override
         public Xyz usingWhitePoint(Xyz referenceXyz, Uv referenceUv) {
+            if (l() == 0) {
+                return new Xyz(0, 0, 0);
+            }
+
             double referenceY = referenceXyz.y();
 
             double L13 = 13 * l();
@@ -65,18 +81,6 @@ public class CieLuv extends ConvertibleToLch<CieLuv, CieLchUv> {
 
             return new Xyz(X, Y, Z);
         }
-    }
-
-    public double l() {
-        return coordinate1;
-    }
-
-    public double u() {
-        return coordinate2;
-    }
-
-    public double v() {
-        return coordinate3;
     }
 
     @Override

@@ -11,18 +11,18 @@ public class ConversionHelper {
         return number * number * number;
     }
 
-    public static float cubeOfFloat(double number) {
-        float f = (float) number;
-        return f * f * f;
-    }
+//    public static float cubeOfFloat(double number) {
+//        float f = (float) number;
+//        return f * f * f;
+//    }
 
     public static double cubeRootOf(double number) {
         return cbrt(number);
     }
 
-    public static float cubeRootOfFloat(double number) {
-        return (float) cbrt((float) number);
-    }
+//    public static float cubeRootOfFloat(double number) {
+//        return (float) cbrt((float) number);
+//    }
 
     // http://www.brucelindbloom.com/LContinuity.html
     // http://www.brucelindbloom.com/Eqn_XYZ_to_Luv.html

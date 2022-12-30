@@ -2,13 +2,15 @@ package kofa.colours.gamutmapper;
 
 import kofa.colours.model.CieLab;
 import kofa.colours.model.Srgb;
+import kofa.colours.tonemapper.SimpleCurveBasedToneMapper;
+import kofa.io.RgbImage;
 
 /**
  * Not really a gamut mapper, as all colour info is discarded.
  */
 public class BwFromCieLabLGamutMapper extends GamutMapper {
-    public BwFromCieLabLGamutMapper() {
-        super(true);
+    public BwFromCieLabLGamutMapper(RgbImage image) {
+        super(true, SimpleCurveBasedToneMapper.forCieLab(image), image);
     }
 
     @Override

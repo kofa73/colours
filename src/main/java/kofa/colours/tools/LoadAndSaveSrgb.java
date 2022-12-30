@@ -1,7 +1,6 @@
 package kofa.colours.tools;
 
 import kofa.colours.gamutmapper.*;
-import kofa.colours.tonemapper.OkLabToneMapper;
 import kofa.io.ImageLoader;
 import kofa.io.PngOutput;
 import kofa.io.RgbImage;
@@ -22,21 +21,15 @@ public class LoadAndSaveSrgb {
 
         var image = new ImageLoader().loadImageFrom(inputFile);
 
-//        var toneMapper = new XyzToneMapper(image);
-//        var toneMapper = new LabToneMapper(image);
-        var toneMapper = new OkLabToneMapper(image);
-
         for (int mapperId : mapperIds) {
             image.init();
-
-            toneMapper.toneMap(image);
 
             GamutMapper gamutMapper = getGamutMapper(image, mapperId);
 
             if (gamutMapper != null) {
                 System.out.println("Using " + gamutMapper.name());
                 gamutMapper.mapToSrgb(image);
-                new PngOutput().write(baseName + "-" + toneMapper.getClass().getSimpleName() + "-" + gamutMapper.name(), image);
+                new PngOutput().write(baseName + "-" + gamutMapper.name(), image);
             } else {
                 printHelpAndExit();
             }
@@ -69,25 +62,25 @@ public class LoadAndSaveSrgb {
     private static GamutMapper getGamutMapper(RgbImage image, int transformerId) {
         return switch (transformerId) {
             case 0 -> new NullGamutMapper();
-            case 1 -> new SrgbClippingGamutMapper();
-            case 2 -> new BwFromCieLabLGamutMapper();
+            case 1 -> new SrgbClippingGamutMapper(image);
+            case 2 -> new BwFromCieLabLGamutMapper(image);
 
-            case 3 -> ChromaClippingLchBasedGamutMapper.forLchAb();
-            case 4 -> ChromaClippingLchBasedGamutMapper.forLchUv();
-            case 5 -> ChromaClippingLchBasedGamutMapper.forOkLch();
+            case 3 -> ChromaClippingLchBasedGamutMapper.forLchAb(image);
+            case 4 -> ChromaClippingLchBasedGamutMapper.forLchUv(image);
+            case 5 -> ChromaClippingLchBasedGamutMapper.forOkLch(image);
 
-            case 6 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0);
-            case 7 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0);
-            case 8 -> GradualChromaDampeningLchBasedGamutMapper.forOkLch(0);
-            case 9 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.5);
-            case 10 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.5);
-            case 11 -> GradualChromaDampeningLchBasedGamutMapper.forOkLch(0.5);
-            case 12 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.7);
-            case 13 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.7);
-            case 14 -> GradualChromaDampeningLchBasedGamutMapper.forOkLch(0.7);
-            case 15 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.9);
-            case 16 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.9);
-            case 17 -> GradualChromaDampeningLchBasedGamutMapper.forOkLch(0.9);
+            case 6 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0, image);
+            case 7 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0, image);
+            case 8 -> GradualChromaDampeningLchBasedGamutMapper.forOkLch(0, image);
+            case 9 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.5, image);
+            case 10 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.5, image);
+            case 11 -> GradualChromaDampeningLchBasedGamutMapper.forOkLch(0.5, image);
+            case 12 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.7, image);
+            case 13 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.7, image);
+            case 14 -> GradualChromaDampeningLchBasedGamutMapper.forOkLch(0.7, image);
+            case 15 -> GradualChromaDampeningLchBasedGamutMapper.forLchAb(0.9, image);
+            case 16 -> GradualChromaDampeningLchBasedGamutMapper.forLchUv(0.9, image);
+            case 17 -> GradualChromaDampeningLchBasedGamutMapper.forOkLch(0.9, image);
 
             default -> null;
         };

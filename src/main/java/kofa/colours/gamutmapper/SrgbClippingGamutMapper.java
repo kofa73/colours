@@ -1,11 +1,16 @@
 package kofa.colours.gamutmapper;
 
 import kofa.colours.model.Srgb;
+import kofa.colours.tonemapper.SimpleCurveBasedToneMapper;
+import kofa.io.RgbImage;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 public class SrgbClippingGamutMapper extends GamutMapper {
+    public SrgbClippingGamutMapper(RgbImage image) {
+        super(SimpleCurveBasedToneMapper.forCieLab(image), image);
+    }
 
     @Override
     public Srgb getInsideGamut(Srgb sRgb) {

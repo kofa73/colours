@@ -1,6 +1,8 @@
 package kofa.colours.gamutmapper;
 
 import kofa.colours.model.*;
+import kofa.colours.tonemapper.SimpleCurveBasedToneMapper;
+import kofa.colours.tonemapper.ToneMapper;
 import kofa.io.RgbImage;
 import kofa.maths.Vector3Constructor;
 
@@ -15,46 +17,52 @@ import static java.util.Objects.requireNonNull;
  * It analyses the image, finds the maximum 'actual C' to 'C at gamut boundary' ratio, and uses that to desaturate
  * the image. Therefore, saturation differences are maintained, at the cost of severe desaturation.
  *
- * @param <L> the LCh subtype
+ * @param <S> the base colour space
+ * @param <P> the corresponding polar LCh type
  */
-public class DesaturatingLchBasedGamutMapper<L extends Lch<L, ?>> extends GamutMapper {
+public class DesaturatingLchBasedGamutMapper<P extends Lch<P, S>, S extends ConvertibleToLch<S, P>> extends GamutMapper {
     private final String name;
-    private final Vector3Constructor<L> lchConstructor;
-    private final Function<Srgb, L> sRgbToLch;
-    private final Function<L, Srgb> lchToSrgb;
+    private final Vector3Constructor<P> lchConstructor;
+    private final Function<Srgb, P> sRgbToLch;
+    private final Function<P, Srgb> lchToSrgb;
     private double cDivisor = 0;
 
-    public static DesaturatingLchBasedGamutMapper<CieLchAb> forLchAb(RgbImage image) {
+    public static DesaturatingLchBasedGamutMapper<CieLchAb, CieLab> forLchAb(RgbImage image) {
         return new DesaturatingLchBasedGamutMapper<>(
                 image,
-                GamutBoundarySearchParams.FOR_CIELAB
+                GamutBoundarySearchParams.FOR_CIELAB,
+                SimpleCurveBasedToneMapper.forCieLab(image)
         );
     }
 
-    public static DesaturatingLchBasedGamutMapper<CieLchUv> forLchUv(RgbImage image) {
+    public static DesaturatingLchBasedGamutMapper<CieLchUv, CieLuv> forLchUv(RgbImage image) {
         return new DesaturatingLchBasedGamutMapper<>(
                 image,
-                GamutBoundarySearchParams.FOR_CIELUV
+                GamutBoundarySearchParams.FOR_CIELUV,
+                SimpleCurveBasedToneMapper.forCieLuv(image)
         );
     }
 
-    public static DesaturatingLchBasedGamutMapper<OkLch> forOkLch(RgbImage image) {
+    public static DesaturatingLchBasedGamutMapper<OkLch, OkLab> forOkLch(RgbImage image) {
         return new DesaturatingLchBasedGamutMapper<>(
                 image,
-                GamutBoundarySearchParams.FOR_OKLAB
+                GamutBoundarySearchParams.FOR_OKLAB,
+                SimpleCurveBasedToneMapper.forOkLab(image)
         );
     }
 
     private DesaturatingLchBasedGamutMapper(
             RgbImage image,
-            GamutBoundarySearchParams<L> searchParams) {
-        super(true);
+            GamutBoundarySearchParams<P> searchParams,
+            ToneMapper<S> toneMapper
+    ) {
+        super(true, toneMapper, image);
         this.name = searchParams.type().getSimpleName();
         this.sRgbToLch = requireNonNull(searchParams.sRgbToLch());
         this.lchToSrgb = requireNonNull(searchParams.lchToSrgb());
         this.lchConstructor = requireNonNull(searchParams.lchConstructor());
 
-        ToDoubleFunction<Srgb> maxCFinder = sRgb -> new MaxCLabLuvSolver<L>(searchParams).solveMaxCForLch(sRgb);
+        ToDoubleFunction<Srgb> maxCFinder = sRgb -> new MaxCLabLuvSolver<>(searchParams).solveMaxCForLch(sRgb);
 
         image.forEachPixelSequentially((row, column, red, green, blue) -> {
             var rec2020 = new Rec2020(red, green, blue);
@@ -75,9 +83,9 @@ public class DesaturatingLchBasedGamutMapper<L extends Lch<L, ?>> extends GamutM
 
     @Override
     public Srgb getInsideGamut(Srgb sRgb) {
-        L lchFromInput = sRgbToLch.apply(sRgb);
+        P lchFromInput = sRgbToLch.apply(sRgb);
         double reducedC = lchFromInput.c() / cDivisor;
-        L lchWithChromaAtGamutBoundary = lchConstructor.createFrom(lchFromInput.l(), reducedC, lchFromInput.h());
+        P lchWithChromaAtGamutBoundary = lchConstructor.createFrom(lchFromInput.l(), reducedC, lchFromInput.h());
         return lchToSrgb.apply(lchWithChromaAtGamutBoundary);
     }
 

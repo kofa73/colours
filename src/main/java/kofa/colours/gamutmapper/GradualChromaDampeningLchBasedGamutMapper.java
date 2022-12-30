@@ -1,6 +1,9 @@
 package kofa.colours.gamutmapper;
 
 import kofa.colours.model.*;
+import kofa.colours.tonemapper.SimpleCurveBasedToneMapper;
+import kofa.colours.tonemapper.ToneMapper;
+import kofa.io.RgbImage;
 import kofa.maths.ThanatomanicCurve6;
 import kofa.maths.Vector3Constructor;
 
@@ -13,44 +16,52 @@ import java.util.function.ToDoubleFunction;
  * determined. Then C is kept unchanged if it is below a certain threshold, and is gradually reduced afterwards,
  * making sure its value never exceeds 'C at gamut boundary'.
  *
- * @param <L> the polar LCh type
+ * @param <P> the polar LCh type
  */
-public class GradualChromaDampeningLchBasedGamutMapper<L extends Lch<L, ?>> extends GamutMapper {
+public class GradualChromaDampeningLchBasedGamutMapper<P extends Lch<P, S>, S extends ConvertibleToLch<S, P>> extends GamutMapper {
     private final ToDoubleFunction<Srgb> maxCFinder;
     private final String name;
     private final ThanatomanicCurve6 dampeningCurve;
     // the shoulder of the curve; also, the ratio to maxC below which C is not modified
     private final double shoulder;
-    private final Function<Srgb, L> sRgbToLch;
-    private final Function<L, Srgb> lchToSrgb;
-    private final Vector3Constructor<L> lchConstructor;
+    private final Function<Srgb, P> sRgbToLch;
+    private final Function<P, Srgb> lchToSrgb;
+    private final Vector3Constructor<P> lchConstructor;
 
-    public static GradualChromaDampeningLchBasedGamutMapper<CieLchAb> forLchAb(double shoulder) {
+    public static GradualChromaDampeningLchBasedGamutMapper<CieLchAb, CieLab> forLchAb(double shoulder, RgbImage image) {
         return new GradualChromaDampeningLchBasedGamutMapper<>(
                 shoulder,
-                GamutBoundarySearchParams.FOR_CIELAB
+                GamutBoundarySearchParams.FOR_CIELAB,
+                SimpleCurveBasedToneMapper.forCieLab(image),
+                image
         );
     }
 
-    public static GradualChromaDampeningLchBasedGamutMapper<CieLchUv> forLchUv(double shoulder) {
+    public static GradualChromaDampeningLchBasedGamutMapper<CieLchUv, CieLuv> forLchUv(double shoulder, RgbImage image) {
         return new GradualChromaDampeningLchBasedGamutMapper<>(
                 shoulder,
-                GamutBoundarySearchParams.FOR_CIELUV
+                GamutBoundarySearchParams.FOR_CIELUV,
+                SimpleCurveBasedToneMapper.forCieLuv(image),
+                image
         );
     }
 
-    public static GradualChromaDampeningLchBasedGamutMapper<OkLch> forOkLch(double shoulder) {
+    public static GradualChromaDampeningLchBasedGamutMapper<OkLch, OkLab> forOkLch(double shoulder, RgbImage image) {
         return new GradualChromaDampeningLchBasedGamutMapper<>(
                 shoulder,
-                GamutBoundarySearchParams.FOR_OKLAB
+                GamutBoundarySearchParams.FOR_OKLAB,
+                SimpleCurveBasedToneMapper.forOkLab(image),
+                image
         );
     }
 
     private GradualChromaDampeningLchBasedGamutMapper(
             double shoulder,
-            GamutBoundarySearchParams<L> searchParams
+            GamutBoundarySearchParams<P> searchParams,
+            ToneMapper<S> toneMapper,
+            RgbImage image
     ) {
-        super(true);
+        super(true, toneMapper, image);
         this.shoulder = shoulder;
         this.name = searchParams.type().getSimpleName();
         this.dampeningCurve = new ThanatomanicCurve6(1, shoulder);

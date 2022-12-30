@@ -19,6 +19,10 @@ public abstract class ConvertibleToLch<S extends ConvertibleToLch<S, L>, L exten
         this.lchConstructor = lchConstructor;
     }
 
+    public double l() {
+        return coordinate1;
+    }
+
     public final L toLch() {
         var c = sqrt(coordinate2 * coordinate2 + coordinate3 * coordinate3);
         var h = atan2(coordinate3, coordinate2);
