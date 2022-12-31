@@ -1,5 +1,6 @@
 package kofa.colours.model;
 
+import kofa.maths.SpaceConversionMatrix;
 import kofa.maths.Vector3;
 import kofa.maths.Vector3Constructor;
 
@@ -13,7 +14,7 @@ import static java.lang.Math.*;
  * @param <V> the concrete vector subtype (e.g., some LAB or LUV)
  * @param <P> the concrete polar LCh subtype
  */
-public abstract class ConvertibleToLch<V extends ConvertibleToLch<V, P>, P extends LCh<P, V>> extends Vector3 {
+public abstract class ConvertibleToLch<V extends ConvertibleToLch<V, P>, P extends LCh<P, V>> extends Vector3<V> {
     public final double L;
     private final double colour1;
     private final double colour2;
@@ -41,5 +42,10 @@ public abstract class ConvertibleToLch<V extends ConvertibleToLch<V, P>, P exten
     @Override
     public final DoubleStream coordinates() {
         return DoubleStream.of(L, colour1, colour2);
+    }
+
+    @Override
+    public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<V, O> conversionMatrix) {
+        return multiplyBy(conversionMatrix, L, colour1, colour2);
     }
 }

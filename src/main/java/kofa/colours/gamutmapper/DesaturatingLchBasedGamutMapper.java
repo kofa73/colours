@@ -9,7 +9,6 @@ import kofa.maths.Vector3Constructor;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
-import static java.lang.Math.max;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -25,7 +24,7 @@ public class DesaturatingLchBasedGamutMapper<P extends LCh<P, S>, S extends Conv
     private final Vector3Constructor<P> lchConstructor;
     private final Function<Srgb, P> sRgbToLch;
     private final Function<P, Srgb> lchToSrgb;
-    private double cDivisor = 0;
+    private final double cDivisor;
 
     public static DesaturatingLchBasedGamutMapper<CIELCh_ab, CIELAB> forLchAb(RgbImage image) {
         return new DesaturatingLchBasedGamutMapper<>(
@@ -64,21 +63,21 @@ public class DesaturatingLchBasedGamutMapper<P extends LCh<P, S>, S extends Conv
 
         ToDoubleFunction<Srgb> maxCFinder = sRgb -> new MaxCLabLuvSolver<>(searchParams).solveMaxCForLch(sRgb);
 
-        image.forEachPixelSequentially((row, column, red, green, blue) -> {
-            var rec2020 = new Rec2020(red, green, blue);
+        cDivisor = image.pixelStream().mapToDouble(pixel -> {
+            var rec2020 = new Rec2020(pixel[0], pixel[1], pixel[2]);
             Srgb sRgb = rec2020.toSRGB();
+            double divisor = 1;
             if (sRgb.isOutOfGamut()) {
                 var lch = searchParams.sRgbToLch().apply(sRgb);
                 if (lch.C != 0) {
                     var maxC = maxCFinder.applyAsDouble(sRgb);
                     if (maxC != 0) {
-                        cDivisor = max(cDivisor, lch.C / maxC);
+                        divisor = lch.C / maxC;
                     }
                 }
             }
-        });
-
-        cDivisor = max(cDivisor, 1);
+            return divisor;
+        }).max().orElse(1.0);
     }
 
     @Override

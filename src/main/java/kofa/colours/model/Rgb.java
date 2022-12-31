@@ -14,7 +14,7 @@ import static org.apache.commons.math3.linear.MatrixUtils.inverse;
  *
  * @param <S> the subtype
  */
-public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
+public abstract class Rgb<S extends Rgb<S>> extends Vector3<S> {
     public final double r;
     public final double g;
     public final double b;
@@ -87,5 +87,10 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
     @Override
     public String toString() {
         return Vector3.format(this, r, g, b);
+    }
+
+    @Override
+    public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<S, O> conversionMatrix) {
+        return multiplyBy(conversionMatrix, r, g, b);
     }
 }

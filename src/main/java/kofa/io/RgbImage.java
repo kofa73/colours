@@ -72,53 +72,45 @@ public class RgbImage {
     }
 
     public void forEachPixel(PixelConsumer consumer) {
-        forEachPixel(consumer, true);
-    }
-
-    public void forEachPixelSequentially(PixelConsumer consumer) {
-        forEachPixel(consumer, false);
-    }
-
-    private void forEachPixel(PixelConsumer consumer, boolean parallel) {
-        IntStream rows = IntStream.range(0, height);
-        (parallel ? rows.parallel() : rows).forEach(row -> {
-            for (int column = 0; column < raster.getWidth(); column++) {
-                consumer.consume(
-                        row, column,
-                        redChannel[row][column],
-                        greenChannel[row][column],
-                        blueChannel[row][column]
-                );
-            }
-        });
-    }
-
-    public void transformAllPixels(PixelTransformer transformer) {
         IntStream.range(0, height)
                 .parallel()
                 .forEach(row -> {
                     for (int column = 0; column < raster.getWidth(); column++) {
-                        double[] transformed = transformer.transform(
+                        consumer.consume(
                                 row, column,
                                 redChannel[row][column],
                                 greenChannel[row][column],
                                 blueChannel[row][column]
                         );
-                        redChannel[row][column] = transformed[0];
-                        greenChannel[row][column] = transformed[1];
-                        blueChannel[row][column] = transformed[2];
                     }
                 });
     }
 
+    public void transformAllPixels(PixelTransformer transformer) {
+        forEachPixel((row, column, red, green, blue) -> {
+                    double[] transformed = transformer.transform(
+                            row, column,
+                            redChannel[row][column],
+                            greenChannel[row][column],
+                            blueChannel[row][column]
+                    );
+                    redChannel[row][column] = transformed[0];
+                    greenChannel[row][column] = transformed[1];
+                    blueChannel[row][column] = transformed[2];
+                }
+        );
+    }
+
     public Stream<double[]> pixelStream() {
-        return IntStream.range(0, height).mapToObj(row ->
-                IntStream.range(0, width).mapToObj(column ->
-                        new double[]{
-                                redChannel[row][column],
-                                greenChannel[row][column],
-                                blueChannel[row][column]
-                        })
-        ).flatMap(Function.identity());
+        return IntStream.range(0, height)
+                .parallel()
+                .mapToObj(row ->
+                        IntStream.range(0, width).mapToObj(column ->
+                                new double[]{
+                                        redChannel[row][column],
+                                        greenChannel[row][column],
+                                        blueChannel[row][column]
+                                })
+                ).flatMap(Function.identity());
     }
 }

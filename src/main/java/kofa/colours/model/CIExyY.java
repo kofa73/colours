@@ -1,10 +1,11 @@
 package kofa.colours.model;
 
+import kofa.maths.SpaceConversionMatrix;
 import kofa.maths.Vector3;
 
 import java.util.stream.DoubleStream;
 
-public class CIExyY extends Vector3 {
+public class CIExyY extends Vector3<CIExyY> {
     // According to http://www.brucelindbloom.com/Eqn_XYZ_to_xyY.html, should return xy of reference white
     // Here, we hardcode D65, as that's what both sRGB and Rec2020 uses, but theoretically that's not OK.
     // https://en.wikipedia.org/wiki/Illuminant_D65#Definition
@@ -41,10 +42,9 @@ public class CIExyY extends Vector3 {
 
         double yr = Y / y;
         double xyzX = x * yr;
-        double xyzY = Y;
         double xyzZ = (1 - x - y) * yr;
 
-        return new CIEXYZ(xyzX, xyzY, xyzZ);
+        return new CIEXYZ(xyzX, Y, xyzZ);
     }
 
     public static CIExyY from(CIEXYZ xyz) {
@@ -61,5 +61,10 @@ public class CIExyY extends Vector3 {
         double y = Y / denominator;
 
         return new CIExyY(x, y, Y);
+    }
+
+    @Override
+    public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<CIExyY, O> conversionMatrix) {
+        return multiplyBy(conversionMatrix, x, y, Y);
     }
 }

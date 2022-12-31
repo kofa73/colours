@@ -143,10 +143,15 @@ public class SimpleCurveBasedToneMapper<S> implements ToneMapper<S> {
     }
 
     private static <S> double maxBrightness(RgbImage image, Function<Rec2020, S> rec2020ToLSpace, ToDoubleFunction<S> brightnessFunction) {
-        return image.pixelStream().mapToDouble(rgb -> {
-            var rec2020 = new Rec2020(rgb[0], rgb[1], rgb[2]);
-            return brightnessFunction.applyAsDouble(rec2020ToLSpace.apply(rec2020));
-        }).max().orElse(0.0);
+        long start = System.currentTimeMillis();
+        try {
+            return image.pixelStream().mapToDouble(rgb -> {
+                var rec2020 = new Rec2020(rgb[0], rgb[1], rgb[2]);
+                return brightnessFunction.applyAsDouble(rec2020ToLSpace.apply(rec2020));
+            }).max().orElse(0.0);
+        } finally {
+            System.err.println("Tone mapping took " + (System.currentTimeMillis() - start));
+        }
     }
 
 }

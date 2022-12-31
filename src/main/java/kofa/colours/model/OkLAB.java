@@ -50,7 +50,7 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
         return LMS_TO_XYZ.multiply(lms);
     }
 
-    private static class LMSPrime extends Vector3 {
+    private static class LMSPrime extends Vector3<LMSPrime> {
         private final double lPrime;
         private final double mPrime;
         private final double sPrime;
@@ -87,6 +87,12 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
                     cubeRootOf(lms.s)
             );
         }
+
+
+        @Override
+        public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<LMSPrime, O> conversionMatrix) {
+            return multiplyBy(conversionMatrix, lPrime, mPrime, sPrime);
+        }
     }
 
     public static OkLAB from(Srgb sRgb) {
@@ -121,7 +127,7 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
         );
     }
 
-    private static class LMS extends Vector3 {
+    private static class LMS extends Vector3<LMS> {
         private final double l;
         private final double m;
         private final double s;
@@ -141,6 +147,11 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
         @Override
         public String toString() {
             return Vector3.format(this, l, m, s);
+        }
+
+        @Override
+        public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<LMS, O> conversionMatrix) {
+            return multiplyBy(conversionMatrix, l, m, s);
         }
     }
 }

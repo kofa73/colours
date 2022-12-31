@@ -1,12 +1,13 @@
 package kofa.colours.model;
 
+import kofa.maths.SpaceConversionMatrix;
 import kofa.maths.Vector3;
 
 import java.util.stream.DoubleStream;
 
 import static java.lang.Math.abs;
 
-public class CIEXYZ extends Vector3 {
+public class CIEXYZ extends Vector3<CIEXYZ> {
     public static final CIEXYZ BLACK = new CIEXYZ(0, 0, 0);
     public static final double BLACK_LEVEL = 1E-6;
     // http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
@@ -44,5 +45,10 @@ public class CIEXYZ extends Vector3 {
 
     public boolean isWhite() {
         return abs(1 - Y) < 1E-6;
+    }
+
+    @Override
+    public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<CIEXYZ, O> conversionMatrix) {
+        return multiplyBy(conversionMatrix, X, Y, Z);
     }
 }

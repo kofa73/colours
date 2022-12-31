@@ -71,7 +71,7 @@ class SpaceConversionMatrixTest {
         assertThat(target1.coordinates()).containsExactlyElementsOf(target2.coordinates().boxed().toList());
     }
 
-    private static class Source extends Vector3 {
+    private static class Source extends Vector3<Source> {
         final double coordinate1;
         final double coordinate2;
         final double coordinate3;
@@ -92,9 +92,14 @@ class SpaceConversionMatrixTest {
         public String toString() {
             return Vector3.format(this, coordinate1, coordinate2, coordinate3);
         }
+
+        @Override
+        public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<Source, O> conversionMatrix) {
+            return multiplyBy(conversionMatrix, coordinate1, coordinate2, coordinate3);
+        }
     }
 
-    private static class Interim extends Vector3 {
+    private static class Interim extends Vector3<Interim> {
         final double coordinate1;
         final double coordinate2;
         final double coordinate3;
@@ -115,9 +120,14 @@ class SpaceConversionMatrixTest {
         public String toString() {
             return Vector3.format(this, coordinate1, coordinate2, coordinate3);
         }
+
+        @Override
+        public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<Interim, O> conversionMatrix) {
+            return multiplyBy(conversionMatrix, coordinate1, coordinate2, coordinate3);
+        }
     }
 
-    private static class Target extends Vector3 {
+    private static class Target extends Vector3<Target> {
         final double coordinate1;
         final double coordinate2;
         final double coordinate3;
@@ -137,6 +147,11 @@ class SpaceConversionMatrixTest {
         @Override
         public String toString() {
             return Vector3.format(this, coordinate1, coordinate2, coordinate3);
+        }
+
+        @Override
+        public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<Target, O> conversionMatrix) {
+            return multiplyBy(conversionMatrix, coordinate1, coordinate2, coordinate3);
         }
     }
 }
