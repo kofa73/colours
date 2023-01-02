@@ -3,8 +3,6 @@ package kofa.colours.model;
 import kofa.maths.SpaceConversionMatrix;
 import kofa.maths.Vector3;
 
-import java.util.stream.DoubleStream;
-
 import static java.lang.Math.abs;
 import static org.apache.commons.math3.linear.MatrixUtils.createRealMatrix;
 import static org.apache.commons.math3.linear.MatrixUtils.inverse;
@@ -15,15 +13,20 @@ import static org.apache.commons.math3.linear.MatrixUtils.inverse;
  * @param <S> the subtype
  */
 public abstract class Rgb<S extends Rgb<S>> extends Vector3<S> {
-    public final double r;
-    public final double g;
-    public final double b;
-
     protected Rgb(double r, double g, double b) {
         super(r, g, b);
-        this.r = r;
-        this.g = g;
-        this.b = b;
+    }
+
+    public final double r() {
+        return coordinate1;
+    }
+
+    public final double g() {
+        return coordinate2;
+    }
+
+    public final double b() {
+        return coordinate3;
     }
 
     protected abstract SpaceConversionMatrix<S, CIEXYZ> toXyzMatrix();
@@ -33,7 +36,7 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3<S> {
     }
 
     public boolean isOutOfGamut() {
-        return r < 0 || r > 1 || g < 0 || g > 1 || b < 0 || b > 1;
+        return r() < 0 || r() > 1 || g() < 0 || g() > 1 || b() < 0 || b() > 1;
     }
 
     public static double[][] calculateToXyzMatrix(
@@ -58,7 +61,7 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3<S> {
                         {Yr, Yg, Yb},
                         {Zr, Zg, Zb}
                 }
-        )).operate(new double[]{referenceWhite.X, referenceWhite.Y, referenceWhite.Z});
+        )).operate(new double[]{referenceWhite.X(), referenceWhite.Y(), referenceWhite.Z()});
 
         double Sr = S[0];
         double Sg = S[1];
@@ -72,25 +75,10 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3<S> {
     }
 
     public boolean isBlack() {
-        return abs(r) < 1E-6 && abs(g) < 1E-6 && abs(b) < 1E-6;
+        return abs(r()) < 1E-6 && abs(g()) < 1E-6 && abs(b()) < 1E-6;
     }
 
     public boolean isWhite() {
-        return abs(1 - r) < 1E-6 && abs(1 - g) < 1E-6 && abs(1 - b) < 1E-6;
-    }
-
-    @Override
-    public DoubleStream coordinates() {
-        return DoubleStream.of(r, g, b);
-    }
-
-    @Override
-    public String toString() {
-        return Vector3.format(this, r, g, b);
-    }
-
-    @Override
-    public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<S, O> conversionMatrix) {
-        return multiplyBy(conversionMatrix, r, g, b);
+        return abs(1 - r()) < 1E-6 && abs(1 - g()) < 1E-6 && abs(1 - b()) < 1E-6;
     }
 }

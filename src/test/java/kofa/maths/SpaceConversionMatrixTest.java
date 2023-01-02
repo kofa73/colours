@@ -2,8 +2,6 @@ package kofa.maths;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.stream.DoubleStream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SpaceConversionMatrixTest {
@@ -82,21 +80,6 @@ class SpaceConversionMatrixTest {
             this.coordinate2 = coordinate2;
             this.coordinate3 = coordinate3;
         }
-
-        @Override
-        public DoubleStream coordinates() {
-            return DoubleStream.of(coordinate1, coordinate2, coordinate3);
-        }
-
-        @Override
-        public String toString() {
-            return Vector3.format(this, coordinate1, coordinate2, coordinate3);
-        }
-
-        @Override
-        public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<Source, O> conversionMatrix) {
-            return multiplyBy(conversionMatrix, coordinate1, coordinate2, coordinate3);
-        }
     }
 
     private static class Interim extends Vector3<Interim> {
@@ -110,21 +93,6 @@ class SpaceConversionMatrixTest {
             this.coordinate2 = coordinate2;
             this.coordinate3 = coordinate3;
         }
-
-        @Override
-        public DoubleStream coordinates() {
-            return DoubleStream.of(coordinate1, coordinate2, coordinate3);
-        }
-
-        @Override
-        public String toString() {
-            return Vector3.format(this, coordinate1, coordinate2, coordinate3);
-        }
-
-        @Override
-        public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<Interim, O> conversionMatrix) {
-            return multiplyBy(conversionMatrix, coordinate1, coordinate2, coordinate3);
-        }
     }
 
     private static class Target extends Vector3<Target> {
@@ -137,21 +105,6 @@ class SpaceConversionMatrixTest {
             this.coordinate1 = coordinate1;
             this.coordinate2 = coordinate2;
             this.coordinate3 = coordinate3;
-        }
-
-        @Override
-        public DoubleStream coordinates() {
-            return DoubleStream.of(coordinate1, coordinate2, coordinate3);
-        }
-
-        @Override
-        public String toString() {
-            return Vector3.format(this, coordinate1, coordinate2, coordinate3);
-        }
-
-        @Override
-        public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<Target, O> conversionMatrix) {
-            return multiplyBy(conversionMatrix, coordinate1, coordinate2, coordinate3);
         }
     }
 }

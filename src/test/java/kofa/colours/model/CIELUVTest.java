@@ -50,7 +50,7 @@ class CIELUVTest {
                 new CIEXYZ(0, 0, 0),
                 EXACT
         );
-        assertThat(new CIELUV(0, 100, -100).toXyz().usingD65_2DegreeStandardObserver().Y).isEqualTo(0);
+        assertThat(new CIELUV(0, 100, -100).toXyz().usingD65_2DegreeStandardObserver().Y()).isEqualTo(0);
     }
 
     @Test

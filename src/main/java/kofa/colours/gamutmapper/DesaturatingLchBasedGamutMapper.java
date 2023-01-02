@@ -69,10 +69,10 @@ public class DesaturatingLchBasedGamutMapper<P extends LCh<P, S>, S extends Conv
             double divisor = 1;
             if (sRgb.isOutOfGamut()) {
                 var lch = searchParams.sRgbToLch().apply(sRgb);
-                if (lch.C != 0) {
+                if (lch.C() != 0) {
                     var maxC = maxCFinder.applyAsDouble(sRgb);
                     if (maxC != 0) {
-                        divisor = lch.C / maxC;
+                        divisor = lch.C() / maxC;
                     }
                 }
             }
@@ -83,8 +83,8 @@ public class DesaturatingLchBasedGamutMapper<P extends LCh<P, S>, S extends Conv
     @Override
     public Srgb getInsideGamut(Srgb sRgb) {
         P lchFromInput = sRgbToLch.apply(sRgb);
-        double reducedC = lchFromInput.C / cDivisor;
-        P lchWithChromaAtGamutBoundary = lchConstructor.createFrom(lchFromInput.L, reducedC, lchFromInput.h);
+        double reducedC = lchFromInput.C() / cDivisor;
+        P lchWithChromaAtGamutBoundary = lchConstructor.createFrom(lchFromInput.L(), reducedC, lchFromInput.h());
         return lchToSrgb.apply(lchWithChromaAtGamutBoundary);
     }
 

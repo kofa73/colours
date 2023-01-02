@@ -1,24 +1,20 @@
 package kofa.colours.model;
 
-import kofa.maths.Vector3;
-
 import static kofa.colours.model.ConversionHelper.*;
 
 public class CIELUV extends ConvertibleToLch<CIELUV, CIELCh_uv> {
     public static final CIELUV BLACK = new CIELUV(0, 0, 0);
 
-    public final double u;
-    public final double v;
-
     public CIELUV(double L, double u, double v) {
         super(L, u, v, CIELCh_uv::new);
-        this.u = u;
-        this.v = v;
     }
 
-    @Override
-    public String toString() {
-        return Vector3.format(this, L, u, v);
+    public final double u() {
+        return coordinate2;
+    }
+
+    public final double v() {
+        return coordinate3;
     }
 
     public static XyzLuvConverter from(CIEXYZ xyz) {
@@ -41,7 +37,7 @@ public class CIELUV extends ConvertibleToLch<CIELUV, CIELCh_uv> {
                 return BLACK;
             }
             // http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_Luv.html
-            double yr = xyz.Y / referenceXyz.Y;
+            double yr = xyz.Y() / referenceXyz.Y();
 
             var uv = UV.from(xyz);
 
@@ -60,20 +56,20 @@ public class CIELUV extends ConvertibleToLch<CIELUV, CIELCh_uv> {
 
         @Override
         public CIEXYZ usingWhitePoint(CIEXYZ referenceXYZ, UV referenceUV) {
-            if (L == 0) {
+            if (L() == 0) {
                 return CIEXYZ.BLACK;
             }
 
-            double referenceY = referenceXYZ.Y;
+            double referenceY = referenceXYZ.Y();
 
-            double L13 = 13 * L;
+            double L13 = 13 * L();
 
-            double uPrime = u / L13 + referenceUV.u();
-            double vPrime = v / L13 + referenceUV.v();
+            double uPrime = u() / L13 + referenceUV.u();
+            double vPrime = v() / L13 + referenceUV.v();
 
-            double Y = L > KAPPA_EPSILON ?
-                    referenceY * cubeOf((L + 16) / 116) :
-                    referenceY * L / KAPPA;
+            double Y = L() > KAPPA_EPSILON ?
+                    referenceY * cubeOf((L() + 16) / 116) :
+                    referenceY * L() / KAPPA;
 
             double denominator = 4 * vPrime;
             double X = Y * 9 * uPrime / denominator;
@@ -83,4 +79,3 @@ public class CIELUV extends ConvertibleToLch<CIELUV, CIELCh_uv> {
         }
     }
 }
-

@@ -37,7 +37,8 @@ public class Rec2020 extends Rgb<Rec2020> {
     }
 
     public static Rec2020 from(CIEXYZ xyz) {
-        return xyz.Y >= 1 ? WHITE : FROM_XYZ.multiply(xyz);
+        // FIXME: check really needed?
+        return xyz.Y() >= 1 ? WHITE : FROM_XYZ.multiply(xyz);
     }
 
     // https://en.wikipedia.org/wiki/Rec._2020#Transfer_characteristics

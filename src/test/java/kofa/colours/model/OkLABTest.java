@@ -71,16 +71,16 @@ class OkLABTest {
     private OkLAB roundToThreeDecimals(OkLAB okLab) {
         return new OkLAB(
                 roundToThreeDecimals(okLab.L()),
-                roundToThreeDecimals(okLab.a),
-                roundToThreeDecimals(okLab.b)
+                roundToThreeDecimals(okLab.a()),
+                roundToThreeDecimals(okLab.b())
         );
     }
 
     private CIEXYZ roundToThreeDecimals(CIEXYZ xyz) {
         return new CIEXYZ(
-                roundToThreeDecimals(xyz.X),
-                roundToThreeDecimals(xyz.Y),
-                roundToThreeDecimals(xyz.Z)
+                roundToThreeDecimals(xyz.X()),
+                roundToThreeDecimals(xyz.Y()),
+                roundToThreeDecimals(xyz.Z())
         );
     }
 

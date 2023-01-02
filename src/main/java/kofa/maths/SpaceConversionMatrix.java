@@ -21,8 +21,11 @@ public class SpaceConversionMatrix<I extends Vector3<I>, O extends Vector3<O>> {
         );
     }
 
-    public O multiply(I vector) {
-        return vector.multiplyBy(this);
+    public O multiply(I input) {
+        double r1 = matrix[0][0] * input.coordinate1 + matrix[0][1] * input.coordinate2 + matrix[0][2] * input.coordinate3;
+        double r2 = matrix[1][0] * input.coordinate1 + matrix[1][1] * input.coordinate2 + matrix[1][2] * input.coordinate3;
+        double r3 = matrix[2][0] * input.coordinate1 + matrix[2][1] * input.coordinate2 + matrix[2][2] * input.coordinate3;
+        return resultConstructor.createFrom(r1, r2, r3);
     }
 
     public <S extends Vector3<S>> SpaceConversionMatrix<S, O> multiply(SpaceConversionMatrix<S, I> multiplicand) {
@@ -55,12 +58,5 @@ public class SpaceConversionMatrix<I extends Vector3<I>, O extends Vector3<O>> {
         double[] row1 = matrix[1].clone();
         double[] row2 = matrix[2].clone();
         return new double[][]{row0, row1, row2};
-    }
-
-    O multiply(double coordinate1, double coordinate2, double coordinate3) {
-        double r1 = matrix[0][0] * coordinate1 + matrix[0][1] * coordinate2 + matrix[0][2] * coordinate3;
-        double r2 = matrix[1][0] * coordinate1 + matrix[1][1] * coordinate2 + matrix[1][2] * coordinate3;
-        double r3 = matrix[2][0] * coordinate1 + matrix[2][1] * coordinate2 + matrix[2][2] * coordinate3;
-        return resultConstructor.createFrom(r1, r2, r3);
     }
 }

@@ -15,9 +15,9 @@ public class SrgbClippingGamutMapper extends GamutMapper {
     @Override
     public Srgb getInsideGamut(Srgb sRgb) {
         return new Srgb(
-                clip(sRgb.r),
-                clip(sRgb.g),
-                clip(sRgb.b)
+                clip(sRgb.r()),
+                clip(sRgb.g()),
+                clip(sRgb.b())
         );
     }
 

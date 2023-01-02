@@ -16,6 +16,6 @@ public class BwFromCieLabLGamutMapper extends GamutMapper {
     @Override
     public Srgb getInsideGamut(Srgb srgb) {
         var lab = CIELAB.from(srgb.toXyz()).usingD65_2DegreeStandardObserver();
-        return Srgb.from(new CIELAB(lab.L, 0, 0).toXyz().usingD65_2DegreeStandardObserver());
+        return Srgb.from(new CIELAB(lab.L(), 0, 0).toXyz().usingD65_2DegreeStandardObserver());
     }
 }

@@ -1,10 +1,7 @@
 package kofa.colours.model;
 
-import kofa.maths.SpaceConversionMatrix;
 import kofa.maths.Vector3;
 import kofa.maths.Vector3Constructor;
-
-import java.util.stream.DoubleStream;
 
 import static java.lang.Math.*;
 
@@ -16,39 +13,35 @@ import static java.lang.Math.*;
  */
 public abstract class LCh<P extends LCh<P, V>, V extends ConvertibleToLch<V, P>> extends Vector3<LCh<P, V>> {
     private final Vector3Constructor<V> vectorConstructor;
-    public final double L;
-    public final double C;
-    public final double h;
 
     protected LCh(double L, double C, double h, Vector3Constructor<V> vectorConstructor) {
         super(L, C, h);
-        this.L = L;
-        this.C = C;
-        this.h = h;
         this.vectorConstructor = vectorConstructor;
     }
 
+    public final double L() {
+        return coordinate1;
+    }
+
+    public final double C() {
+        return coordinate2;
+    }
+
+    public final double h() {
+        return coordinate3;
+    }
+
     public final double hueInDegrees() {
-        var hueDegrees = toDegrees(h);
+        var hueDegrees = toDegrees(h());
         return hueDegrees > 360 ? hueDegrees - 360 : (hueDegrees < 0 ? hueDegrees + 360 : hueDegrees);
     }
 
     protected final V toVector() {
-        return vectorConstructor.createFrom(L, C * cos(h), C * sin(h));
+        return vectorConstructor.createFrom(L(), C() * cos(h()), C() * sin(h()));
     }
 
     @Override
     public final String toString() {
-        return "%s (%.8f, %.8f, %.8f)".formatted(Vector3.format(this, L, C, h), L, C, hueInDegrees());
-    }
-
-    @Override
-    public final DoubleStream coordinates() {
-        return DoubleStream.of(L, C, h);
-    }
-
-    @Override
-    public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<LCh<P, V>, O> conversionMatrix) {
-        return multiplyBy(conversionMatrix, L, C, h);
+        return "%s (%.8f, %.8f, %.8f)".formatted(super.toString(), L(), C(), hueInDegrees());
     }
 }

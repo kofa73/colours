@@ -19,14 +19,14 @@ public class CIELAB extends LAB<CIELAB, CIELCh_ab> {
         @Override
         public CIEXYZ usingWhitePoint(CIEXYZ reference) {
             var fy = fy();
-            var fx = a / 500 + fy;
-            var fz = fy - b / 200;
+            var fx = a() / 500 + fy;
+            var fz = fy - b() / 200;
             var xr = fxz(fx);
-            var yr = L > KAPPA_EPSILON ?
+            var yr = L() > KAPPA_EPSILON ?
                     cubeOf(fy) :
-                    L / KAPPA;
+                    L() / KAPPA;
             var zr = fxz(fz);
-            return new CIEXYZ(xr * reference.X, yr * reference.Y, zr * reference.Z);
+            return new CIEXYZ(xr * reference.X(), yr * reference.Y(), zr * reference.Z());
         }
 
         private double fxz(double value) {
@@ -36,7 +36,7 @@ public class CIELAB extends LAB<CIELAB, CIELCh_ab> {
         }
 
         private double fy() {
-            return (L + 16) / 116;
+            return (L() + 16) / 116;
         }
     }
 
@@ -49,9 +49,9 @@ public class CIELAB extends LAB<CIELAB, CIELCh_ab> {
 
         @Override
         public CIELAB usingWhitePoint(CIEXYZ referenceXyz) {
-            double fx = f(xyz.X / referenceXyz.X);
-            double fy = f(xyz.Y / referenceXyz.Y);
-            double fz = f(xyz.Z / referenceXyz.Z);
+            double fx = f(xyz.X() / referenceXyz.X());
+            double fy = f(xyz.Y() / referenceXyz.Y());
+            double fz = f(xyz.Z() / referenceXyz.Z());
             double L = 116 * fy - 16;
             double a = 500 * (fx - fy);
             double b = 200 * (fy - fz);

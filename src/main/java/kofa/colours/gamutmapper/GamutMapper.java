@@ -27,9 +27,9 @@ public abstract class GamutMapper {
         image.transformAllPixels((row, column, red, green, blue) -> {
             Srgb transformed = mapToSrgb(red, green, blue, row, column);
             return new double[]{
-                    applyGamma(transformed.r),
-                    applyGamma(transformed.g),
-                    applyGamma(transformed.b)
+                    applyGamma(transformed.r()),
+                    applyGamma(transformed.g()),
+                    applyGamma(transformed.b())
             };
         });
     }
@@ -58,9 +58,9 @@ public abstract class GamutMapper {
         return mappedPixel.isOutOfGamut() ?
                 // clip away any remaining tiny error
                 new Srgb(
-                        min(1, max(0, mappedPixel.r)),
-                        min(1, max(0, mappedPixel.g)),
-                        min(1, max(0, mappedPixel.b))
+                        min(1, max(0, mappedPixel.r())),
+                        min(1, max(0, mappedPixel.g())),
+                        min(1, max(0, mappedPixel.b()))
                 ) :
                 mappedPixel;
     }
@@ -75,7 +75,7 @@ public abstract class GamutMapper {
         var cieLabOut = CIELAB.from(xyzOut).usingD65_2DegreeStandardObserver();
         var cieLuvOut = CIELUV.from(xyzOut).usingD65_2DegreeStandardObserver();
         var okLabOut = OkLAB.from(xyzOut);
-        RuntimeException error = new RuntimeException(
+        return new RuntimeException(
                 (
                         "out of gamut at [%d, %d]:%n" +
                                 "Input:%n" +
@@ -105,7 +105,6 @@ public abstract class GamutMapper {
                         okLabOut, okLabOut.toLch()
                 )
         );
-        return error;
     }
 
     protected abstract Srgb getInsideGamut(Srgb xyz);

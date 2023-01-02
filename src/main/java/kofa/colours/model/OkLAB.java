@@ -3,8 +3,6 @@ package kofa.colours.model;
 import kofa.maths.SpaceConversionMatrix;
 import kofa.maths.Vector3;
 
-import java.util.stream.DoubleStream;
-
 import static kofa.colours.model.ConversionHelper.cubeOf;
 import static kofa.colours.model.ConversionHelper.cubeRootOf;
 
@@ -34,8 +32,8 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
 
     private static final SpaceConversionMatrix<OkLAB, LMSPrime> LAB_TO_LMS_PRIME = LMS_PRIME_TO_LAB.invert(LMSPrime::new);
 
-    public OkLAB(double l, double a, double b) {
-        super(l, a, b, OkLCh::new);
+    public OkLAB(double L, double a, double b) {
+        super(L, a, b, OkLCh::new);
     }
 
     public static OkLAB from(CIEXYZ xyz) {
@@ -62,16 +60,6 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
             this.sPrime = sPrime;
         }
 
-        @Override
-        public DoubleStream coordinates() {
-            return DoubleStream.of(lPrime, mPrime, sPrime);
-        }
-
-        @Override
-        public String toString() {
-            return Vector3.format(this, lPrime, mPrime, sPrime);
-        }
-
         LMS toLms() {
             return new LMS(
                     cubeOf(lPrime),
@@ -87,18 +75,12 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
                     cubeRootOf(lms.s)
             );
         }
-
-
-        @Override
-        public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<LMSPrime, O> conversionMatrix) {
-            return multiplyBy(conversionMatrix, lPrime, mPrime, sPrime);
-        }
     }
 
     public static OkLAB from(Srgb sRgb) {
-        double l = 0.4122214708 * sRgb.r + 0.5363325363 * sRgb.g + 0.0514459929 * sRgb.b;
-        double m = 0.2119034982 * sRgb.r + 0.6806995451 * sRgb.g + 0.1073969566 * sRgb.b;
-        double s = 0.0883024619 * sRgb.r + 0.2817188376 * sRgb.g + 0.6299787005 * sRgb.b;
+        double l = 0.4122214708 * sRgb.r() + 0.5363325363 * sRgb.g() + 0.0514459929 * sRgb.b();
+        double m = 0.2119034982 * sRgb.r() + 0.6806995451 * sRgb.g() + 0.1073969566 * sRgb.b();
+        double s = 0.0883024619 * sRgb.r() + 0.2817188376 * sRgb.g() + 0.6299787005 * sRgb.b();
 
         double lPrime = cubeRootOf(l);
         double mPrime = cubeRootOf(m);
@@ -112,9 +94,9 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     }
 
     public Srgb toSrgb() {
-        double lPrime = L + 0.3963377774 * a + 0.2158037573 * b;
-        double mPrime = L - 0.1055613458 * a - 0.0638541728 * b;
-        double sPrime = L - 0.0894841775 * a - 1.2914855480 * b;
+        double lPrime = L() + 0.3963377774 * a() + 0.2158037573 * b();
+        double mPrime = L() - 0.1055613458 * a() - 0.0638541728 * b();
+        double sPrime = L() - 0.0894841775 * a() - 1.2914855480 * b();
 
         double l = lPrime * lPrime * lPrime;
         double m = mPrime * mPrime * mPrime;
@@ -137,21 +119,6 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
             this.l = l;
             this.m = m;
             this.s = s;
-        }
-
-        @Override
-        public DoubleStream coordinates() {
-            return DoubleStream.of(l, m, s);
-        }
-
-        @Override
-        public String toString() {
-            return Vector3.format(this, l, m, s);
-        }
-
-        @Override
-        public final <O extends Vector3<O>> O multiplyBy(SpaceConversionMatrix<LMS, O> conversionMatrix) {
-            return multiplyBy(conversionMatrix, l, m, s);
         }
     }
 }

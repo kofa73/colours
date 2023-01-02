@@ -21,7 +21,7 @@ record ToneMappingParams<S>(
             100,
             rec2020 -> CIELAB.from(rec2020.toXyz()).usingD65_2DegreeStandardObserver(),
             cieLab -> Rec2020.from(cieLab.toXyz().usingD65_2DegreeStandardObserver()),
-            (cieLab, mappedL) -> new CIELAB(mappedL, cieLab.a, cieLab.b),
+            (cieLab, mappedL) -> new CIELAB(mappedL, cieLab.a(), cieLab.b()),
             CIELAB::L
     );
 
@@ -29,7 +29,7 @@ record ToneMappingParams<S>(
             100,
             rec2020 -> CIELUV.from(rec2020.toXyz()).usingD65_2DegreeStandardObserver(),
             cieLuv -> Rec2020.from(cieLuv.toXyz().usingD65_2DegreeStandardObserver()),
-            (cieLuv, mappedL) -> new CIELUV(mappedL, cieLuv.u, cieLuv.v),
+            (cieLuv, mappedL) -> new CIELUV(mappedL, cieLuv.u(), cieLuv.v()),
             CIELUV::L
     );
 
@@ -37,7 +37,7 @@ record ToneMappingParams<S>(
             1,
             rec2020 -> OkLAB.from(rec2020.toSRGB()),
             okLab -> okLab.toSrgb().toRec2020(),
-            (okLab, mappedL) -> new OkLAB(mappedL, okLab.a, okLab.b),
+            (okLab, mappedL) -> new OkLAB(mappedL, okLab.a(), okLab.b()),
             OkLAB::L
     );
 
