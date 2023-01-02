@@ -2,7 +2,7 @@ package kofa.maths;
 
 import org.apache.commons.math3.linear.MatrixUtils;
 
-public class SpaceConversionMatrix<I extends Vector3<I>, O extends Vector3<O>> {
+public class SpaceConversionMatrix<I extends Vector3, O extends Vector3> {
     private final double[][] matrix;
     private final Vector3Constructor<O> resultConstructor;
 
@@ -28,7 +28,7 @@ public class SpaceConversionMatrix<I extends Vector3<I>, O extends Vector3<O>> {
         return resultConstructor.createFrom(r1, r2, r3);
     }
 
-    public <S extends Vector3<S>> SpaceConversionMatrix<S, O> multiply(SpaceConversionMatrix<S, I> multiplicand) {
+    public <S extends Vector3> SpaceConversionMatrix<S, O> multiply(SpaceConversionMatrix<S, I> multiplicand) {
         double[][] otherValues = multiplicand.matrix;
 
         var cell00 = matrix[0][0] * otherValues[0][0] + matrix[0][1] * otherValues[1][0] + matrix[0][2] * otherValues[2][0];

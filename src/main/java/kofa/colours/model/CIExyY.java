@@ -2,7 +2,7 @@ package kofa.colours.model;
 
 import kofa.maths.Vector3;
 
-public class CIExyY extends Vector3<CIExyY> {
+public class CIExyY extends Vector3 {
     // According to http://www.brucelindbloom.com/Eqn_XYZ_to_xyY.html, should return xy of reference white
     // Here, we hardcode D65, as that's what both sRGB and Rec2020 uses, but theoretically that's not OK.
     // https://en.wikipedia.org/wiki/Illuminant_D65#Definition

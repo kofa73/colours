@@ -48,7 +48,7 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
         return LMS_TO_XYZ.multiply(lms);
     }
 
-    private static class LMSPrime extends Vector3<LMSPrime> {
+    private static class LMSPrime extends Vector3 {
         private final double lPrime;
         private final double mPrime;
         private final double sPrime;
@@ -109,7 +109,7 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
         );
     }
 
-    private static class LMS extends Vector3<LMS> {
+    private static class LMS extends Vector3 {
         private final double l;
         private final double m;
         private final double s;

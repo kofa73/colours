@@ -12,7 +12,7 @@ import static org.apache.commons.math3.linear.MatrixUtils.inverse;
  *
  * @param <S> the subtype
  */
-public abstract class Rgb<S extends Rgb<S>> extends Vector3<S> {
+public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
     protected Rgb(double r, double g, double b) {
         super(r, g, b);
     }

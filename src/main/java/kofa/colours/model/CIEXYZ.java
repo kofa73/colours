@@ -4,7 +4,7 @@ import kofa.maths.Vector3;
 
 import static java.lang.Math.abs;
 
-public class CIEXYZ extends Vector3<CIEXYZ> {
+public class CIEXYZ extends Vector3 {
     public static final CIEXYZ BLACK = new CIEXYZ(0, 0, 0);
     public static final double BLACK_LEVEL = 1E-6;
     // http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html

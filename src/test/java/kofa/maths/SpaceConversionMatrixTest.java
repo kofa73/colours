@@ -69,7 +69,7 @@ class SpaceConversionMatrixTest {
         assertThat(target1.coordinates()).containsExactlyElementsOf(target2.coordinates().boxed().toList());
     }
 
-    private static class Source extends Vector3<Source> {
+    private static class Source extends Vector3 {
         final double coordinate1;
         final double coordinate2;
         final double coordinate3;
@@ -82,7 +82,7 @@ class SpaceConversionMatrixTest {
         }
     }
 
-    private static class Interim extends Vector3<Interim> {
+    private static class Interim extends Vector3 {
         final double coordinate1;
         final double coordinate2;
         final double coordinate3;
@@ -95,7 +95,7 @@ class SpaceConversionMatrixTest {
         }
     }
 
-    private static class Target extends Vector3<Target> {
+    private static class Target extends Vector3 {
         final double coordinate1;
         final double coordinate2;
         final double coordinate3;

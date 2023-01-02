@@ -3,7 +3,7 @@ package kofa.maths;
 import java.util.function.DoublePredicate;
 import java.util.stream.DoubleStream;
 
-public abstract class Vector3<V extends Vector3<V>> {
+public abstract class Vector3 {
     protected final double coordinate1;
     protected final double coordinate2;
     protected final double coordinate3;

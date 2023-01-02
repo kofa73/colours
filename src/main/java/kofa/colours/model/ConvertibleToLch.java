@@ -11,7 +11,7 @@ import static java.lang.Math.*;
  * @param <V> the concrete vector subtype (e.g., some LAB or LUV)
  * @param <P> the concrete polar LCh subtype
  */
-public abstract class ConvertibleToLch<V extends ConvertibleToLch<V, P>, P extends LCh<P, V>> extends Vector3<V> {
+public abstract class ConvertibleToLch<V extends ConvertibleToLch<V, P>, P extends LCh<P, V>> extends Vector3 {
     private final Vector3Constructor<P> lchConstructor;
 
     protected ConvertibleToLch(double L, double colour1, double colour2, Vector3Constructor<P> lchConstructor) {

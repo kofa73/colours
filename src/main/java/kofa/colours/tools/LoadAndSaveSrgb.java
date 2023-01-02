@@ -2,6 +2,7 @@ package kofa.colours.tools;
 
 import kofa.colours.gamutmapper.*;
 import kofa.io.ImageLoader;
+import kofa.io.PngOutput;
 import kofa.io.RgbImage;
 
 import java.util.Arrays;
@@ -20,8 +21,6 @@ public class LoadAndSaveSrgb {
 
         var image = new ImageLoader().loadImageFrom(inputFile);
 
-        long start = System.currentTimeMillis();
-
         for (int mapperId : mapperIds) {
             image.init();
 
@@ -30,13 +29,11 @@ public class LoadAndSaveSrgb {
             if (gamutMapper != null) {
                 System.out.println("Using " + gamutMapper.name());
                 gamutMapper.mapToSrgb(image);
-//                new PngOutput().write(baseName + "-" + gamutMapper.name(), image);
+                new PngOutput().write(baseName + "-" + gamutMapper.name(), image);
             } else {
                 printHelpAndExit();
             }
         }
-
-        System.out.println(System.currentTimeMillis() - start);
     }
 
     private static int[] parseMapperIds(String[] args) {
