@@ -6,7 +6,7 @@ import static kofa.NumericAssertions.EXACT;
 import static kofa.NumericAssertions.assertIsCloseTo;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BlackTest {
+public class BlackLevelsTest {
     @Test
     void blackFromCIEXYZ() {
         var ciexyY = CIExyY.from(CIEXYZ.BLACK);

@@ -4,8 +4,11 @@ import static kofa.colours.model.ConversionHelper.*;
 
 public class CIELUV extends ConvertibleToLch<CIELUV, CIELCh_uv> {
     // less than L from Rec2020(0.0001 / 65535, 0.0001 / 65535, 0.0001 / 65535) ~1.38E-6
-    public static final double BLACK_L_LEVEL = 1E-6;
+    public static final double BLACK_L_THRESHOLD = 1E-6;
     public static final CIELUV BLACK = new CIELUV(0, 0, 0);
+    public static final double WHITE_L = 100;
+    public static final double WHITE_L_THRESHOLD = WHITE_L - BLACK_L_THRESHOLD;
+    public static final CIELUV WHITE = new CIELUV(WHITE_L, 0, 0);
 
     public CIELUV(double L, double u, double v) {
         super(L, u, v, CIELCh_uv::new);
@@ -25,6 +28,10 @@ public class CIELUV extends ConvertibleToLch<CIELUV, CIELCh_uv> {
 
     public LuvXyzConverter toXyz() {
         return new LuvXyzConverter();
+    }
+
+    public boolean isWhite() {
+        return L() >= WHITE_L_THRESHOLD;
     }
 
     public static class XyzLuvConverter implements WhitePointXyzUvAwareConverter<CIELUV> {
@@ -82,6 +89,6 @@ public class CIELUV extends ConvertibleToLch<CIELUV, CIELCh_uv> {
     }
 
     public boolean isBlack() {
-        return L() < BLACK_L_LEVEL;
+        return L() < BLACK_L_THRESHOLD;
     }
 }

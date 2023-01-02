@@ -14,7 +14,8 @@ import static org.apache.commons.math3.linear.MatrixUtils.inverse;
  */
 public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
     // corresponds to SRGB and Rec2020 components of CIELAB(CIELAB.BLACK_LEVEL, 0, 0)
-    public static final double BLACK_LEVEL = 1E-9;
+    public static final double BLACK_THRESHOLD = 1E-9;
+    public static final double WHITE_THRESHOLD = 1 - BLACK_THRESHOLD;
 
     protected Rgb(double r, double g, double b) {
         super(r, g, b);
@@ -78,10 +79,11 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
     }
 
     public boolean isBlack() {
-        return abs(r()) < BLACK_LEVEL && abs(g()) < BLACK_LEVEL && abs(b()) < BLACK_LEVEL;
+        // out of gamut can be negative, so check the absolute value
+        return abs(r()) < BLACK_THRESHOLD && abs(g()) < BLACK_THRESHOLD && abs(b()) < BLACK_THRESHOLD;
     }
 
-//    public boolean isWhite() {
-//        return abs(1 - r()) < BLACK_LEVEL && abs(1 - g()) < BLACK_LEVEL && abs(1 - b()) < BLACK_LEVEL;
-//    }
+    public boolean isWhite() {
+        return r() >= WHITE_THRESHOLD && g() >= WHITE_THRESHOLD && b() >= WHITE_THRESHOLD;
+    }
 }

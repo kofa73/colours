@@ -1,6 +1,7 @@
 package kofa.colours.gamutmapper;
 
 import kofa.colours.model.LCh;
+import kofa.colours.model.Rgb;
 import kofa.colours.model.Srgb;
 import kofa.io.RgbImage;
 import kofa.maths.PrimitiveDoubleToDoubleFunction;
@@ -27,6 +28,7 @@ public class GamutBoundaryMaxCSolver<L extends LCh<L, ?>> {
     private final double solutionThreshold;
     private final Map<CacheKey, Double> cachedMaxCbyLh;
     private static final Map<Integer, GamutBoundaryMaxCSolver<?>> solvers = new ConcurrentHashMap<>();
+    private final double maxL;
 
     static <L extends LCh<L, ?>> GamutBoundaryMaxCSolver<L> createFor(GamutBoundarySearchParams<L> searchParams, RgbImage image) {
         int key = Objects.hash(searchParams, image);
@@ -42,6 +44,8 @@ public class GamutBoundaryMaxCSolver<L extends LCh<L, ?>> {
         this.roughChromaSearchStep = searchParams.roughChromaSearchStep();
         checkArgument(searchParams.solutionThreshold() > 0, "solutionThreshold = %s", searchParams.solutionThreshold());
         this.solutionThreshold = searchParams.solutionThreshold();
+        checkArgument(searchParams.maxL() > 0, "maxL = %s", searchParams.maxL());
+        this.maxL = searchParams.maxL();
     }
 
     public double maxCFor(L lch) {
@@ -51,7 +55,7 @@ public class GamutBoundaryMaxCSolver<L extends LCh<L, ?>> {
 
     private double solveMaxCFor(L lch) {
         double l = lch.L();
-        if (lch.isOverMaxOrBelowZero()) {
+        if (l >= maxL || l <= 0) {
             return 0;
         }
         double h = lch.h();
@@ -80,7 +84,7 @@ public class GamutBoundaryMaxCSolver<L extends LCh<L, ?>> {
         return cOutOfGamut;
     }
 
-    private static final double COMPONENT_MIN = 1E-12;
+    private static final double COMPONENT_MIN = Rgb.BLACK_THRESHOLD;
     private static final double COMPONENT_MAX = 1 - COMPONENT_MIN;
 
     private PrimitiveDoubleToDoubleFunction clipDetectorForLch(double l, double h) {

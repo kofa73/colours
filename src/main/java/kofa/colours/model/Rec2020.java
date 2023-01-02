@@ -6,7 +6,7 @@ import static java.lang.Math.pow;
 
 public class Rec2020 extends Rgb<Rec2020> {
     public static final Rec2020 BLACK = new Rec2020(0, 0, 0);
-    private static final Rec2020 WHITE = new Rec2020(1, 1, 1);
+    public static final Rec2020 WHITE = new Rec2020(1, 1, 1);
 
     // values of sRGB primaries from http://www.brucelindbloom.com/index.html?WorkingSpaceInfo.html
     // white point from https://www.colour-science.org/api/0.3.1/html/colour.models.dataset.rec_2020.html#colour.models.dataset.rec_2020.REC_2020_COLOURSPACE

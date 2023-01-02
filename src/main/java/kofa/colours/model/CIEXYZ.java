@@ -6,6 +6,7 @@ public class CIEXYZ extends Vector3 {
     // less than Y from Rec2020(0.0001 / 65535, 0.0001 / 65535, 0.0001 / 65535) ~ 1.5E-9
     public static final double BLACK_Y_LEVEL = 1E-9;
     public static final CIEXYZ BLACK = new CIEXYZ(0, 0, 0);
+    public static final double WHITE_Y_LEVEL = 1 - 1E-9;
 
     // http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
     public static final CIEXYZ D65_WHITE_ASTM_E308_01 = new CIEXYZ(0.95047, 1, 1.08883);
@@ -33,5 +34,9 @@ public class CIEXYZ extends Vector3 {
 
     public boolean isBlack() {
         return Y() < BLACK_Y_LEVEL;
+    }
+
+    public boolean isWhite() {
+        return Y() >= WHITE_Y_LEVEL;
     }
 }

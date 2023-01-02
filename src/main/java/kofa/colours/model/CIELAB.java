@@ -4,8 +4,11 @@ import static kofa.colours.model.ConversionHelper.*;
 
 public class CIELAB extends LAB<CIELAB, CIELCh_ab> {
     // less than L from Rec2020(0.0001 / 65535, 0.0001 / 65535, 0.0001 / 65535) ~1.38E-6
-    public static final double BLACK_L_LEVEL = 1E-6;
+    public static final double BLACK_L_THRESHOLD = 1E-6;
     public static final CIELAB BLACK = new CIELAB(0, 0, 0);
+    public static final int WHITE_L = 100;
+    public static final double WHITE_L_THRESHOLD = WHITE_L - BLACK_L_THRESHOLD;
+    public static final CIELAB WHITE = new CIELAB(WHITE_L, 0, 0);
 
     public CIELAB(double L, double a, double b) {
         super(L, a, b, CIELCh_ab::new);
@@ -17,6 +20,10 @@ public class CIELAB extends LAB<CIELAB, CIELCh_ab> {
 
     public LabXyzConverter toXyz() {
         return new LabXyzConverter();
+    }
+
+    public boolean isWhite() {
+        return L() >= WHITE_L_THRESHOLD;
     }
 
     public class LabXyzConverter implements WhitePointXyzAwareConverter<CIEXYZ> {
@@ -48,7 +55,7 @@ public class CIELAB extends LAB<CIELAB, CIELCh_ab> {
     }
 
     public boolean isBlack() {
-        return L() < BLACK_L_LEVEL;
+        return L() < BLACK_L_THRESHOLD;
     }
 
     public static class XyzLabConverter implements WhitePointXyzAwareConverter<CIELAB> {

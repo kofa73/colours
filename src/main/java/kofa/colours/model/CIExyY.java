@@ -13,8 +13,8 @@ public class CIExyY extends Vector3 {
     public static final CIExyY D65_BLACK_2DEGREE_STANDARD_OBSERVER = new CIExyY(D65_WHITE_2DEGREE_STANDARD_OBSERVER.x(), D65_WHITE_2DEGREE_STANDARD_OBSERVER.y(), 0);
     public static final CIExyY D65_BLACK_10DEGREE_SUPPLEMENTARY_OBSERVER = new CIExyY(D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER.x(), D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER.y(), 0);
 
-    // much less than Y of new Rec2020(0.0001 / 65535, 0.0001 / 65535, 0.0001 / 65535) ~ 1.5E-9
-    public static final double BLACK_Y_LEVEL = 1E-9;
+    public static final double BLACK_Y_LEVEL = CIEXYZ.BLACK_Y_LEVEL;
+    public static final double WHITE_Y_LEVEL = CIEXYZ.WHITE_Y_LEVEL;
 
     protected CIExyY(double x, double y, double Y) {
         super(x, y, Y);
@@ -47,9 +47,9 @@ public class CIExyY extends Vector3 {
     }
 
     public static CIExyY from(CIEXYZ xyz) {
-//        if (xyz.isBlack()) {
-//            return D65_BLACK_2DEGREE_STANDARD_OBSERVER;
-//        }
+        if (xyz.isBlack()) {
+            return D65_BLACK_2DEGREE_STANDARD_OBSERVER;
+        }
         double denominator = xyz.X() + xyz.Y() + xyz.Z();
         if (denominator == 0) {
             return D65_BLACK_2DEGREE_STANDARD_OBSERVER;
@@ -64,5 +64,9 @@ public class CIExyY extends Vector3 {
 
     public boolean isBlack() {
         return Y() < BLACK_Y_LEVEL;
+    }
+
+    public boolean isWhite() {
+        return Y() >= WHITE_Y_LEVEL;
     }
 }

@@ -11,9 +11,12 @@ import static kofa.colours.model.ConversionHelper.cubeRootOf;
  */
 public class OkLAB extends LAB<OkLAB, OkLCh> {
     // less than L of new Rec2020(0.0001 / 65535, 0.0001 / 65535, 0.0001 / 65535) ~ 0.00115
-    public static final double BLACK_L_LEVEL = 1E-3;
-
+    public static final double BLACK_L_THRESHOLD = 1E-3;
     public static final OkLAB BLACK = new OkLAB(0, 0, 0);
+
+    public static final double WHITE_L = 1;
+    public static final double WHITE_L_THRESHOLD = WHITE_L - BLACK_L_THRESHOLD;
+    public static final OkLAB WHITE = new OkLAB(WHITE_L, 0, 0);
 
     private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS = new SpaceConversionMatrix<>(
             LMS::new,
@@ -57,7 +60,11 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     }
 
     public boolean isBlack() {
-        return L() < BLACK_L_LEVEL;
+        return L() < BLACK_L_THRESHOLD;
+    }
+
+    public boolean isWhite() {
+        return L() >= WHITE_L_THRESHOLD;
     }
 
     private static class LMSPrime extends Vector3 {

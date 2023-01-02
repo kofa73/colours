@@ -13,11 +13,9 @@ import static java.lang.Math.*;
  */
 public abstract class LCh<P extends LCh<P, V>, V extends ConvertibleToLch<V, P>> extends Vector3 {
     private final Vector3Constructor<V> vectorConstructor;
-    private final double maxL;
 
-    protected LCh(double L, double C, double h, Vector3Constructor<V> vectorConstructor, double maxL) {
+    protected LCh(double L, double C, double h, Vector3Constructor<V> vectorConstructor) {
         super(L, C, h);
-        this.maxL = maxL;
         this.vectorConstructor = vectorConstructor;
     }
 
@@ -45,10 +43,5 @@ public abstract class LCh<P extends LCh<P, V>, V extends ConvertibleToLch<V, P>>
     @Override
     public final String toString() {
         return "%s (%.8f, %.8f, %.8f)".formatted(super.toString(), L(), C(), hueInDegrees());
-    }
-
-    public boolean isOverMaxOrBelowZero() {
-        // strict equality does not work due to minor arithmetic errors
-        return L() >= maxL || L() <= 0;
     }
 }
