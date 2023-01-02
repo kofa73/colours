@@ -2,11 +2,15 @@ package kofa.colours.gamutmapper;
 
 import kofa.colours.model.LCh;
 import kofa.colours.model.Srgb;
+import kofa.io.RgbImage;
 import kofa.maths.PrimitiveDoubleToDoubleFunction;
 import kofa.maths.Solver;
 import kofa.maths.Vector3Constructor;
 
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -16,16 +20,24 @@ import static java.util.Objects.requireNonNull;
  * Tries to find max C values for LCh(ab) and LCh(uv) by scanning the LCh spaces in L and h, solving for
  * C where at least one sRGB components is 0 or 1.
  */
-public class MaxCLabLuvSolver<L extends LCh<L, ?>> {
+public class GamutBoundaryMaxCSolver<L extends LCh<L, ?>> {
     private final Function<Srgb, L> sRgbToLch;
     private final Function<L, Srgb> lchToSrgb;
     private final Vector3Constructor<L> lchConstructor;
     private final double roughChromaSearchStep;
     private final double solutionThreshold;
     private final double maxL;
+    private final Map<CacheKey, Double> cachedMaxCbyLh;
+    private static final Map<Integer, GamutBoundaryMaxCSolver<?>> solvers = new ConcurrentHashMap<>();
 
-    public MaxCLabLuvSolver(GamutBoundarySearchParams<L> searchParams) {
+    static <L extends LCh<L, ?>> GamutBoundaryMaxCSolver<L> createFor(GamutBoundarySearchParams<L> searchParams, RgbImage image) {
+        int key = Objects.hash(searchParams, image);
+        return (GamutBoundaryMaxCSolver<L>) solvers.computeIfAbsent(key, ignored -> new GamutBoundaryMaxCSolver<>(searchParams, image.size()));
+    }
+
+    private GamutBoundaryMaxCSolver(GamutBoundarySearchParams<L> searchParams, int size) {
         requireNonNull(searchParams);
+        this.cachedMaxCbyLh = new ConcurrentHashMap<>(size);
         this.sRgbToLch = requireNonNull(searchParams.sRgbToLch());
         this.lchToSrgb = requireNonNull(searchParams.lchToSrgb());
         this.lchConstructor = requireNonNull(searchParams.lchConstructor());
@@ -37,10 +49,14 @@ public class MaxCLabLuvSolver<L extends LCh<L, ?>> {
         this.maxL = searchParams.maxL();
     }
 
-    public double solveMaxCForLch(Srgb inputSrgb) {
-        L lch = sRgbToLch.apply(inputSrgb);
+    public double maxCFor(L lch) {
+        var key = new CacheKey(lch.L(), lch.h());
+        return cachedMaxCbyLh.computeIfAbsent(key, ignoredKey -> solveMaxCFor(lch));
+    }
+
+    private double solveMaxCFor(L lch) {
         double l = lch.L();
-        if (l >= maxL || l <= 0 || inputSrgb.isBlack() || inputSrgb.isWhite()) {
+        if (l == maxL || l == 0) {
             return 0;
         }
         double h = lch.h();

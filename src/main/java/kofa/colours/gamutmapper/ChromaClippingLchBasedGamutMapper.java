@@ -21,7 +21,7 @@ import static java.util.Objects.requireNonNull;
  * @param <P> the corresponding polar LCh type
  */
 public class ChromaClippingLchBasedGamutMapper<P extends LCh<P, S>, S extends ConvertibleToLch<S, P>> extends GamutMapper {
-    private final ToDoubleFunction<Srgb> maxCFinder;
+    private final ToDoubleFunction<P> maxCFinder;
     private final String name;
     private final Vector3Constructor<P> lchConstructor;
     private final Function<Srgb, P> sRgbToLch;
@@ -56,20 +56,20 @@ public class ChromaClippingLchBasedGamutMapper<P extends LCh<P, S>, S extends Co
             ToneMapper<S> toneMapper,
             RgbImage image
     ) {
-        super(toneMapper, image);
+        super(toneMapper);
         requireNonNull(searchParams);
         this.name = searchParams.type().getSimpleName();
         this.sRgbToLch = requireNonNull(searchParams.sRgbToLch());
         this.lchToSrgb = requireNonNull(searchParams.lchToSrgb());
         this.lchConstructor = requireNonNull(searchParams.lchConstructor());
-        this.maxCFinder = sRgb -> new MaxCLabLuvSolver<P>(searchParams).solveMaxCForLch(sRgb);
+        this.maxCFinder = lch -> GamutBoundaryMaxCSolver.createFor(searchParams, image).maxCFor(lch);
     }
 
 
     @Override
     public Srgb getInsideGamut(Srgb sRgb) {
-        var cAtGamutBoundary = maxCFinder.applyAsDouble(sRgb);
         P lchFromInput = sRgbToLch.apply(sRgb);
+        var cAtGamutBoundary = maxCFinder.applyAsDouble(lchFromInput);
         P lchWithChromaAtGamutBoundary = lchConstructor.createFrom(lchFromInput.L(), cAtGamutBoundary, lchFromInput.h());
         return lchToSrgb.apply(lchWithChromaAtGamutBoundary);
     }
@@ -79,4 +79,3 @@ public class ChromaClippingLchBasedGamutMapper<P extends LCh<P, S>, S extends Co
         return super.name() + name;
     }
 }
-

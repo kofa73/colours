@@ -63,6 +63,10 @@ public class RgbImage {
         return height;
     }
 
+    public int size() {
+        return width * height;
+    }
+
     public interface PixelConsumer {
         void consume(int row, int column, double red, double green, double blue);
     }

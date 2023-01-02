@@ -12,18 +12,20 @@ import static java.lang.Math.min;
  */
 public abstract class GamutMapper {
     private final boolean processInGamutPixels;
+    private final ToneMapper<?> toneMapper;
 
-    protected GamutMapper(ToneMapper<?> toneMapper, RgbImage image) {
-        this(false, toneMapper, image);
+    protected GamutMapper(ToneMapper<?> toneMapper) {
+        this(false, toneMapper);
     }
 
-    protected GamutMapper(boolean processInGamutPixels, ToneMapper<?> toneMapper, RgbImage image) {
+    protected GamutMapper(boolean processInGamutPixels, ToneMapper<?> toneMapper) {
         this.processInGamutPixels = processInGamutPixels;
-        image.init();
-        toneMapper.toneMap(image);
+        this.toneMapper = toneMapper;
     }
 
     public void mapToSrgb(RgbImage image) {
+        image.init();
+        toneMapper.toneMap(image);
         image.transformAllPixels((row, column, red, green, blue) -> {
             Srgb transformed = mapToSrgb(red, green, blue, row, column);
             return new double[]{

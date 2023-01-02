@@ -10,7 +10,7 @@ import kofa.io.RgbImage;
  */
 public class BwFromCieLabLGamutMapper extends GamutMapper {
     public BwFromCieLabLGamutMapper(RgbImage image) {
-        super(true, SimpleCurveBasedToneMapper.forCieLab(image), image);
+        super(true, SimpleCurveBasedToneMapper.forCieLab(image));
     }
 
     @Override

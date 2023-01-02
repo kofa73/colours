@@ -55,13 +55,13 @@ public class DesaturatingLchBasedGamutMapper<P extends LCh<P, S>, S extends Conv
             GamutBoundarySearchParams<P> searchParams,
             ToneMapper<S> toneMapper
     ) {
-        super(true, toneMapper, image);
+        super(true, toneMapper);
         this.name = searchParams.type().getSimpleName();
         this.sRgbToLch = requireNonNull(searchParams.sRgbToLch());
         this.lchToSrgb = requireNonNull(searchParams.lchToSrgb());
         this.lchConstructor = requireNonNull(searchParams.lchConstructor());
 
-        ToDoubleFunction<Srgb> maxCFinder = sRgb -> new MaxCLabLuvSolver<>(searchParams).solveMaxCForLch(sRgb);
+        ToDoubleFunction<P> maxCFinder = lch -> GamutBoundaryMaxCSolver.createFor(searchParams, image).maxCFor(lch);
 
         cDivisor = image.pixelStream().mapToDouble(pixel -> {
             var rec2020 = new Rec2020(pixel[0], pixel[1], pixel[2]);
@@ -70,7 +70,7 @@ public class DesaturatingLchBasedGamutMapper<P extends LCh<P, S>, S extends Conv
             if (sRgb.isOutOfGamut()) {
                 var lch = searchParams.sRgbToLch().apply(sRgb);
                 if (lch.C() != 0) {
-                    var maxC = maxCFinder.applyAsDouble(sRgb);
+                    var maxC = maxCFinder.applyAsDouble(lch);
                     if (maxC != 0) {
                         divisor = lch.C() / maxC;
                     }

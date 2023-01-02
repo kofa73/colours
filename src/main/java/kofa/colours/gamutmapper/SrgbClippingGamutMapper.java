@@ -9,7 +9,7 @@ import static java.lang.Math.min;
 
 public class SrgbClippingGamutMapper extends GamutMapper {
     public SrgbClippingGamutMapper(RgbImage image) {
-        super(SimpleCurveBasedToneMapper.forCieLab(image), image);
+        super(SimpleCurveBasedToneMapper.forCieLab(image));
     }
 
     @Override

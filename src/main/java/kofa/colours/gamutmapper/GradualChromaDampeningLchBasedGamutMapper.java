@@ -19,7 +19,7 @@ import java.util.function.ToDoubleFunction;
  * @param <P> the polar LCh type
  */
 public class GradualChromaDampeningLchBasedGamutMapper<P extends LCh<P, S>, S extends ConvertibleToLch<S, P>> extends GamutMapper {
-    private final ToDoubleFunction<Srgb> maxCFinder;
+    private final ToDoubleFunction<P> maxCFinder;
     private final String name;
     private final ThanatomanicCurve6 dampeningCurve;
     // the shoulder of the curve; also, the ratio to maxC below which C is not modified
@@ -61,26 +61,26 @@ public class GradualChromaDampeningLchBasedGamutMapper<P extends LCh<P, S>, S ex
             ToneMapper<S> toneMapper,
             RgbImage image
     ) {
-        super(true, toneMapper, image);
+        super(true, toneMapper);
         this.shoulder = shoulder;
         this.name = searchParams.type().getSimpleName();
         this.dampeningCurve = new ThanatomanicCurve6(1, shoulder);
         this.sRgbToLch = searchParams.sRgbToLch();
         this.lchToSrgb = searchParams.lchToSrgb();
         this.lchConstructor = searchParams.lchConstructor();
-        this.maxCFinder = sRgb -> new MaxCLabLuvSolver<>(searchParams).solveMaxCForLch(sRgb);
+        this.maxCFinder = lch -> GamutBoundaryMaxCSolver.createFor(searchParams, image).maxCFor(lch);
     }
 
     @Override
     public Srgb getInsideGamut(Srgb sRgb) {
-        var originalLch = sRgbToLch.apply(sRgb);
         if (sRgb.isBlack()) {
             return Srgb.BLACK;
         }
         if (sRgb.isWhite()) {
             return Srgb.WHITE;
         }
-        var cAtGamutBoundary = maxCFinder.applyAsDouble(sRgb);
+        var originalLch = sRgbToLch.apply(sRgb);
+        var cAtGamutBoundary = maxCFinder.applyAsDouble(originalLch);
         double originalC = originalLch.C();
         double dampenedC;
         if (cAtGamutBoundary != 0) {
