@@ -3,6 +3,8 @@ package kofa.colours.model;
 import static kofa.colours.model.ConversionHelper.*;
 
 public class CIELUV extends ConvertibleToLch<CIELUV, CIELCh_uv> {
+    // less than L from Rec2020(0.0001 / 65535, 0.0001 / 65535, 0.0001 / 65535) ~1.38E-6
+    public static final double BLACK_L_LEVEL = 1E-6;
     public static final CIELUV BLACK = new CIELUV(0, 0, 0);
 
     public CIELUV(double L, double u, double v) {
@@ -56,7 +58,7 @@ public class CIELUV extends ConvertibleToLch<CIELUV, CIELCh_uv> {
 
         @Override
         public CIEXYZ usingWhitePoint(CIEXYZ referenceXYZ, UV referenceUV) {
-            if (L() == 0) {
+            if (CIELUV.this.isBlack()) {
                 return CIEXYZ.BLACK;
             }
 
@@ -77,5 +79,9 @@ public class CIELUV extends ConvertibleToLch<CIELUV, CIELCh_uv> {
 
             return new CIEXYZ(X, Y, Z);
         }
+    }
+
+    public boolean isBlack() {
+        return L() < BLACK_L_LEVEL;
     }
 }

@@ -8,6 +8,9 @@ import java.util.stream.Stream;
 import static java.awt.image.DataBuffer.*;
 
 public class RgbImage {
+    // disable for easier debugging
+    private final boolean PARALLEL = true;
+
     private final Raster raster;
     private final double[][] redChannel;
     private final double[][] greenChannel;
@@ -76,18 +79,16 @@ public class RgbImage {
     }
 
     public void forEachPixel(PixelConsumer consumer) {
-        IntStream.range(0, height)
-                .parallel()
-                .forEach(row -> {
-                    for (int column = 0; column < raster.getWidth(); column++) {
-                        consumer.consume(
-                                row, column,
-                                redChannel[row][column],
-                                greenChannel[row][column],
-                                blueChannel[row][column]
-                        );
-                    }
-                });
+        rows().forEach(row -> {
+            for (int column = 0; column < raster.getWidth(); column++) {
+                consumer.consume(
+                        row, column,
+                        redChannel[row][column],
+                        greenChannel[row][column],
+                        blueChannel[row][column]
+                );
+            }
+        });
     }
 
     public void transformAllPixels(PixelTransformer transformer) {
@@ -106,15 +107,18 @@ public class RgbImage {
     }
 
     public Stream<double[]> pixelStream() {
-        return IntStream.range(0, height)
-                .parallel()
-                .mapToObj(row ->
-                        IntStream.range(0, width).mapToObj(column ->
-                                new double[]{
-                                        redChannel[row][column],
-                                        greenChannel[row][column],
-                                        blueChannel[row][column]
-                                })
-                ).flatMap(Function.identity());
+        return rows().mapToObj(row ->
+                IntStream.range(0, width).mapToObj(column ->
+                        new double[]{
+                                redChannel[row][column],
+                                greenChannel[row][column],
+                                blueChannel[row][column]
+                        })
+        ).flatMap(Function.identity());
+    }
+
+    private IntStream rows() {
+        var rowNumbers = IntStream.range(0, height);
+        return PARALLEL ? rowNumbers.parallel() : rowNumbers;
     }
 }

@@ -1,9 +1,6 @@
 package kofa.colours.tonemapper;
 
-import kofa.colours.model.CIELAB;
-import kofa.colours.model.CIELUV;
-import kofa.colours.model.OkLAB;
-import kofa.colours.model.Rec2020;
+import kofa.colours.model.*;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -18,7 +15,7 @@ record ToneMappingParams<S>(
 ) {
 
     static final ToneMappingParams<CIELAB> FOR_CIELAB = new ToneMappingParams<>(
-            100,
+            CIELCh_ab.WHITE_L,
             rec2020 -> CIELAB.from(rec2020.toXyz()).usingD65_2DegreeStandardObserver(),
             cieLab -> Rec2020.from(cieLab.toXyz().usingD65_2DegreeStandardObserver()),
             (cieLab, mappedL) -> new CIELAB(mappedL, cieLab.a(), cieLab.b()),
@@ -26,7 +23,7 @@ record ToneMappingParams<S>(
     );
 
     static final ToneMappingParams<CIELUV> FOR_CIELUV = new ToneMappingParams<>(
-            100,
+            CIELCh_uv.WHITE_L,
             rec2020 -> CIELUV.from(rec2020.toXyz()).usingD65_2DegreeStandardObserver(),
             cieLuv -> Rec2020.from(cieLuv.toXyz().usingD65_2DegreeStandardObserver()),
             (cieLuv, mappedL) -> new CIELUV(mappedL, cieLuv.u(), cieLuv.v()),
@@ -34,11 +31,10 @@ record ToneMappingParams<S>(
     );
 
     static final ToneMappingParams<OkLAB> FOR_OKLAB = new ToneMappingParams<>(
-            1,
+            OkLCh.WHITE_L,
             rec2020 -> OkLAB.from(rec2020.toSRGB()),
             okLab -> okLab.toSrgb().toRec2020(),
             (okLab, mappedL) -> new OkLAB(mappedL, okLab.a(), okLab.b()),
             OkLAB::L
     );
-
 }

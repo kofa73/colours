@@ -5,6 +5,7 @@ import kofa.maths.SpaceConversionMatrix;
 import static java.lang.Math.pow;
 
 public class Rec2020 extends Rgb<Rec2020> {
+    public static final Rec2020 BLACK = new Rec2020(0, 0, 0);
     private static final Rec2020 WHITE = new Rec2020(1, 1, 1);
 
     // values of sRGB primaries from http://www.brucelindbloom.com/index.html?WorkingSpaceInfo.html

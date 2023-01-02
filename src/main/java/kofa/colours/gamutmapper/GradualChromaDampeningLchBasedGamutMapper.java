@@ -73,12 +73,6 @@ public class GradualChromaDampeningLchBasedGamutMapper<P extends LCh<P, S>, S ex
 
     @Override
     public Srgb getInsideGamut(Srgb sRgb) {
-        if (sRgb.isBlack()) {
-            return Srgb.BLACK;
-        }
-        if (sRgb.isWhite()) {
-            return Srgb.WHITE;
-        }
         var originalLch = sRgbToLch.apply(sRgb);
         var cAtGamutBoundary = maxCFinder.applyAsDouble(originalLch);
         double originalC = originalLch.C();

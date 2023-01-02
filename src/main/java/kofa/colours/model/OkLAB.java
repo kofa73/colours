@@ -10,6 +10,11 @@ import static kofa.colours.model.ConversionHelper.cubeRootOf;
  * OKLab from https://bottosson.github.io/posts/oklab/
  */
 public class OkLAB extends LAB<OkLAB, OkLCh> {
+    // less than L of new Rec2020(0.0001 / 65535, 0.0001 / 65535, 0.0001 / 65535) ~ 0.00115
+    public static final double BLACK_L_LEVEL = 1E-3;
+
+    public static final OkLAB BLACK = new OkLAB(0, 0, 0);
+
     private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS = new SpaceConversionMatrix<>(
             LMS::new,
             new double[][]{
@@ -37,6 +42,9 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     }
 
     public static OkLAB from(CIEXYZ xyz) {
+//        if (xyz.isBlack()) {
+//            return BLACK;
+//        }
         LMS lms = XYZ_TO_LMS.multiply(xyz);
         LMSPrime lmsPrime = LMSPrime.from(lms);
         return LMS_PRIME_TO_LAB.multiply(lmsPrime);
@@ -46,6 +54,10 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
         LMSPrime lmsPrime = LAB_TO_LMS_PRIME.multiply(this);
         LMS lms = lmsPrime.toLms();
         return LMS_TO_XYZ.multiply(lms);
+    }
+
+    public boolean isBlack() {
+        return L() < BLACK_L_LEVEL;
     }
 
     private static class LMSPrime extends Vector3 {

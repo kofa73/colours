@@ -35,12 +35,24 @@ public class PngOutput {
         int width = image.width();
         for (int row = 0; row < height; row++) {
             for (int column = 0; column < width; column++) {
-                bankData[0][index++] = (short) (65535 * redChannel[row][column]);
-                bankData[0][index++] = (short) (65536 * greenChannel[row][column]);
-                bankData[0][index++] = (short) (65535 * blueChannel[row][column]);
+                try {
+                    bankData[0][index++] = roundPixelToShort(redChannel[row][column]);
+                    bankData[0][index++] = roundPixelToShort(greenChannel[row][column]);
+                    bankData[0][index++] = roundPixelToShort(blueChannel[row][column]);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("%s at (%d, %d)".formatted(e.getMessage(), row, column));
+                }
             }
         }
         return raster;
+    }
+
+    private static short roundPixelToShort(double pixel) {
+        long value = Math.round(65535 * pixel);
+        if (value > 65535 || value < 0) {
+            throw new IllegalArgumentException("Out of 16-bit range: value");
+        }
+        return (short) value;
     }
 
     private void writePng(BufferedImage image, String filePrefix) {

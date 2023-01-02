@@ -2,11 +2,11 @@ package kofa.colours.model;
 
 import kofa.maths.Vector3;
 
-import static java.lang.Math.abs;
-
 public class CIEXYZ extends Vector3 {
+    // less than Y from Rec2020(0.0001 / 65535, 0.0001 / 65535, 0.0001 / 65535) ~ 1.5E-9
+    public static final double BLACK_Y_LEVEL = 1E-9;
     public static final CIEXYZ BLACK = new CIEXYZ(0, 0, 0);
-    public static final double BLACK_LEVEL = 1E-6;
+
     // http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
     public static final CIEXYZ D65_WHITE_ASTM_E308_01 = new CIEXYZ(0.95047, 1, 1.08883);
     // alternatively, IEC 61966-2-1, https://en.wikipedia.org/wiki/Illuminant_D65#Definition
@@ -32,10 +32,6 @@ public class CIEXYZ extends Vector3 {
     }
 
     public boolean isBlack() {
-        return -BLACK_LEVEL < Y() && Y() < BLACK_LEVEL;
-    }
-
-    public boolean isWhite() {
-        return abs(1 - Y()) < 1E-6;
+        return Y() < BLACK_Y_LEVEL;
     }
 }

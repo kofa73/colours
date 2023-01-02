@@ -21,12 +21,10 @@ import static java.util.Objects.requireNonNull;
  * C where at least one sRGB components is 0 or 1.
  */
 public class GamutBoundaryMaxCSolver<L extends LCh<L, ?>> {
-    private final Function<Srgb, L> sRgbToLch;
     private final Function<L, Srgb> lchToSrgb;
     private final Vector3Constructor<L> lchConstructor;
     private final double roughChromaSearchStep;
     private final double solutionThreshold;
-    private final double maxL;
     private final Map<CacheKey, Double> cachedMaxCbyLh;
     private static final Map<Integer, GamutBoundaryMaxCSolver<?>> solvers = new ConcurrentHashMap<>();
 
@@ -38,15 +36,12 @@ public class GamutBoundaryMaxCSolver<L extends LCh<L, ?>> {
     private GamutBoundaryMaxCSolver(GamutBoundarySearchParams<L> searchParams, int size) {
         requireNonNull(searchParams);
         this.cachedMaxCbyLh = new ConcurrentHashMap<>(size);
-        this.sRgbToLch = requireNonNull(searchParams.sRgbToLch());
         this.lchToSrgb = requireNonNull(searchParams.lchToSrgb());
         this.lchConstructor = requireNonNull(searchParams.lchConstructor());
         checkArgument(searchParams.roughChromaSearchStep() > 0, "roughChromaSearchStep = %s", searchParams.roughChromaSearchStep());
         this.roughChromaSearchStep = searchParams.roughChromaSearchStep();
         checkArgument(searchParams.solutionThreshold() > 0, "solutionThreshold = %s", searchParams.solutionThreshold());
         this.solutionThreshold = searchParams.solutionThreshold();
-        checkArgument(searchParams.maxL() > 0, "maxL = %s", searchParams.maxL());
-        this.maxL = searchParams.maxL();
     }
 
     public double maxCFor(L lch) {
@@ -56,14 +51,15 @@ public class GamutBoundaryMaxCSolver<L extends LCh<L, ?>> {
 
     private double solveMaxCFor(L lch) {
         double l = lch.L();
-        if (l == maxL || l == 0) {
+        if (lch.isOverMaxOrBelowZero()) {
             return 0;
         }
         double h = lch.h();
-        double cOutOfGamut = 0;
-        do {
-            cOutOfGamut += roughChromaSearchStep;
-        } while (!lchToSrgb.apply(lchConstructor.createFrom(l, cOutOfGamut, h)).isOutOfGamut());
+        double maxCUpperBound = findMaxCUpperBound(l, h);
+        return findExactMaxC(lch, l, h, maxCUpperBound);
+    }
+
+    private double findExactMaxC(L lch, double l, double h, double cOutOfGamut) {
         var solver = new Solver(clipDetectorForLch(l, h));
         Optional<Double> solution = solver.solve(cOutOfGamut - roughChromaSearchStep, cOutOfGamut, 0);
         if (solution.isEmpty() && solver.lastValue() > solutionThreshold) {
@@ -74,6 +70,14 @@ public class GamutBoundaryMaxCSolver<L extends LCh<L, ?>> {
             );
         }
         return solution.orElse(0.0);
+    }
+
+    private double findMaxCUpperBound(double l, double h) {
+        double cOutOfGamut = 0;
+        do {
+            cOutOfGamut += roughChromaSearchStep;
+        } while (!lchToSrgb.apply(lchConstructor.createFrom(l, cOutOfGamut, h)).isOutOfGamut());
+        return cOutOfGamut;
     }
 
     private static final double COMPONENT_MIN = 1E-12;

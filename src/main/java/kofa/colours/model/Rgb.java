@@ -13,6 +13,9 @@ import static org.apache.commons.math3.linear.MatrixUtils.inverse;
  * @param <S> the subtype
  */
 public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
+    // corresponds to SRGB and Rec2020 components of CIELAB(CIELAB.BLACK_LEVEL, 0, 0)
+    public static final double BLACK_LEVEL = 1E-9;
+
     protected Rgb(double r, double g, double b) {
         super(r, g, b);
     }
@@ -75,10 +78,10 @@ public abstract class Rgb<S extends Rgb<S>> extends Vector3 {
     }
 
     public boolean isBlack() {
-        return abs(r()) < 1E-6 && abs(g()) < 1E-6 && abs(b()) < 1E-6;
+        return abs(r()) < BLACK_LEVEL && abs(g()) < BLACK_LEVEL && abs(b()) < BLACK_LEVEL;
     }
 
-    public boolean isWhite() {
-        return abs(1 - r()) < 1E-6 && abs(1 - g()) < 1E-6 && abs(1 - b()) < 1E-6;
-    }
+//    public boolean isWhite() {
+//        return abs(1 - r()) < BLACK_LEVEL && abs(1 - g()) < BLACK_LEVEL && abs(1 - b()) < BLACK_LEVEL;
+//    }
 }

@@ -3,6 +3,10 @@ package kofa.colours.model;
 import static kofa.colours.model.ConversionHelper.*;
 
 public class CIELAB extends LAB<CIELAB, CIELCh_ab> {
+    // less than L from Rec2020(0.0001 / 65535, 0.0001 / 65535, 0.0001 / 65535) ~1.38E-6
+    public static final double BLACK_L_LEVEL = 1E-6;
+    public static final CIELAB BLACK = new CIELAB(0, 0, 0);
+
     public CIELAB(double L, double a, double b) {
         super(L, a, b, CIELCh_ab::new);
     }
@@ -18,6 +22,9 @@ public class CIELAB extends LAB<CIELAB, CIELCh_ab> {
     public class LabXyzConverter implements WhitePointXyzAwareConverter<CIEXYZ> {
         @Override
         public CIEXYZ usingWhitePoint(CIEXYZ reference) {
+            if (CIELAB.this.isBlack()) {
+                return CIEXYZ.BLACK;
+            }
             var fy = fy();
             var fx = a() / 500 + fy;
             var fz = fy - b() / 200;
@@ -40,6 +47,10 @@ public class CIELAB extends LAB<CIELAB, CIELCh_ab> {
         }
     }
 
+    public boolean isBlack() {
+        return L() < BLACK_L_LEVEL;
+    }
+
     public static class XyzLabConverter implements WhitePointXyzAwareConverter<CIELAB> {
         private final CIEXYZ xyz;
 
@@ -49,6 +60,9 @@ public class CIELAB extends LAB<CIELAB, CIELCh_ab> {
 
         @Override
         public CIELAB usingWhitePoint(CIEXYZ referenceXyz) {
+            if (xyz.isBlack()) {
+                return CIELAB.BLACK;
+            }
             double fx = f(xyz.X() / referenceXyz.X());
             double fy = f(xyz.Y() / referenceXyz.Y());
             double fz = f(xyz.Z() / referenceXyz.Z());
