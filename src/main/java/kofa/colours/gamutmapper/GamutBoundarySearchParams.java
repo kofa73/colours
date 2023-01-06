@@ -38,7 +38,7 @@ public record GamutBoundarySearchParams<L extends LCh<L, ?>>(
             sRgb -> OkLAB.from(sRgb).toLch(),
             lch -> lch.toLab().toSrgb(),
             OkLCh::new,
-            1,
+            0.01,
             1E-6,
             OkLCh.WHITE_L
     );

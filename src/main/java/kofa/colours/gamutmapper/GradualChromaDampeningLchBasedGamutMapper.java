@@ -68,7 +68,8 @@ public class GradualChromaDampeningLchBasedGamutMapper<P extends LCh<P, S>, S ex
         this.sRgbToLch = searchParams.sRgbToLch();
         this.lchToSrgb = searchParams.lchToSrgb();
         this.lchConstructor = searchParams.lchConstructor();
-        this.maxCFinder = lch -> GamutBoundaryMaxCSolver.createFor(searchParams, image).maxCFor(lch);
+        var solver = GamutBoundaryMaxCSolver.createFor(searchParams, image);
+        this.maxCFinder = lch -> solver.maxCFor(lch);
     }
 
     @Override

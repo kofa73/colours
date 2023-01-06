@@ -62,7 +62,8 @@ public class ChromaClippingLchBasedGamutMapper<P extends LCh<P, S>, S extends Co
         this.sRgbToLch = requireNonNull(searchParams.sRgbToLch());
         this.lchToSrgb = requireNonNull(searchParams.lchToSrgb());
         this.lchConstructor = requireNonNull(searchParams.lchConstructor());
-        this.maxCFinder = lch -> GamutBoundaryMaxCSolver.createFor(searchParams, image).maxCFor(lch);
+        var solver = GamutBoundaryMaxCSolver.createFor(searchParams, image);
+        this.maxCFinder = lch -> solver.maxCFor(lch);
     }
 
 
