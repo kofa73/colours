@@ -87,4 +87,27 @@ class OkLABTest {
     private double roundToThreeDecimals(double d) {
         return Math.round(d * 1000) / 1000.0;
     }
+
+    // not a real test, just documentation
+    @Test
+    void okLabWhitePoint() {
+        CIEXYZ whiteXYZ = OkLAB.WHITE.toXyz();
+        // This is close to D65_WHITE_ASTM_E308_01 =
+        //                        new CIEXYZ(0.95047,    1,          1.08883);
+        // but with Z ~= 1.0883 instead of 1.08883
+        // and to D65_WHITE_2DEGREE_STANDARD_OBSERVER =
+        //                        new CIEXYZ(0.95042855, 1.00000000, 1.08890037)
+        // but with X ~= 0.95047 instead of ~0.95043
+        assertIsCloseTo(whiteXYZ, new CIEXYZ(0.95047004, 1.00000003, 1.08830021), EXACT);
+
+        CIExyY whitexyY = CIExyY.from(whiteXYZ);
+        // Relatively close to xy of CIExyY D65_WHITE_2DEGREE_STANDARD_OBSERVER =
+        //                        new CIExyY(0.31271,    0.32902,    1);
+        assertIsCloseTo(whitexyY, new CIExyY(0.31278114, 0.32908050, 1.00000003), EXACT);
+
+        UV whiteUV = UV.from(whiteXYZ);
+        assertIsCloseTo(new double[]{whiteUV.u(), whiteUV.v()}, new double[]{0.19785619311384714, 0.4683750429349658}, EXACT);
+
+        assertIsCloseTo(OkLAB.WHITE.toSrgb(), Srgb.WHITE, EXACT);
+    }
 }

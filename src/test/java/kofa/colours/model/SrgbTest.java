@@ -1,12 +1,27 @@
 package kofa.colours.model;
 
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static kofa.NumericAssertions.*;
 import static kofa.colours.model.ConverterTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Named.named;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+@ExtendWith(SoftAssertionsExtension.class)
 class SrgbTest {
+    @InjectSoftAssertions
+    private SoftAssertions softly;
+
     @Test
     void white() {
         assertIsCloseTo(new Srgb(1, 1, 1).toXyz(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
@@ -91,5 +106,45 @@ class SrgbTest {
         var expectedRec2020 = new Rec2020(0.101, 0.114, 0.170);
         // were read from a UI, so need more lenient comparison
         assertIsCloseTo(rec2020, expectedRec2020, ROUGH, LENIENT, PRECISE);
+    }
+
+    // not a real test, just documentation
+    @ParameterizedTest
+    @MethodSource("referenceWhitesAndMatrices")
+    void sRGB_to_XYZ(CIEXYZ referenceWhite, double[][] matrix) {
+        double[][] calculatedMatrix = Rgb.calculateToXyzMatrix(
+                0.6400, 0.3300,
+                0.3000, 0.6000,
+                0.1500, 0.0600,
+                referenceWhite
+        );
+        softly.assertThat(calculatedMatrix[0]).containsExactly(matrix[0]);
+        softly.assertThat(calculatedMatrix[1]).containsExactly(matrix[1]);
+        softly.assertThat(calculatedMatrix[2]).containsExactly(matrix[2]);
+    }
+
+    private static Stream<Arguments> referenceWhitesAndMatrices() {
+        return Stream.of(
+                arguments(named("D65_WHITE_ASTM_E308_01", CIEXYZ.D65_WHITE_ASTM_E308_01), new double[][]{
+                        {0.41245643908969265, 0.35757607764390886, 0.18043748326639886},
+                        {0.21267285140562275, 0.7151521552878177, 0.07217499330655955},
+                        {0.01933389558232932, 0.11919202588130293, 0.9503040785363674}
+                }),
+                arguments(named("D65_WHITE_IEC_61966_2_1", CIEXYZ.D65_WHITE_IEC_61966_2_1), new double[][]{
+                        {0.41239075298527483, 0.3575843494912984, 0.18048079752342697},
+                        {0.21263898200803233, 0.7151686989825968, 0.07219231900937079},
+                        {0.019330816546184737, 0.11919478316376611, 0.9505322002900488}
+                }),
+                arguments(named("D65_WHITE_2DEGREE_STANDARD_OBSERVER", CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER), new double[][]{
+                        {0.41238656325299233, 0.35759149092062525, 0.1804504912035636},
+                        {0.21263682167732417, 0.7151829818412505, 0.07218019648142544},
+                        {0.019330620152483994, 0.1191971636402084, 0.950372587005435}
+                }),
+                arguments(named("D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER", CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER), new double[][]{
+                        {0.41252882628196613, 0.35816417735392725, 0.17740367310126703},
+                        {0.21271017605163878, 0.7163283547078545, 0.07096146924050681},
+                        {0.01933728873196714, 0.11938805911797572, 0.9343260116666731}
+                })
+        );
     }
 }
