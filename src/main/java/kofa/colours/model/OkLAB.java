@@ -18,6 +18,7 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     public static final double WHITE_L_THRESHOLD = WHITE_L - BLACK_L_THRESHOLD;
     public static final OkLAB WHITE = new OkLAB(WHITE_L, 0, 0);
 
+    // original M1 values from https://bottosson.github.io/posts/oklab/#converting-from-xyz-to-oklab
     static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_ORIGINAL =
             new SpaceConversionMatrix<>(
                     LMS::new,
