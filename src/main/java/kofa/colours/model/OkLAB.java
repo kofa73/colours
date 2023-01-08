@@ -31,6 +31,8 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_ORIGINAL =
             XYZ_TO_LMS_ORIGINAL.invert(CIEXYZ::new);
 
+    // for the matrices below, see OkLABTuner
+
     private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_IEC_61966_2_1 =
             new SpaceConversionMatrix<>(
                     LMS::new,
