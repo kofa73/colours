@@ -9,11 +9,17 @@ import static org.assertj.core.data.Percentage.withPercentage;
 
 public class WhiteLevelsTest {
     @Test
-    void whiteFromCIEXYZ() {
+    void whiteFromCIEXYZ_usingOriginalMatrixForOkLab() {
+        var okLAB = OkLAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingOriginalMatrix();
+        lenientlyAssertThat_LIsCloseToMax_andCIsCloseToZero(okLAB.toLch(), OkLAB.WHITE_L, 3E-6);
+    }
+
+    @Test
+    void whiteFromCIEXYZ_usingD65_2DEGREE_STANDARD_OBSERVERForOkLab() {
         var ciexyY = CIExyY.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
         var cieLAB = CIELAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER();
         var cieLUV = CIELUV.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER();
-        var okLAB = OkLAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingOriginalMatrix();
+        var okLAB = OkLAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER();
         var sRgb = Srgb.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
         var rec2020 = Rec2020.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
         assertAllWhite(
@@ -28,11 +34,18 @@ public class WhiteLevelsTest {
     }
 
     @Test
-    void whiteFromCIExyY() {
+    void whiteFromCIExyY_usingOriginalMatrixForOkLab() {
+        var cieXYZ = CIExyY.D65_WHITE_2DEGREE_STANDARD_OBSERVER.toXyz();
+        var okLAB = OkLAB.from(cieXYZ).usingOriginalMatrix();
+        lenientlyAssertThat_LIsCloseToMax_andCIsCloseToZero(okLAB.toLch(), OkLAB.WHITE_L, 3E-6);
+    }
+
+    @Test
+    void whiteFromCIExyY_usingD65_2DEGREE_STANDARD_OBSERVERForOkLab() {
         var cieXYZ = CIExyY.D65_WHITE_2DEGREE_STANDARD_OBSERVER.toXyz();
         var cieLAB = CIELAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER();
         var cieLUV = CIELUV.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER();
-        var okLAB = OkLAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingOriginalMatrix();
+        var okLAB = OkLAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER();
         var sRgb = Srgb.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
         var rec2020 = Rec2020.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
         assertAllWhite(
@@ -47,11 +60,18 @@ public class WhiteLevelsTest {
     }
 
     @Test
-    void whiteFromCIELAB() {
+    void whiteFromCIELAB_usingOriginalMatrixForOkLAB() {
+        var cieXYZ = CIELAB.WHITE.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER();
+        var okLAB = OkLAB.from(cieXYZ).usingOriginalMatrix();
+        lenientlyAssertThat_LIsCloseToMax_andCIsCloseToZero(okLAB.toLch(), OkLAB.WHITE_L, 3E-6);
+    }
+
+    @Test
+    void whiteFromCIELAB_usingD65_2DEGREE_STANDARD_OBSERVERForOkLAB() {
         var cieXYZ = CIELAB.WHITE.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER();
         var ciexyY = CIExyY.from(cieXYZ);
         var cieLUV = CIELUV.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
-        var okLAB = OkLAB.from(cieXYZ).usingOriginalMatrix();
+        var okLAB = OkLAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
         var sRgb = Srgb.from(cieXYZ);
         var rec2020 = Rec2020.from(cieXYZ);
         assertAllWhite(
@@ -66,11 +86,18 @@ public class WhiteLevelsTest {
     }
 
     @Test
-    void whiteFromCIELUV() {
+    void whiteFromCIELUV_usingOriginalMatrixForOkLAB() {
+        var cieXYZ = CIELUV.WHITE.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER();
+        var okLAB = OkLAB.from(cieXYZ).usingOriginalMatrix();
+        lenientlyAssertThat_LIsCloseToMax_andCIsCloseToZero(okLAB.toLch(), OkLAB.WHITE_L, 3E-6);
+    }
+
+    @Test
+    void whiteFromCIELUV_usingD65_2DEGREE_STANDARD_OBSERVERForOkLAB() {
         var cieXYZ = CIELUV.WHITE.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER();
         var ciexyY = CIExyY.from(cieXYZ);
         var cieLAB = CIELAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
-        var okLAB = OkLAB.from(cieXYZ).usingOriginalMatrix();
+        var okLAB = OkLAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
         var sRgb = Srgb.from(cieXYZ);
         var rec2020 = Rec2020.from(cieXYZ);
         assertAllWhite(
@@ -85,12 +112,12 @@ public class WhiteLevelsTest {
     }
 
     @Test
-    void whiteFromOkLAB() {
+    void whiteFromOkLAB_usingOriginalMatrixForOkLAB() {
         var cieXYZ = OkLAB.WHITE.toXyz().usingOriginalMatrix();
         var ciexyY = CIExyY.from(cieXYZ);
         var cieLAB = CIELAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
         var cieLUV = CIELUV.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
-        var sRgb = OkLAB.WHITE.toSrgb();
+        var sRgb = Srgb.from(cieXYZ);
         var rec2020 = Rec2020.from(cieXYZ);
         lenientlyAssertAllWhite(
                 cieXYZ,
@@ -104,12 +131,38 @@ public class WhiteLevelsTest {
     }
 
     @Test
-    void whiteFromSrgb() {
+    void whiteFromOkLAB_usingD65_2DEGREE_STANDARD_OBSERVERForOkLAB() {
+        var cieXYZ = OkLAB.WHITE.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER();
+        var ciexyY = CIExyY.from(cieXYZ);
+        var cieLAB = CIELAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
+        var cieLUV = CIELUV.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
+        var sRgb = Srgb.from(cieXYZ);
+        var rec2020 = Rec2020.from(cieXYZ);
+        assertAllWhite(
+                cieXYZ,
+                ciexyY,
+                cieLAB,
+                cieLUV,
+                OkLAB.WHITE,
+                sRgb,
+                rec2020
+        );
+    }
+
+    @Test
+    void whiteFromSrgb_usingOriginalMatrixForOkLAB() {
+        var cieXYZ = Srgb.WHITE.toXyz();
+        var okLab = OkLAB.from(cieXYZ).usingOriginalMatrix();
+        lenientlyAssertThat_LIsCloseToMax_andCIsCloseToZero(okLab.toLch(), OkLAB.WHITE_L, 3E-6);
+    }
+
+    @Test
+    void whiteFromSrgb_usingD65_2DEGREE_STANDARD_OBSERVERForOkLAB() {
         var cieXYZ = Srgb.WHITE.toXyz();
         var ciexyY = CIExyY.from(cieXYZ);
         var cieLAB = CIELAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
         var cieLUV = CIELUV.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
-        var okLab = OkLAB.from(Srgb.WHITE);
+        var okLab = OkLAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
         var rec2020 = Srgb.WHITE.toRec2020();
         assertAllWhite(
                 cieXYZ,
@@ -123,12 +176,19 @@ public class WhiteLevelsTest {
     }
 
     @Test
-    void whiteFromRec2020() {
+    void whiteFromRec2020_usingOriginalMatrixForOkLAB() {
+        var cieXYZ = Rec2020.WHITE.toXyz();
+        var okLab = OkLAB.from(cieXYZ).usingOriginalMatrix();
+        lenientlyAssertThat_LIsCloseToMax_andCIsCloseToZero(okLab.toLch(), OkLAB.WHITE_L, 3E-6);
+    }
+
+    @Test
+    void whiteFromRec2020_usingD65_2DEGREE_STANDARD_OBSERVERForOkLAB() {
         var cieXYZ = Rec2020.WHITE.toXyz();
         var ciexyY = CIExyY.from(cieXYZ);
         var cieLAB = CIELAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
         var cieLUV = CIELUV.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
-        var okLab = OkLAB.from(cieXYZ).usingOriginalMatrix();
+        var okLab = OkLAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
         var sRgb = Rec2020.WHITE.toSRGB();
         assertAllWhite(
                 cieXYZ,
@@ -163,10 +223,10 @@ public class WhiteLevelsTest {
         assertThat_LIsCloseToMax_andCIsCloseToZero(lchUv, CIELCh_uv.WHITE_L, CIELCh_uv.BLACK_L_THRESHOLD);
 
         assertThat(okLAB.isWhite()).isTrue();
-        assertThat_LIsCloseToMax_and_colourCoordinates_areCloseToZero(okLAB, OkLAB.WHITE_L, 3E-4, 1E-4);
+        assertThat_LIsCloseToMax_and_colourCoordinates_areCloseToZero(okLAB, OkLAB.WHITE_L, 1E-13, 1E-15);
 
         var lchOk = okLAB.toLch();
-        lenientlyAssertThat_LIsCloseToMax_andCIsCloseToZero(lchOk, OkLCh.WHITE_L, OkLCh.BLACK_L_THRESHOLD);
+        assertThat_LIsCloseToMax_andCIsCloseToZero(lchOk, OkLCh.WHITE_L, OkLCh.BLACK_L_THRESHOLD);
 
         assertThat(sRgb.isWhite()).isTrue();
         assertIsCloseTo(sRgb, Srgb.WHITE, EXACT, 1E-12);
@@ -200,10 +260,11 @@ public class WhiteLevelsTest {
         assertThat_LIsCloseToMax_and_colourCoordinates_areCloseToZero(okLAB, OkLAB.WHITE_L, 3E-4, 1E-4);
 
         var lchOk = okLAB.toLch();
-        assertThat_LIsCloseToMax_andCIsCloseToZero(lchOk, OkLCh.WHITE_L, OkLCh.BLACK_L_THRESHOLD);
+        lenientlyAssertThat_LIsCloseToMax_andCIsCloseToZero(lchOk, OkLCh.WHITE_L, OkLCh.BLACK_L_THRESHOLD);
 
-        assertThat(sRgb.isWhite()).isTrue();
-        assertIsCloseTo(sRgb, Srgb.WHITE, EXACT, 1E-12);
+        // this would fail:
+        // assertThat(sRgb.isWhite()).isTrue();
+        assertIsCloseTo(sRgb, Srgb.WHITE, LENIENT, 1E-12);
 
         // breaks
         // assertThat(rec2020.isWhite()).isTrue();

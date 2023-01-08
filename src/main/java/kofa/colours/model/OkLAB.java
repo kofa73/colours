@@ -18,7 +18,7 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     public static final double WHITE_L_THRESHOLD = WHITE_L - BLACK_L_THRESHOLD;
     public static final OkLAB WHITE = new OkLAB(WHITE_L, 0, 0);
 
-    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_ORIGINAL =
+    static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_ORIGINAL =
             new SpaceConversionMatrix<>(
                     LMS::new,
                     new double[][]{
@@ -33,7 +33,7 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
 
     // for the matrices below, see OkLABTuner
 
-    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_IEC_61966_2_1 =
+    static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_IEC_61966_2_1 =
             new SpaceConversionMatrix<>(
                     LMS::new,
                     new double[][]{
@@ -46,7 +46,7 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_D65_IEC_61966_2_1 =
             XYZ_TO_LMS_D65_IEC_61966_2_1.invert(CIEXYZ::new);
 
-    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_ASTM_E308_01 =
+    static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_ASTM_E308_01 =
             new SpaceConversionMatrix<>(
                     LMS::new,
                     new double[][]{
@@ -58,7 +58,7 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
 
     private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_D65_ASTM_E308_01 = XYZ_TO_LMS_D65_ASTM_E308_01.invert(CIEXYZ::new);
 
-    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_2DEGREE_STANDARD_OBSERVER =
+    static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_2DEGREE_STANDARD_OBSERVER =
             new SpaceConversionMatrix<>(
                     LMS::new,
                     new double[][]{
@@ -71,7 +71,7 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_D65_2DEGREE_STANDARD_OBSERVER =
             XYZ_TO_LMS_D65_2DEGREE_STANDARD_OBSERVER.invert(CIEXYZ::new);
 
-    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_10DEGREE_SUPPLEMENTARY_OBSERVER =
+    static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_10DEGREE_SUPPLEMENTARY_OBSERVER =
             new SpaceConversionMatrix<>(
                     LMS::new,
                     new double[][]{
@@ -84,7 +84,7 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_D65_10DEGREE_SUPPLEMENTARY_OBSERVER =
             XYZ_TO_LMS_D65_10DEGREE_SUPPLEMENTARY_OBSERVER.invert(CIEXYZ::new);
 
-    private static final SpaceConversionMatrix<LMSPrime, OkLAB> LMS_PRIME_TO_LAB = new SpaceConversionMatrix<>(
+    static final SpaceConversionMatrix<LMSPrime, OkLAB> LMS_PRIME_TO_LAB = new SpaceConversionMatrix<>(
             OkLAB::new,
             new double[][]{
                     {+0.2104542553, +0.7936177850, -0.0040720468},
@@ -214,38 +214,6 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
                     cubeRootOf(lms.s)
             );
         }
-    }
-
-    public static OkLAB from(Srgb sRgb) {
-        double l = 0.4122214708 * sRgb.r() + 0.5363325363 * sRgb.g() + 0.0514459929 * sRgb.b();
-        double m = 0.2119034982 * sRgb.r() + 0.6806995451 * sRgb.g() + 0.1073969566 * sRgb.b();
-        double s = 0.0883024619 * sRgb.r() + 0.2817188376 * sRgb.g() + 0.6299787005 * sRgb.b();
-
-        double lPrime = cubeRootOf(l);
-        double mPrime = cubeRootOf(m);
-        double sPrime = cubeRootOf(s);
-
-        return new OkLAB(
-                0.2104542553 * lPrime + 0.7936177850 * mPrime - 0.0040720468 * sPrime,
-                1.9779984951 * lPrime - 2.4285922050 * mPrime + 0.4505937099 * sPrime,
-                0.0259040371 * lPrime + 0.7827717662 * mPrime - 0.8086757660 * sPrime
-        );
-    }
-
-    public Srgb toSrgb() {
-        double lPrime = L() + 0.3963377774 * a() + 0.2158037573 * b();
-        double mPrime = L() - 0.1055613458 * a() - 0.0638541728 * b();
-        double sPrime = L() - 0.0894841775 * a() - 1.2914855480 * b();
-
-        double l = lPrime * lPrime * lPrime;
-        double m = mPrime * mPrime * mPrime;
-        double s = sPrime * sPrime * sPrime;
-
-        return new Srgb(
-                4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-                -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-                -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
-        );
     }
 
     private static class LMS extends Vector3 {

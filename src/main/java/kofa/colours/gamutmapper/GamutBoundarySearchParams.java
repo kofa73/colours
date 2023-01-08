@@ -35,8 +35,8 @@ public record GamutBoundarySearchParams<L extends LCh<L, ?>>(
 
     public static final GamutBoundarySearchParams<OkLCh> FOR_OKLAB = new GamutBoundarySearchParams<>(
             OkLCh.class,
-            sRgb -> OkLAB.from(sRgb).toLch(),
-            lch -> lch.toLab().toSrgb(),
+            sRgb -> OkLAB.from(sRgb.toXyz()).usingD65_2DEGREE_STANDARD_OBSERVER().toLch(),
+            lch -> Srgb.from(lch.toLab().toXyz().usingD65_2DEGREE_STANDARD_OBSERVER()),
             OkLCh::new,
             0.01,
             1E-6,

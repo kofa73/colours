@@ -22,7 +22,7 @@ class GradualChromaDampeningLchBasedGamutMapperForOkLabTest {
 
     private PrimitiveDoubleToDoubleFunction clipDetectorForLch(double l, double h) {
         return (double c) -> {
-            Srgb sRgb = new OkLCh(l, c, h).toLab().toSrgb();
+            Srgb sRgb = Srgb.from(new OkLCh(l, c, h).toLab().toXyz().usingD65_2DEGREE_STANDARD_OBSERVER());
             if (sRgb.isOutOfGamut()) {
                 return 1.0;
             }

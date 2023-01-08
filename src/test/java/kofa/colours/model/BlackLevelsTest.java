@@ -89,7 +89,7 @@ public class BlackLevelsTest {
         var ciexyY = CIExyY.from(cieXYZ);
         var cieLAB = CIELAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
         var cieLUV = CIELUV.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
-        var sRgb = OkLAB.BLACK.toSrgb();
+        var sRgb = Srgb.from(OkLAB.BLACK.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER());
         var rec2020 = Rec2020.from(cieXYZ);
         assertAllBlack(
                 cieXYZ,
@@ -108,7 +108,7 @@ public class BlackLevelsTest {
         var ciexyY = CIExyY.from(cieXYZ);
         var cieLAB = CIELAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
         var cieLUV = CIELUV.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
-        var okLab = OkLAB.from(Srgb.BLACK);
+        var okLab = OkLAB.from(Srgb.BLACK.toXyz()).usingD65_2DEGREE_STANDARD_OBSERVER();
         var rec2020 = Srgb.BLACK.toRec2020();
         assertAllBlack(
                 cieXYZ,

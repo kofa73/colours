@@ -32,8 +32,8 @@ record ToneMappingParams<S>(
 
     static final ToneMappingParams<OkLAB> FOR_OKLAB = new ToneMappingParams<>(
             OkLCh.WHITE_L,
-            rec2020 -> OkLAB.from(rec2020.toSRGB()),
-            okLab -> okLab.toSrgb().toRec2020(),
+            rec2020 -> OkLAB.from(rec2020.toXyz()).usingD65_2DEGREE_STANDARD_OBSERVER(),
+            okLab -> Rec2020.from(okLab.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER()),
             (okLab, mappedL) -> new OkLAB(mappedL, okLab.a(), okLab.b()),
             OkLAB::L
     );

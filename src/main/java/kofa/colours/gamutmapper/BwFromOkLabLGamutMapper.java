@@ -15,7 +15,7 @@ public class BwFromOkLabLGamutMapper extends GamutMapper {
 
     @Override
     public Srgb getInsideGamut(Srgb srgb) {
-        var lab = OkLAB.from(srgb);
-        return new OkLAB(lab.L(), 0, 0).toSrgb();
+        var lab = OkLAB.from(srgb.toXyz()).usingD65_2DEGREE_STANDARD_OBSERVER();
+        return Srgb.from(new OkLAB(lab.L(), 0, 0).toXyz().usingD65_2DEGREE_STANDARD_OBSERVER());
     }
 }

@@ -127,6 +127,6 @@ class OkLABTest {
         UV whiteUV = UV.from(whiteXYZ);
         assertIsCloseTo(new double[]{whiteUV.u(), whiteUV.v()}, new double[]{0.19785619311384714, 0.4683750429349658}, EXACT);
 
-        assertIsCloseTo(OkLAB.WHITE.toSrgb(), Srgb.WHITE, EXACT);
+        assertIsCloseTo(Srgb.from(OkLAB.WHITE.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER()), Srgb.WHITE, EXACT);
     }
 }

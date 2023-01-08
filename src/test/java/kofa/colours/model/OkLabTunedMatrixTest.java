@@ -1,24 +1,50 @@
 package kofa.colours.model;
 
-import org.assertj.core.data.Percentage;
+import kofa.maths.SpaceConversionMatrix;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.stream.Stream;
 
+import static org.assertj.core.data.Percentage.withPercentage;
+import static org.junit.jupiter.api.Named.named;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+@ExtendWith(SoftAssertionsExtension.class)
 public class OkLabTunedMatrixTest {
-    @Test
-    void changesComparedToOriginalMatrix_D65_WHITE_ASTM_E308_01() {
-        assertThat(0.8190448227373099).isCloseTo(0.8189330101, Percentage.withPercentage(0.01));
-        assertThat(0.3618535159212018).isCloseTo(0.3618667424, Percentage.withPercentage(0.01));
-        assertThat(-0.12888242722626334).isCloseTo(-0.1288597137, Percentage.withPercentage(0.01));
+    @InjectSoftAssertions
+    private SoftAssertions softly;
 
-        assertThat(0.03298770152682678).isCloseTo(0.0329845436, Percentage.withPercentage(0.01));
-        assertThat(0.9292808872100808).isCloseTo(0.9293118715, Percentage.withPercentage(0.01));
-        assertThat(0.036153778610985066).isCloseTo(0.0361456387, Percentage.withPercentage(0.01));
+    @ParameterizedTest
+    @MethodSource("matchedMatrices")
+    void changesComparedToOriginalMatrix_closelyMatched(SpaceConversionMatrix<?, CIEXYZ> conversionMatrix, double percentage) {
+        double[][] matrix = conversionMatrix.values();
+        double[][] originalMatrix = OkLAB.XYZ_TO_LMS_ORIGINAL.values();
 
-        assertThat(0.048177415343936617).isCloseTo(0.0482003018, Percentage.withPercentage(0.01));
-        assertThat(0.26425059322535277).isCloseTo(0.2643662691, Percentage.withPercentage(0.01));
-        assertThat(0.6336695194198694).isCloseTo(0.6338517070, Percentage.withPercentage(0.01));
+        for (int row = 0; row < matrix.length; row++) {
+            for (int column = 0; column < matrix.length; column++) {
+                softly.assertThat(matrix[row][column]).describedAs("%s,%s", row, column)
+                        .isCloseTo(originalMatrix[row][column], withPercentage(percentage));
+            }
+        }
+    }
+
+    // most of the updated matrices are very close to the original at https://bottosson.github.io/posts/oklab/,
+    // within 0.05% of the original values, but the 10-degree observer needed modifications up to 1%,
+    // 0.0482003018 -> 0.048664577663383925
+    private static Stream<Arguments> matchedMatrices() {
+        return Stream.of(
+                arguments(named("XYZ_TO_LMS_D65_IEC_61966_2_1", OkLAB.XYZ_TO_LMS_D65_IEC_61966_2_1), 0.05),
+                arguments(named("XYZ_TO_LMS_D65_ASTM_E308_01", OkLAB.XYZ_TO_LMS_D65_ASTM_E308_01), 0.04),
+                arguments(named("XYZ_TO_LMS_D65_2DEGREE_STANDARD_OBSERVER", OkLAB.XYZ_TO_LMS_D65_2DEGREE_STANDARD_OBSERVER), 0.04),
+                arguments(named("XYZ_TO_LMS_D65_10DEGREE_SUPPLEMENTARY_OBSERVER", OkLAB.XYZ_TO_LMS_D65_10DEGREE_SUPPLEMENTARY_OBSERVER), 1)
+        );
     }
 
     // not a test, but can be used to print the error as it'd normally be done when running the optimisation
