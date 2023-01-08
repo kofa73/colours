@@ -21,9 +21,9 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS = new SpaceConversionMatrix<>(
             LMS::new,
             new double[][]{
-                    new double[]{+0.8189330101, +0.3618667424, -0.1288597137},
-                    new double[]{+0.0329845436, +0.9293118715, +0.0361456387},
-                    new double[]{+0.0482003018, +0.2643662691, +0.6338517070}
+                    {+0.8189330101, +0.3618667424, -0.1288597137},
+                    {+0.0329845436, +0.9293118715, +0.0361456387},
+                    {+0.0482003018, +0.2643662691, +0.6338517070}
             }
     );
 
@@ -32,9 +32,9 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     private static final SpaceConversionMatrix<LMSPrime, OkLAB> LMS_PRIME_TO_LAB = new SpaceConversionMatrix<>(
             OkLAB::new,
             new double[][]{
-                    new double[]{+0.2104542553, +0.7936177850, -0.0040720468},
-                    new double[]{+1.9779984951, -2.4285922050, +0.4505937099},
-                    new double[]{+0.0259040371, +0.7827717662, -0.8086757660}
+                    {+0.2104542553, +0.7936177850, -0.0040720468},
+                    {+1.9779984951, -2.4285922050, +0.4505937099},
+                    {+0.0259040371, +0.7827717662, -0.8086757660}
             }
     );
 
