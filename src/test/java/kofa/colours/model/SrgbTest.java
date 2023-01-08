@@ -12,11 +12,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 import static kofa.NumericAssertions.*;
+import static kofa.Vector3Assert.assertThat;
 import static kofa.colours.model.ConverterTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-
 @ExtendWith(SoftAssertionsExtension.class)
 class SrgbTest {
     @InjectSoftAssertions
@@ -90,7 +90,7 @@ class SrgbTest {
         // then - same area average value picked in darktable with rec2020
         var expectedRec2020 = new Rec2020(101 / 255.0, 114 / 255.0, 170 / 255.0);
         // all integers, so need a lenient comparison
-        assertIsCloseTo(rec2020, expectedRec2020, ROUGH, LENIENT, PRECISE);
+        assertThat(rec2020).isCloseTo(expectedRec2020, ROUGH, LENIENT, PRECISE);
     }
 
     @Test
@@ -105,7 +105,7 @@ class SrgbTest {
         // then - same area average value picked in darktable with rec2020
         var expectedRec2020 = new Rec2020(0.101, 0.114, 0.170);
         // were read from a UI, so need more lenient comparison
-        assertIsCloseTo(rec2020, expectedRec2020, ROUGH, LENIENT, PRECISE);
+        assertThat(rec2020).isCloseTo(expectedRec2020, ROUGH, LENIENT, PRECISE);
     }
 
     // not a real test, just documentation

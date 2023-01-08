@@ -4,6 +4,7 @@ import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
 import static kofa.NumericAssertions.*;
+import static kofa.Vector3Assert.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Percentage.withPercentage;
 
@@ -203,10 +204,10 @@ public class WhiteLevelsTest {
 
     private void assertAllWhite(CIEXYZ cieXYZ, CIExyY ciexyY, CIELAB cieLAB, CIELUV cieLUV, OkLAB okLAB, Srgb sRgb, Rec2020 rec2020) {
         assertThat(cieXYZ.isWhite()).isTrue();
-        assertIsCloseTo(cieXYZ, CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE, 1E-12);
+        assertThat(cieXYZ).isCloseTo(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE, 1E-12);
 
         assertThat(ciexyY.isWhite()).isTrue();
-        assertIsCloseTo(ciexyY, CIExyY.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE, 1E-12);
+        assertThat(ciexyY).isCloseTo(CIExyY.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE, 1E-12);
 
         assertThat(cieLAB.isWhite()).isTrue();
         assertThat_LIsCloseToMax_and_colourCoordinates_areCloseToZero(cieLAB, CIELAB.WHITE_L, 1E-12, 1E-12);
@@ -216,7 +217,7 @@ public class WhiteLevelsTest {
         assertThat_LIsCloseToMax_andCIsCloseToZero(lchAb, CIELCh_ab.WHITE_L, CIELCh_ab.BLACK_L_THRESHOLD);
 
         assertThat(cieLUV.isWhite()).isTrue();
-        assertIsCloseTo(cieLUV, CIELUV.WHITE, EXACT, 1E-12);
+        assertThat(cieLUV).isCloseTo(CIELUV.WHITE, EXACT, 1E-12);
 
         var lchUv = cieLUV.toLch();
         assertThat(lchUv.isWhite()).isTrue();
@@ -229,18 +230,18 @@ public class WhiteLevelsTest {
         assertThat_LIsCloseToMax_andCIsCloseToZero(lchOk, OkLCh.WHITE_L, OkLCh.BLACK_L_THRESHOLD);
 
         assertThat(sRgb.isWhite()).isTrue();
-        assertIsCloseTo(sRgb, Srgb.WHITE, EXACT, 1E-12);
+        assertThat(sRgb).isCloseTo(Srgb.WHITE, EXACT, 1E-12);
 
         assertThat(rec2020.isWhite()).isTrue();
-        assertIsCloseTo(rec2020, Rec2020.WHITE, EXACT, 1E-12);
+        assertThat(rec2020).isCloseTo(Rec2020.WHITE, EXACT, 1E-12);
     }
 
     private void lenientlyAssertAllWhite(CIEXYZ cieXYZ, CIExyY ciexyY, CIELAB cieLAB, CIELUV cieLUV, OkLAB okLAB, Srgb sRgb, Rec2020 rec2020) {
         assertThat(cieXYZ.isWhite()).isTrue();
-        assertIsCloseTo(cieXYZ, CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE, 1E-12);
+        assertThat(cieXYZ).isCloseTo(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE, 1E-12);
 
         assertThat(ciexyY.isWhite()).isTrue();
-        assertIsCloseTo(ciexyY, CIExyY.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE, 1E-12);
+        assertThat(ciexyY).isCloseTo(CIExyY.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE, 1E-12);
 
         assertThat(cieLAB.isWhite()).isTrue();
         assertThat_LIsCloseToMax_and_colourCoordinates_areCloseToZero(cieLAB, CIELAB.WHITE_L, 2E-6, 4E-2);
@@ -264,11 +265,11 @@ public class WhiteLevelsTest {
 
         // this would fail:
         // assertThat(sRgb.isWhite()).isTrue();
-        assertIsCloseTo(sRgb, Srgb.WHITE, LENIENT, 1E-12);
+        assertThat(sRgb).isCloseTo(Srgb.WHITE, LENIENT, 1E-12);
 
         // breaks
         // assertThat(rec2020.isWhite()).isTrue();
-        assertIsCloseTo(rec2020, Rec2020.WHITE, PRECISE, 1E-12);
+        assertThat(rec2020).isCloseTo(Rec2020.WHITE, PRECISE, 1E-12);
     }
 
     private void assertThat_LIsCloseToMax_andCIsCloseToZero(LCh<?, ?> lch, double whiteL, double whiteTolerance) {

@@ -8,7 +8,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 import static kofa.NumericAssertions.*;
-import static org.assertj.core.api.Assertions.assertThat;
+import static kofa.Vector3Assert.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class OkLABTest {
@@ -117,12 +117,12 @@ class OkLABTest {
         // and to D65_WHITE_2DEGREE_STANDARD_OBSERVER =
         //                        new CIEXYZ(0.95042855, 1.00000000, 1.08890037)
         // but with X ~= 0.95047 instead of ~0.95043
-        assertIsCloseTo(whiteXYZ, new CIEXYZ(0.95047004, 1.00000003, 1.08830021), EXACT);
+        assertThat(whiteXYZ).isCloseTo(new CIEXYZ(0.95047004, 1.00000003, 1.08830021), EXACT);
 
         CIExyY whitexyY = CIExyY.from(whiteXYZ);
         // Relatively close to xy of CIExyY D65_WHITE_2DEGREE_STANDARD_OBSERVER =
         //                        new CIExyY(0.31271,    0.32902,    1);
-        assertIsCloseTo(whitexyY, new CIExyY(0.31278114, 0.32908050, 1.00000003), EXACT);
+        assertThat(whitexyY).isCloseTo(new CIExyY(0.31278114, 0.32908050, 1.00000003), EXACT);
 
         UV whiteUV = UV.from(whiteXYZ);
         assertIsCloseTo(new double[]{whiteUV.u(), whiteUV.v()}, new double[]{0.19785619311384714, 0.4683750429349658}, EXACT);

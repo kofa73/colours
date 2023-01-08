@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static java.lang.Math.toRadians;
 import static kofa.NumericAssertions.*;
+import static kofa.Vector3Assert.assertThat;
 import static kofa.colours.model.Rec2020.applyInverseOetf;
 
 class ConverterTest {
@@ -31,7 +32,7 @@ class ConverterTest {
         var expectedSRGB = new Srgb(89 / 255.0, 115 / 255.0, 177 / 255.0);
 
         // all integers, so need very rough comparison
-        assertIsCloseTo(sRGB, expectedSRGB, ROUGH);
+        assertThat(sRGB).isCloseTo(expectedSRGB, ROUGH);
     }
 
     @Test
@@ -49,7 +50,7 @@ class ConverterTest {
         // 280.84448 degrees -> 4.90166086204 radians + wrap-around
         var expectedLchUv = new CIELCh_uv(32.90281, 68.99183, toRadians(280.84448));
 
-        assertIsCloseTo(lchUv, expectedLchUv, EXACT);
+        assertThat(lchUv).isCloseTo(expectedLchUv, EXACT);
     }
 
 
@@ -80,19 +81,19 @@ class ConverterTest {
 
         var luvFromXyzD65 = CIELUV.from(xyzFromSrgb).usingD65_2DEGREE_STANDARD_OBSERVER();
         CIELUV luvFromXyz = CIELUV.from(xyzFromSrgb).usingWhitePoint(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
-        assertIsCloseTo(luvFromXyzD65, luvFromXyz, EXACT);
+        assertThat(luvFromXyzD65).isCloseTo(luvFromXyz, EXACT);
 
         var lchFromLuv = luvFromXyzD65.toLch();
 
         var luvFromLch = lchFromLuv.toLuv();
-        assertIsCloseTo(luvFromLch, luvFromXyzD65, EXACT);
+        assertThat(luvFromLch).isCloseTo(luvFromXyzD65, EXACT);
 
         var xyzFromLuvD65 = luvFromLch.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER();
-        assertIsCloseTo(xyzFromLuvD65, xyzFromSrgb, EXACT);
+        assertThat(xyzFromLuvD65).isCloseTo(xyzFromSrgb, EXACT);
         var xyzFromLuv = luvFromLch.toXyz().usingWhitePoint(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
-        assertIsCloseTo(xyzFromLuvD65, xyzFromLuv, EXACT);
+        assertThat(xyzFromLuvD65).isCloseTo(xyzFromLuv, EXACT);
 
         var sRgbFromXyz = Srgb.from(xyzFromLuvD65);
-        assertIsCloseTo(sRgbFromXyz, originalSrgb, EXACT);
+        assertThat(sRgbFromXyz).isCloseTo(originalSrgb, EXACT);
     }
 }

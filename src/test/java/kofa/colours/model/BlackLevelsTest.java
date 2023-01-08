@@ -3,7 +3,7 @@ package kofa.colours.model;
 import org.junit.jupiter.api.Test;
 
 import static kofa.NumericAssertions.EXACT;
-import static kofa.NumericAssertions.assertIsCloseTo;
+import static kofa.Vector3Assert.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BlackLevelsTest {
@@ -143,32 +143,32 @@ public class BlackLevelsTest {
 
     private void assertAllBlack(CIEXYZ cieXYZ, CIExyY ciexyY, CIELAB cieLAB, CIELUV cieLUV, OkLAB okLAB, Srgb sRgb, Rec2020 rec2020) {
         assertThat(cieXYZ.isBlack()).isTrue();
-        assertIsCloseTo(cieXYZ, CIEXYZ.BLACK, EXACT);
+        assertThat(cieXYZ).isCloseTo(CIEXYZ.BLACK, EXACT);
 
         assertThat(ciexyY.isBlack()).isTrue();
-        assertIsCloseTo(ciexyY, CIExyY.D65_BLACK_2DEGREE_STANDARD_OBSERVER, EXACT);
+        assertThat(ciexyY).isCloseTo(CIExyY.D65_BLACK_2DEGREE_STANDARD_OBSERVER, EXACT);
 
         assertThat(cieLAB.isBlack()).isTrue();
-        assertIsCloseTo(cieLAB, CIELAB.BLACK, EXACT);
+        assertThat(cieLAB).isCloseTo(CIELAB.BLACK, EXACT);
 
         var lchAb = cieLAB.toLch();
         assertThat(lchAb.isBlack()).isTrue();
-        assertIsCloseTo(lchAb, CIELCh_ab.BLACK, EXACT);
+        assertThat(lchAb).isCloseTo(CIELCh_ab.BLACK, EXACT);
 
         assertThat(cieLUV.isBlack()).isTrue();
-        assertIsCloseTo(cieLUV, CIELUV.BLACK, EXACT);
+        assertThat(cieLUV).isCloseTo(CIELUV.BLACK, EXACT);
 
         var lchUv = cieLUV.toLch();
         assertThat(lchUv.isBlack()).isTrue();
-        assertIsCloseTo(lchUv, CIELCh_uv.BLACK, EXACT);
+        assertThat(lchUv).isCloseTo(CIELCh_uv.BLACK, EXACT);
 
         assertThat(okLAB.isBlack()).isTrue();
-        assertIsCloseTo(okLAB, OkLAB.BLACK.BLACK, EXACT);
+        assertThat(okLAB).isCloseTo(OkLAB.BLACK.BLACK, EXACT);
 
         assertThat(sRgb.isBlack()).isTrue();
-        assertIsCloseTo(sRgb, Srgb.BLACK, EXACT);
+        assertThat(sRgb).isCloseTo(Srgb.BLACK, EXACT);
 
         assertThat(rec2020.isBlack()).isTrue();
-        assertIsCloseTo(rec2020, Rec2020.BLACK, EXACT);
+        assertThat(rec2020).isCloseTo(Rec2020.BLACK, EXACT);
     }
 }
