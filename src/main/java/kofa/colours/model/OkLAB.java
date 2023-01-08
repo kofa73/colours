@@ -57,7 +57,8 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
                     }
             );
 
-    private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_D65_ASTM_E308_01 = XYZ_TO_LMS_D65_ASTM_E308_01.invert(CIEXYZ::new);
+    private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_D65_ASTM_E308_01 =
+            XYZ_TO_LMS_D65_ASTM_E308_01.invert(CIEXYZ::new);
 
     static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_2DEGREE_STANDARD_OBSERVER =
             new SpaceConversionMatrix<>(

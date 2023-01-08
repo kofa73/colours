@@ -177,7 +177,7 @@ class OkLABTuner extends Vector3 {
         try {
             OkLABTuner labWhite = new OkLABTuner(1, 0, 0, matrix);
             CIEXYZ whiteXYZ = labWhite.toXyz();
-            CIEXYZ standardWhite = CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER;
+            CIEXYZ standardWhite = CIEXYZ.D65_WHITE_ASTM_E308_01;
             double errorX = whiteXYZ.X() - standardWhite.X();
             double errorY = whiteXYZ.Y() - standardWhite.Y();
             double errorZ = whiteXYZ.Z() - standardWhite.Z();
@@ -210,33 +210,43 @@ class OkLABTuner extends Vector3 {
 }
 
 /*
-ASTM - range: 0.001
-Matrix has error = 0.0
+ASTM
+maxRange = 0.001
 [0.8189509622312074, 0.3619239498645853, -0.1288651815112738]
 [0.0329912500697916, 0.9292746987980047, 0.03615636453206032]
 [0.04818496599039293, 0.26427789499842835, 0.6336378538375353]
-RMS deviation from original matrix: 2.4278600442453871E-4
+
+Matrix produces squared XYZ white error sum = 0.0
+RMS deviation from original matrix: 8.09286681415129E-5
+
+---
 
 D65_WHITE_IEC_61966_2_1
-Matrix has error = 0.0
 [0.818967383714981, 0.3619492664312499, -0.12886520149725447]
 [0.03299352333036043, 0.9292592106075834, 0.03616146647732637]
 [0.04817785658521273, 0.2642390482831809, 0.6335478132503992]
-RMS deviation from original matrix: 3.4665045173384217E-4
+
+Matrix produces squared XYZ white error sum = 0.0
+RMS deviation from original matrix: 1.1555015057794739E-4
+
+---
 
 D65_WHITE_2DEGREE_STANDARD_OBSERVER
-Matrix has error = 0.0
 [0.8189761623397687, 0.3619321156970304, -0.12885517057340956]
 [0.03299330404204958, 0.9292685035507454, 0.03615918056654339]
 [0.04818259693608417, 0.2642683151174946, 0.6336096045918206]
-RMS deviation from original matrix: 2.7716304086054973E-4
 
+Matrix produces squared XYZ white error sum = 0.0
+RMS deviation from original matrix: 9.23876802868499E-5
+
+---
 
 D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER
 maxRange = 0.0002
-Matrix has error = 0.0
 [0.8197842415296197, 0.36088871802835165, -0.12872024855803574]
 [0.0327208042008903, 0.9304891853249381, 0.03586813926096813]
 [0.048664577663383925, 0.2669141563783153, 0.6401811778989841]
-RMS deviation from original matrix: 0.0070712582273056235
- */
+
+Matrix produces squared XYZ white error sum = 0.0
+RMS deviation from original matrix: 0.002357086075768541
+*/
