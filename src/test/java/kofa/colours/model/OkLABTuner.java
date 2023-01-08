@@ -7,60 +7,33 @@ import java.util.Arrays;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
+import static java.lang.Math.sqrt;
 import static kofa.colours.model.ConversionHelper.cubeOf;
-import static kofa.colours.model.ConversionHelper.cubeRootOf;
+import static org.apache.commons.math3.linear.MatrixUtils.createRealMatrix;
+import static org.apache.commons.math3.linear.MatrixUtils.inverse;
 
-class OkLABTuner extends LAB<OkLABTuner, OkLABTunerLCh> {
+class OkLABTuner extends Vector3 {
 
-    public static final double BLACK_L_THRESHOLD = 1E-3;
-    public static final OkLABTuner BLACK = new OkLABTuner(0, 0, 0);
+    private final SpaceConversionMatrix<LMS, CIEXYZ> lmsToXyz;
 
-    public static final double WHITE_L = 1;
-    public static final double WHITE_L_THRESHOLD = WHITE_L - BLACK_L_THRESHOLD;
-    public static final OkLABTuner WHITE = new OkLABTuner(WHITE_L, 0, 0);
+    private static final SpaceConversionMatrix<OkLABTuner, LMSPrime> LAB_TO_LMS_PRIME =
+            new SpaceConversionMatrix<>(LMSPrime::new,
+                    inverse(createRealMatrix(new double[][]{
+                            new double[]{+0.2104542553, +0.7936177850, -0.0040720468},
+                            new double[]{+1.9779984951, -2.4285922050, +0.4505937099},
+                            new double[]{+0.0259040371, +0.7827717662, -0.8086757660}
+                    })).getData());
 
-    private static final ThreadLocal<SpaceConversionMatrix<CIEXYZ, LMS>> XYZ_TO_LMS = new ThreadLocal<>();
-    private static final ThreadLocal<SpaceConversionMatrix<LMS, CIEXYZ>> LMS_to_XYZ = new ThreadLocal<>();
-
-    static void set_XYZ_TO_LMS(double[][] matrix) {
-        SpaceConversionMatrix<CIEXYZ, LMS> xyzToLmsMatrix = new SpaceConversionMatrix<>(LMS::new, matrix);
-        XYZ_TO_LMS.set(xyzToLmsMatrix);
-        LMS_to_XYZ.set(xyzToLmsMatrix.invert(CIEXYZ::new));
+    private OkLABTuner(double coordinate1, double coordinate2, double coordinate3, double[][] matrix) {
+        super(coordinate1, coordinate2, coordinate3);
+        lmsToXyz =
+                new SpaceConversionMatrix<>(CIEXYZ::new, inverse(createRealMatrix(matrix)).getData());
     }
 
-    private static final SpaceConversionMatrix<LMSPrime, OkLABTuner> LMS_PRIME_TO_LAB = new SpaceConversionMatrix<>(
-            OkLABTuner::new,
-            new double[][]{
-                    new double[]{+0.2104542553, +0.7936177850, -0.0040720468},
-                    new double[]{+1.9779984951, -2.4285922050, +0.4505937099},
-                    new double[]{+0.0259040371, +0.7827717662, -0.8086757660}
-            }
-    );
-
-    private static final SpaceConversionMatrix<OkLABTuner, LMSPrime> LAB_TO_LMS_PRIME = LMS_PRIME_TO_LAB.invert(LMSPrime::new);
-
-    protected OkLABTuner(double coordinate1, double coordinate2, double coordinate3) {
-        super(coordinate1, coordinate2, coordinate3, OkLABTunerLCh::new);
-    }
-
-    public static OkLABTuner from(CIEXYZ xyz) {
-        LMS lms = XYZ_TO_LMS.get().multiply(xyz);
-        LMSPrime lmsPrime = LMSPrime.from(lms);
-        return LMS_PRIME_TO_LAB.multiply(lmsPrime);
-    }
-
-    public CIEXYZ toXyz() {
+    private CIEXYZ toXyz() {
         LMSPrime lmsPrime = LAB_TO_LMS_PRIME.multiply(this);
         LMS lms = lmsPrime.toLms();
-        return LMS_to_XYZ.get().multiply(lms);
-    }
-
-    public boolean isBlack() {
-        return L() < BLACK_L_THRESHOLD;
-    }
-
-    public boolean isWhite() {
-        return L() >= WHITE_L_THRESHOLD;
+        return lmsToXyz.multiply(lms);
     }
 
     private static class LMSPrime extends Vector3 {
@@ -82,71 +55,20 @@ class OkLABTuner extends LAB<OkLABTuner, OkLABTunerLCh> {
                     cubeOf(sPrime)
             );
         }
-
-        static LMSPrime from(LMS lms) {
-            return new LMSPrime(
-                    cubeRootOf(lms.l),
-                    cubeRootOf(lms.m),
-                    cubeRootOf(lms.s)
-            );
-        }
-    }
-
-    public static OkLABTuner from(Srgb sRgb) {
-        double l = 0.4122214708 * sRgb.r() + 0.5363325363 * sRgb.g() + 0.0514459929 * sRgb.b();
-        double m = 0.2119034982 * sRgb.r() + 0.6806995451 * sRgb.g() + 0.1073969566 * sRgb.b();
-        double s = 0.0883024619 * sRgb.r() + 0.2817188376 * sRgb.g() + 0.6299787005 * sRgb.b();
-
-        double lPrime = cubeRootOf(l);
-        double mPrime = cubeRootOf(m);
-        double sPrime = cubeRootOf(s);
-
-        return new OkLABTuner(
-                0.2104542553 * lPrime + 0.7936177850 * mPrime - 0.0040720468 * sPrime,
-                1.9779984951 * lPrime - 2.4285922050 * mPrime + 0.4505937099 * sPrime,
-                0.0259040371 * lPrime + 0.7827717662 * mPrime - 0.8086757660 * sPrime
-        );
-    }
-
-    public Srgb toSrgb() {
-        double lPrime = L() + 0.3963377774 * a() + 0.2158037573 * b();
-        double mPrime = L() - 0.1055613458 * a() - 0.0638541728 * b();
-        double sPrime = L() - 0.0894841775 * a() - 1.2914855480 * b();
-
-        double l = lPrime * lPrime * lPrime;
-        double m = mPrime * mPrime * mPrime;
-        double s = sPrime * sPrime * sPrime;
-
-        return new Srgb(
-                4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-                -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-                -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
-        );
     }
 
     private static class LMS extends Vector3 {
-        private final double l;
-        private final double m;
-        private final double s;
-
-        protected LMS(double l, double m, double s) {
+        private LMS(double l, double m, double s) {
             super(l, m, s);
-            this.l = l;
-            this.m = m;
-            this.s = s;
         }
     }
 
     public static void main(String[] args) {
-        double[][] originalMatrix = new double[][]{
-                {0.8189330101, 0.3618667424, -0.1288597137},
-                {0.0329845436, 0.9293118715, 0.0361456387},
-                {0.0482003018, 0.2643662691, 0.6338517070}
-        };
+        double[][] originalMatrix = OkLAB.XYZ_TO_LMS_ORIGINAL.values();
 
         double originalError = getError(originalMatrix);
         var currentBest = new Result(originalError, originalMatrix);
-        double maxRange = 0.00001;
+        double maxRange = 0.0001;
         double range = maxRange;
         int attempts = 50;
         printMatrix("Initial", currentBest);
@@ -170,31 +92,23 @@ class OkLABTuner extends LAB<OkLABTuner, OkLABTunerLCh> {
 
     static void printMatrix(String description, Result result) {
         System.out.println(description);
-        System.out.println("Matrix has error = " + result.error);
         System.out.println(Arrays.toString(result.matrix[0]));
         System.out.println(Arrays.toString(result.matrix[1]));
         System.out.println(Arrays.toString(result.matrix[2]));
 
-        var err1 = result.matrix[0][0] - 0.8189330101;
-        var err2 = result.matrix[0][1] - 0.3618667424;
-        var err3 = result.matrix[0][2] - (-0.1288597137);
+        System.out.println();
+        System.out.println("Matrix produces squared XYZ white error sum = " + result.error);
 
-        var err4 = result.matrix[1][0] - 0.0329845436;
-        var err5 = result.matrix[1][1] - 0.9293118715;
-        var err6 = result.matrix[1][2] - 0.0361456387;
+        double[][] originalMatrix = OkLAB.XYZ_TO_LMS_ORIGINAL.values();
+        double totalError = 0;
+        for (int row = 0; row < 3; row++) {
+            for (int column = 0; column < 3; column++) {
+                double error = result.matrix[row][column] - originalMatrix[row][column];
+                totalError += error * error;
+            }
+        }
 
-        var err7 = result.matrix[2][0] - 0.0482003018;
-        var err8 = result.matrix[2][1] - 0.2643662691;
-        var err9 = result.matrix[2][2] - 0.6338517070;
-
-        System.out.println("RMS deviation from original matrix: " +
-                Math.sqrt(
-                        err1 * err1 + err2 * err2 + err3 * err3 +
-                                err4 * err4 + err5 * err5 + err6 * err6 +
-                                err7 * err7 + err8 * err8 + err9 * err9
-                )
-        );
-
+        System.out.println("RMS deviation from original matrix: " + sqrt(totalError / 9));
         System.out.println();
     }
 
@@ -261,9 +175,9 @@ class OkLABTuner extends LAB<OkLABTuner, OkLABTunerLCh> {
     private static double getError(double[][] matrix) {
         double error;
         try {
-            set_XYZ_TO_LMS(matrix);
-            CIEXYZ whiteXYZ = WHITE.toXyz();
-            CIEXYZ standardWhite = CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER;
+            OkLABTuner labWhite = new OkLABTuner(1, 0, 0, matrix);
+            CIEXYZ whiteXYZ = labWhite.toXyz();
+            CIEXYZ standardWhite = CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER;
             double errorX = whiteXYZ.X() - standardWhite.X();
             double errorY = whiteXYZ.Y() - standardWhite.Y();
             double errorZ = whiteXYZ.Z() - standardWhite.Z();
@@ -276,7 +190,7 @@ class OkLABTuner extends LAB<OkLABTuner, OkLABTunerLCh> {
         return error;
     }
 
-    static double[][] copyOf(double[][] original) {
+    private static double[][] copyOf(double[][] original) {
         return new double[][]{
                 original[0].clone(),
                 original[1].clone(),
