@@ -1,6 +1,5 @@
 package kofa;
 
-import kofa.maths.Vector3;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.data.Percentage;
 
@@ -37,19 +36,6 @@ public class NumericAssertions {
                     ), ae
             );
         }
-    }
-
-    public static <V extends Vector3> void assertIsCloseTo(
-            V actualVector, V expectedVector,
-            Percentage percentage0, Percentage percentage1, Percentage percentage2
-    ) {
-        double[] actualDoubles = actualVector.coordinates().toArray();
-        double[] expectedDoubles = expectedVector.coordinates().toArray();
-        assertSoftly(softly -> {
-            assertIsCloseTo(softly, actualDoubles[0], expectedDoubles[0], percentage0, COMPARISON_THRESHOLD);
-            assertIsCloseTo(softly, actualDoubles[1], expectedDoubles[1], percentage1, COMPARISON_THRESHOLD);
-            assertIsCloseTo(softly, actualDoubles[2], expectedDoubles[2], percentage2, COMPARISON_THRESHOLD);
-        });
     }
 
     public static void assertDegreesAreClose(double actualDegrees, double expectedDegrees) {
