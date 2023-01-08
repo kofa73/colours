@@ -24,7 +24,7 @@ class SrgbTest {
 
     @Test
     void white() {
-        assertIsCloseTo(new Srgb(1, 1, 1).toXyz(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
+        assertThat(new Srgb(1, 1, 1).toXyz()).isCloseTo(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
     }
 
     @Test
@@ -34,29 +34,17 @@ class SrgbTest {
 
     @Test
     void fromXYZ() {
-        assertIsCloseTo(
-                Srgb.from(XYZ_663399),
-                LINEAR_SRGB_663399,
-                PRECISE
-        );
+        assertThat(Srgb.from(XYZ_663399)).isCloseTo(LINEAR_SRGB_663399, PRECISE);
     }
 
     @Test
     void toXyz() {
-        assertIsCloseTo(
-                LINEAR_SRGB_663399.toXyz(),
-                XYZ_663399,
-                PRECISE
-        );
+        assertThat(LINEAR_SRGB_663399.toXyz()).isCloseTo(XYZ_663399, PRECISE);
     }
 
     @Test
     void toRec2020() {
-        assertIsCloseTo(
-                LINEAR_SRGB_663399.toRec2020(),
-                REC2020_663399,
-                PRECISE
-        );
+        assertThat(LINEAR_SRGB_663399.toRec2020()).isCloseTo(REC2020_663399, PRECISE);
     }
 
     @Test

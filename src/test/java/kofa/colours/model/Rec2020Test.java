@@ -3,6 +3,7 @@ package kofa.colours.model;
 import org.junit.jupiter.api.Test;
 
 import static kofa.NumericAssertions.*;
+import static kofa.Vector3Assert.assertThat;
 import static kofa.colours.model.ConverterTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
@@ -10,7 +11,7 @@ import static org.assertj.core.data.Offset.offset;
 class Rec2020Test {
     @Test
     void white() {
-        assertIsCloseTo(new Rec2020(1, 1, 1).toXyz(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
+        assertThat(new Rec2020(1, 1, 1).toXyz()).isCloseTo(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
     }
 
     @Test
@@ -24,29 +25,17 @@ class Rec2020Test {
 
     @Test
     void fromXYZ() {
-        assertIsCloseTo(
-                Rec2020.from(XYZ_663399),
-                REC2020_663399,
-                PRECISE
-        );
+        assertThat(Rec2020.from(XYZ_663399)).isCloseTo(REC2020_663399, PRECISE);
     }
 
     @Test
     void toXyz() {
-        assertIsCloseTo(
-                REC2020_663399.toXyz(),
-                XYZ_663399,
-                PRECISE
-        );
+        assertThat(REC2020_663399.toXyz()).isCloseTo(XYZ_663399, PRECISE);
     }
 
     @Test
     void toSRGB() {
-        assertIsCloseTo(
-                REC2020_663399.toSRGB(),
-                LINEAR_SRGB_663399,
-                PRECISE
-        );
+        assertThat(REC2020_663399.toSRGB()).isCloseTo(LINEAR_SRGB_663399, PRECISE);
     }
 
     @Test

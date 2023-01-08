@@ -17,23 +17,6 @@ public class NumericAssertions {
     public static final Percentage ROUGH = Percentage.withPercentage(5);
     private static final double COMPARISON_THRESHOLD = 1E-15;
 
-    public static <V extends Vector3> void assertIsCloseTo(V actualVector, V expectedVector, Percentage percentage) {
-        assertIsCloseTo(actualVector, expectedVector, percentage, COMPARISON_THRESHOLD);
-    }
-
-    public static <V extends Vector3> void assertIsCloseTo(V actualVector, V expectedVector, Percentage percentage, double comparisonThreshold) {
-        assertThat(actualVector).hasSameClassAs(expectedVector);
-        try {
-            assertIsCloseTo(actualVector.coordinates().toArray(), expectedVector.coordinates().toArray(), percentage, comparisonThreshold);
-        } catch (AssertionError ae) {
-            throw new AssertionError(
-                    "Comparison failed for actual = %s and expected = %s".formatted(
-                            actualVector, expectedVector
-                    ), ae
-            );
-        }
-    }
-
     public static void assertIsCloseTo(double[] actualVector, double[] expectedVector, Percentage percentage) {
         assertIsCloseTo(actualVector, expectedVector, percentage, COMPARISON_THRESHOLD);
     }

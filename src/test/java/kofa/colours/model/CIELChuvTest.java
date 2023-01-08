@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static java.lang.Math.PI;
 import static java.lang.Math.toRadians;
 import static kofa.NumericAssertions.*;
+import static kofa.Vector3Assert.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CIELChuvTest {
@@ -13,7 +14,8 @@ class CIELChuvTest {
 
     @Test
     void white() {
-        assertIsCloseTo(new CIELCh_uv(100, 0, 0).toLuv().toXyz().usingD65_2DEGREE_STANDARD_OBSERVER(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
+        assertThat(new CIELCh_uv(100, 0, 0).toLuv().toXyz().usingD65_2DEGREE_STANDARD_OBSERVER())
+                .isCloseTo(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
     }
 
     @Test
@@ -25,11 +27,7 @@ class CIELChuvTest {
 
     @Test
     void toLuv() {
-        assertIsCloseTo(
-                lch.toLuv(),
-                new CIELUV(32.90281, 12.9804, -67.75974),
-                PRECISE
-        );
+        assertThat(lch.toLuv()).isCloseTo(new CIELUV(32.90281, 12.9804, -67.75974), PRECISE);
     }
 
     @Test

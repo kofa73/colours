@@ -14,49 +14,49 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 class OkLABTest {
     @Test
     void white_labToXyz() {
-        assertIsCloseTo(new OkLAB(1, 0, 0).toXyz().usingOriginalMatrix(), CIEXYZ.D65_WHITE_ASTM_E308_01, PRECISE);
+        assertThat(new OkLAB(1, 0, 0).toXyz().usingOriginalMatrix()).isCloseTo(CIEXYZ.D65_WHITE_ASTM_E308_01, PRECISE);
     }
 
     @Test
     void white_xyzToLab() {
-        assertIsCloseTo(OkLAB.from(CIEXYZ.D65_WHITE_ASTM_E308_01).usingD65_ASTM_E308_01(), new OkLAB(1, 0, 0), PRECISE, 1E-4);
+        assertThat(OkLAB.from(CIEXYZ.D65_WHITE_ASTM_E308_01).usingD65_ASTM_E308_01()).isCloseTo(new OkLAB(1, 0, 0), PRECISE, 1E-4);
     }
 
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void xyzToLabToXyz(CIEXYZ xyz, OkLAB ignored) {
-        assertIsCloseTo(OkLAB.from(xyz).usingOriginalMatrix().toXyz().usingOriginalMatrix(), xyz, EXACT, 1E-7);
+        assertThat(OkLAB.from(xyz).usingOriginalMatrix().toXyz().usingOriginalMatrix()).isCloseTo(xyz, EXACT, 1E-7);
     }
 
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void labToXyzToLab(CIEXYZ ignored, OkLAB lab) {
-        assertIsCloseTo(OkLAB.from(lab.toXyz().usingOriginalMatrix()).usingOriginalMatrix(), lab, EXACT, 1E-7);
+        assertThat(OkLAB.from(lab.toXyz().usingOriginalMatrix()).usingOriginalMatrix()).isCloseTo(lab, EXACT, 1E-7);
     }
 
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void fromXyz_rounded(CIEXYZ xyz, OkLAB expectedOkLab) {
-        assertIsCloseTo(roundToThreeDecimals(OkLAB.from(xyz).usingOriginalMatrix()), expectedOkLab, EXACT);
+        assertThat(roundToThreeDecimals(OkLAB.from(xyz).usingOriginalMatrix())).isCloseTo(expectedOkLab, EXACT);
     }
 
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void toXyz_rounded(CIEXYZ expectedXyz, OkLAB okLab) {
-        assertIsCloseTo(okLab.toXyz().usingOriginalMatrix(), expectedXyz, LENIENT, 0.005);
-        assertIsCloseTo(roundToThreeDecimals(okLab.toXyz().usingOriginalMatrix()), expectedXyz, ROUGH, 0.005);
+        assertThat(okLab.toXyz().usingOriginalMatrix()).isCloseTo(expectedXyz, LENIENT, 0.005);
+        assertThat(roundToThreeDecimals(okLab.toXyz().usingOriginalMatrix())).isCloseTo(expectedXyz, ROUGH, 0.005);
     }
 
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void fromXyz(CIEXYZ xyz, OkLAB expectedOkLab) {
-        assertIsCloseTo(OkLAB.from(xyz).usingOriginalMatrix(), expectedOkLab, ROUGH, 3E-4);
+        assertThat(OkLAB.from(xyz).usingOriginalMatrix()).isCloseTo(expectedOkLab, ROUGH, 3E-4);
     }
 
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void toXyz(CIEXYZ expectedXyz, OkLAB okLab) {
-        assertIsCloseTo(okLab.toXyz().usingOriginalMatrix(), expectedXyz, LENIENT, 1E-3);
+        assertThat(okLab.toXyz().usingOriginalMatrix()).isCloseTo(expectedXyz, LENIENT, 1E-3);
     }
 
     // https://bottosson.github.io/posts/oklab/#table-of-example-xyz-and-oklab-pairs
@@ -101,10 +101,10 @@ class OkLABTest {
     @Test
     void whitesFromXyzToLab() {
         var white = new OkLAB(1, 0, 0);
-        assertIsCloseTo(OkLAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER(), white, EXACT);
-        assertIsCloseTo(OkLAB.from(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER).usingD65_10DEGREE_SUPPLEMENTARY_OBSERVER(), white, EXACT);
-        assertIsCloseTo(OkLAB.from(CIEXYZ.D65_WHITE_IEC_61966_2_1).usingD65_IEC_61966_2_1(), white, EXACT);
-        assertIsCloseTo(OkLAB.from(CIEXYZ.D65_WHITE_ASTM_E308_01).usingD65_ASTM_E308_01(), white, EXACT);
+        assertThat(OkLAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER()).isCloseTo(white, EXACT);
+        assertThat(OkLAB.from(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER).usingD65_10DEGREE_SUPPLEMENTARY_OBSERVER()).isCloseTo(white, EXACT);
+        assertThat(OkLAB.from(CIEXYZ.D65_WHITE_IEC_61966_2_1).usingD65_IEC_61966_2_1()).isCloseTo(white, EXACT);
+        assertThat(OkLAB.from(CIEXYZ.D65_WHITE_ASTM_E308_01).usingD65_ASTM_E308_01()).isCloseTo(white, EXACT);
     }
 
     // not a real test, just documentation
@@ -127,6 +127,6 @@ class OkLABTest {
         UV whiteUV = UV.from(whiteXYZ);
         assertIsCloseTo(new double[]{whiteUV.u(), whiteUV.v()}, new double[]{0.19785619311384714, 0.4683750429349658}, EXACT);
 
-        assertIsCloseTo(Srgb.from(OkLAB.WHITE.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER()), Srgb.WHITE, EXACT);
+        assertThat(Srgb.from(OkLAB.WHITE.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER())).isCloseTo(Srgb.WHITE, EXACT);
     }
 }

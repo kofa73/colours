@@ -3,33 +3,37 @@ package kofa.colours.model;
 import org.junit.jupiter.api.Test;
 
 import static kofa.NumericAssertions.EXACT;
-import static kofa.NumericAssertions.assertIsCloseTo;
+import static kofa.Vector3Assert.assertThat;
 
 class CIExyYTest {
     @Test
     void white_toXyz() {
-        assertIsCloseTo(new CIExyY(0.31271, 0.32902, 1).toXyz(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
+        assertThat(new CIExyY(0.31271, 0.32902, 1).toXyz())
+                .isCloseTo(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
     }
 
     @Test
     void white_fromXyz() {
-        assertIsCloseTo(CIExyY.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER), new CIExyY(0.31271, 0.32902, 1), EXACT);
+        assertThat(CIExyY.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER))
+                .isCloseTo(new CIExyY(0.31271, 0.32902, 1), EXACT);
     }
 
     @Test
     void black_toXyz() {
-        assertIsCloseTo(new CIExyY(0.31271, 0.32902, 0).toXyz(), new CIEXYZ(0, 0, 0), EXACT);
+        assertThat(new CIExyY(0.31271, 0.32902, 0).toXyz())
+                .isCloseTo(new CIEXYZ(0, 0, 0), EXACT);
     }
 
     @Test
     void black_fromXyz() {
-        assertIsCloseTo(CIExyY.from(new CIEXYZ(0, 0, 0)), new CIExyY(0.31271, 0.32902, 0), EXACT);
+        assertThat(CIExyY.from(new CIEXYZ(0, 0, 0)))
+                .isCloseTo(new CIExyY(0.31271, 0.32902, 0), EXACT);
     }
 
     @Test
     void truncatedValuesAreUsedBy_D65_WHITE_IEC_61966_2_1() {
         // https://en.wikipedia.org/wiki/Illuminant_D65#Definition
-        assertIsCloseTo(new CIExyY(0.3127, 0.329, 1).toXyz(), CIEXYZ.D65_WHITE_IEC_61966_2_1, EXACT);
-        assertIsCloseTo(CIExyY.from(CIEXYZ.D65_WHITE_IEC_61966_2_1), new CIExyY(0.3127, 0.329, 1), EXACT);
+        assertThat(new CIExyY(0.3127, 0.329, 1).toXyz()).isCloseTo(CIEXYZ.D65_WHITE_IEC_61966_2_1, EXACT);
+        assertThat(CIExyY.from(CIEXYZ.D65_WHITE_IEC_61966_2_1)).isCloseTo(new CIExyY(0.3127, 0.329, 1), EXACT);
     }
 }

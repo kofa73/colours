@@ -3,7 +3,8 @@ package kofa.colours.model;
 import org.junit.jupiter.api.Test;
 
 import static java.lang.Math.toRadians;
-import static kofa.NumericAssertions.*;
+import static kofa.NumericAssertions.EXACT;
+import static kofa.NumericAssertions.ROUGH;
 import static kofa.Vector3Assert.assertThat;
 import static kofa.colours.model.Rec2020.applyInverseOetf;
 
@@ -65,13 +66,13 @@ class ConverterTest {
         CIELCh_uv LCH_from_Luv = luvFromXyz.toLch();
 
         CIELUV Luv_from_LCH = LCH_from_Luv.toLuv();
-        assertIsCloseTo(Luv_from_LCH, luvFromXyz, EXACT);
+        assertThat(Luv_from_LCH).isCloseTo(luvFromXyz, EXACT);
 
         CIEXYZ Xyz_from_Luv = Luv_from_LCH.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER();
-        assertIsCloseTo(Xyz_from_Luv, XYZ_from_RGB, EXACT);
+        assertThat(Xyz_from_Luv).isCloseTo(XYZ_from_RGB, EXACT);
 
         var sRGB_from_XYZ = Srgb.from(Xyz_from_Luv);
-        assertIsCloseTo(sRGB_from_XYZ, original_sRGB, EXACT);
+        assertThat(sRGB_from_XYZ).isCloseTo(original_sRGB, EXACT);
     }
 
     @Test
