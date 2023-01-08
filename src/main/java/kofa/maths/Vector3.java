@@ -1,5 +1,6 @@
 package kofa.maths;
 
+import java.util.Objects;
 import java.util.function.DoublePredicate;
 import java.util.stream.DoubleStream;
 
@@ -27,5 +28,18 @@ public abstract class Vector3 {
 
     public String toString() {
         return "%s(%.8f, %.8f, %.8f)".formatted(this.getClass().getSimpleName(), coordinate1, coordinate2, coordinate3);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Vector3 vector3 = (Vector3) o;
+        return Double.compare(vector3.coordinate1, coordinate1) == 0 && Double.compare(vector3.coordinate2, coordinate2) == 0 && Double.compare(vector3.coordinate3, coordinate3) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(coordinate1, coordinate2, coordinate3);
     }
 }

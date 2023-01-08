@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 import static kofa.NumericAssertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class OkLABTest {
@@ -86,6 +87,24 @@ class OkLABTest {
 
     private double roundToThreeDecimals(double d) {
         return Math.round(d * 1000) / 1000.0;
+    }
+
+    @Test
+    void whitesFromLabToXyz() {
+        var white = new OkLAB(1, 0, 0);
+        assertThat(white.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER()).isEqualTo(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
+        assertThat(white.toXyz().usingD65_10DEGREE_SUPPLEMENTARY_OBSERVER()).isEqualTo(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER);
+        assertThat(white.toXyz().usingD65_IEC_61966_2_1()).isEqualTo(CIEXYZ.D65_WHITE_IEC_61966_2_1);
+        assertThat(white.toXyz().usingD65_ASTM_E308_01()).isEqualTo(CIEXYZ.D65_WHITE_ASTM_E308_01);
+    }
+
+    @Test
+    void whitesFromXyzToLab() {
+        var white = new OkLAB(1, 0, 0);
+        assertIsCloseTo(OkLAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER(), white, EXACT);
+        assertIsCloseTo(OkLAB.from(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER).usingD65_10DEGREE_SUPPLEMENTARY_OBSERVER(), white, EXACT);
+        assertIsCloseTo(OkLAB.from(CIEXYZ.D65_WHITE_IEC_61966_2_1).usingD65_IEC_61966_2_1(), white, EXACT);
+        assertIsCloseTo(OkLAB.from(CIEXYZ.D65_WHITE_ASTM_E308_01).usingD65_ASTM_E308_01(), white, EXACT);
     }
 
     // not a real test, just documentation
