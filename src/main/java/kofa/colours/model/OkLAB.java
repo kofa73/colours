@@ -18,7 +18,7 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     public static final double WHITE_L_THRESHOLD = WHITE_L - BLACK_L_THRESHOLD;
     public static final OkLAB WHITE = new OkLAB(WHITE_L, 0, 0);
 
-    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS = new SpaceConversionMatrix<>(
+    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_ORIGINAL = new SpaceConversionMatrix<>(
             LMS::new,
             new double[][]{
                     {+0.8189330101, +0.3618667424, -0.1288597137},
@@ -27,7 +27,18 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
             }
     );
 
-    private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ = XYZ_TO_LMS.invert(CIEXYZ::new);
+    private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_ORIGINAL = XYZ_TO_LMS_ORIGINAL.invert(CIEXYZ::new);
+
+    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_WHITE_ASTM_E308_01 = new SpaceConversionMatrix<>(
+            LMS::new,
+            new double[][]{
+                    {0.8189509622312074, 0.3619239498645853, -0.1288651815112738},
+                    {0.0329912500697916, 0.9292746987980047, 0.03615636453206032},
+                    {0.04818496599039293, 0.26427789499842835, 0.6336378538375353}
+            }
+    );
+
+    private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_D65_WHITE_ASTM_E308_01 = XYZ_TO_LMS_D65_WHITE_ASTM_E308_01.invert(CIEXYZ::new);
 
     private static final SpaceConversionMatrix<LMSPrime, OkLAB> LMS_PRIME_TO_LAB = new SpaceConversionMatrix<>(
             OkLAB::new,
@@ -44,19 +55,14 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
         super(L, a, b, OkLCh::new);
     }
 
-    public static OkLAB from(CIEXYZ xyz) {
-//        if (xyz.isBlack()) {
-//            return BLACK;
-//        }
-        LMS lms = XYZ_TO_LMS.multiply(xyz);
-        LMSPrime lmsPrime = LMSPrime.from(lms);
-        return LMS_PRIME_TO_LAB.multiply(lmsPrime);
+    public static XyzLabConverter from(CIEXYZ xyz) {
+        return new XyzLabConverter(xyz);
     }
 
-    public CIEXYZ toXyz() {
+    public LabXyzConverter toXyz() {
         LMSPrime lmsPrime = LAB_TO_LMS_PRIME.multiply(this);
         LMS lms = lmsPrime.toLms();
-        return LMS_TO_XYZ.multiply(lms);
+        return new LabXyzConverter(lms);
     }
 
     public boolean isBlack() {
@@ -65,6 +71,44 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
 
     public boolean isWhite() {
         return L() >= WHITE_L_THRESHOLD;
+    }
+
+    public static class LabXyzConverter {
+        private final LMS lms;
+
+        private LabXyzConverter(LMS lms) {
+            this.lms = lms;
+        }
+
+        public CIEXYZ usingOriginalMatrix() {
+            return LMS_TO_XYZ_ORIGINAL.multiply(lms);
+        }
+
+        public CIEXYZ usingAstmMatrix() {
+            return LMS_TO_XYZ_D65_WHITE_ASTM_E308_01.multiply(lms);
+        }
+    }
+
+    public static class XyzLabConverter {
+        private final CIEXYZ xyz;
+
+        private XyzLabConverter(CIEXYZ xyz) {
+            this.xyz = xyz;
+        }
+
+        public OkLAB usingOriginalMatrix() {
+            return toXyz(XYZ_TO_LMS_ORIGINAL);
+        }
+
+        public OkLAB usingAstmMatrix() {
+            return toXyz(XYZ_TO_LMS_D65_WHITE_ASTM_E308_01);
+        }
+
+        private OkLAB toXyz(SpaceConversionMatrix<CIEXYZ, LMS> xyzToLmsMatrix) {
+            LMS lms = xyzToLmsMatrix.multiply(xyz);
+            LMSPrime lmsPrime = LMSPrime.from(lms);
+            return LMS_PRIME_TO_LAB.multiply(lmsPrime);
+        }
     }
 
     private static class LMSPrime extends Vector3 {

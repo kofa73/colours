@@ -13,49 +13,49 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 class OkLABTest {
     @Test
     void white_labToXyz() {
-        assertIsCloseTo(new OkLAB(1, 0, 0).toXyz(), CIEXYZ.D65_WHITE_ASTM_E308_01, PRECISE);
+        assertIsCloseTo(new OkLAB(1, 0, 0).toXyz().usingOriginalMatrix(), CIEXYZ.D65_WHITE_ASTM_E308_01, PRECISE);
     }
 
     @Test
     void white_xyzToLab() {
-        assertIsCloseTo(OkLAB.from(CIEXYZ.D65_WHITE_ASTM_E308_01), new OkLAB(1, 0, 0), PRECISE, 1E-4);
+        assertIsCloseTo(OkLAB.from(CIEXYZ.D65_WHITE_ASTM_E308_01).usingAstmMatrix(), new OkLAB(1, 0, 0), PRECISE, 1E-4);
     }
 
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void xyzToLabToXyz(CIEXYZ xyz, OkLAB ignored) {
-        assertIsCloseTo(OkLAB.from(xyz).toXyz(), xyz, EXACT, 1E-7);
+        assertIsCloseTo(OkLAB.from(xyz).usingOriginalMatrix().toXyz().usingOriginalMatrix(), xyz, EXACT, 1E-7);
     }
 
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void labToXyzToLab(CIEXYZ ignored, OkLAB lab) {
-        assertIsCloseTo(OkLAB.from(lab.toXyz()), lab, EXACT, 1E-7);
+        assertIsCloseTo(OkLAB.from(lab.toXyz().usingOriginalMatrix()).usingOriginalMatrix(), lab, EXACT, 1E-7);
     }
 
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void fromXyz_rounded(CIEXYZ xyz, OkLAB expectedOkLab) {
-        assertIsCloseTo(roundToThreeDecimals(OkLAB.from(xyz)), expectedOkLab, EXACT);
+        assertIsCloseTo(roundToThreeDecimals(OkLAB.from(xyz).usingOriginalMatrix()), expectedOkLab, EXACT);
     }
 
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void toXyz_rounded(CIEXYZ expectedXyz, OkLAB okLab) {
-        assertIsCloseTo(okLab.toXyz(), expectedXyz, LENIENT, 0.005);
-        assertIsCloseTo(roundToThreeDecimals(okLab.toXyz()), expectedXyz, ROUGH, 0.005);
+        assertIsCloseTo(okLab.toXyz().usingOriginalMatrix(), expectedXyz, LENIENT, 0.005);
+        assertIsCloseTo(roundToThreeDecimals(okLab.toXyz().usingOriginalMatrix()), expectedXyz, ROUGH, 0.005);
     }
 
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void fromXyz(CIEXYZ xyz, OkLAB expectedOkLab) {
-        assertIsCloseTo(OkLAB.from(xyz), expectedOkLab, ROUGH, 3E-4);
+        assertIsCloseTo(OkLAB.from(xyz).usingOriginalMatrix(), expectedOkLab, ROUGH, 3E-4);
     }
 
     @ParameterizedTest
     @MethodSource("xyzAndLab")
     void toXyz(CIEXYZ expectedXyz, OkLAB okLab) {
-        assertIsCloseTo(okLab.toXyz(), expectedXyz, LENIENT, 1E-3);
+        assertIsCloseTo(okLab.toXyz().usingOriginalMatrix(), expectedXyz, LENIENT, 1E-3);
     }
 
     // https://bottosson.github.io/posts/oklab/#table-of-example-xyz-and-oklab-pairs
@@ -91,7 +91,7 @@ class OkLABTest {
     // not a real test, just documentation
     @Test
     void okLabWhitePoint() {
-        CIEXYZ whiteXYZ = OkLAB.WHITE.toXyz();
+        CIEXYZ whiteXYZ = OkLAB.WHITE.toXyz().usingOriginalMatrix();
         // This is close to D65_WHITE_ASTM_E308_01 =
         //                        new CIEXYZ(0.95047,    1,          1.08883);
         // but with Z ~= 1.0883 instead of 1.08883

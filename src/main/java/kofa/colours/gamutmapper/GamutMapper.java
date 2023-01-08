@@ -72,11 +72,11 @@ public abstract class GamutMapper {
         var xyzIn = rec2020.toXyz();
         var cieLabIn = CIELAB.from(xyzIn).usingD65_2DegreeStandardObserver();
         var cieLuvIn = CIELUV.from(xyzIn).usingD65_2DegreeStandardObserver();
-        var okLabIn = OkLAB.from(xyzIn);
+        var okLabIn = OkLAB.from(xyzIn).usingOriginalMatrix();
         var xyzOut = mappedPixel.toXyz();
         var cieLabOut = CIELAB.from(xyzOut).usingD65_2DegreeStandardObserver();
         var cieLuvOut = CIELUV.from(xyzOut).usingD65_2DegreeStandardObserver();
-        var okLabOut = OkLAB.from(xyzOut);
+        var okLabOut = OkLAB.from(xyzOut).usingOriginalMatrix();
         return new RuntimeException(
                 (
                         "out of gamut at [%d, %d]:%n" +
