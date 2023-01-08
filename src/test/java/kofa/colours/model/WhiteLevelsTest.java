@@ -11,8 +11,8 @@ public class WhiteLevelsTest {
     @Test
     void whiteFromCIEXYZ() {
         var ciexyY = CIExyY.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
-        var cieLAB = CIELAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DegreeStandardObserver();
-        var cieLUV = CIELUV.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DegreeStandardObserver();
+        var cieLAB = CIELAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER();
+        var cieLUV = CIELUV.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER();
         var okLAB = OkLAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingOriginalMatrix();
         var sRgb = Srgb.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
         var rec2020 = Rec2020.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
@@ -30,8 +30,8 @@ public class WhiteLevelsTest {
     @Test
     void whiteFromCIExyY() {
         var cieXYZ = CIExyY.D65_WHITE_2DEGREE_STANDARD_OBSERVER.toXyz();
-        var cieLAB = CIELAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DegreeStandardObserver();
-        var cieLUV = CIELUV.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DegreeStandardObserver();
+        var cieLAB = CIELAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER();
+        var cieLUV = CIELUV.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER();
         var okLAB = OkLAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingOriginalMatrix();
         var sRgb = Srgb.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
         var rec2020 = Rec2020.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
@@ -48,9 +48,9 @@ public class WhiteLevelsTest {
 
     @Test
     void whiteFromCIELAB() {
-        var cieXYZ = CIELAB.WHITE.toXyz().usingD65_2DegreeStandardObserver();
+        var cieXYZ = CIELAB.WHITE.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER();
         var ciexyY = CIExyY.from(cieXYZ);
-        var cieLUV = CIELUV.from(cieXYZ).usingD65_2DegreeStandardObserver();
+        var cieLUV = CIELUV.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
         var okLAB = OkLAB.from(cieXYZ).usingOriginalMatrix();
         var sRgb = Srgb.from(cieXYZ);
         var rec2020 = Rec2020.from(cieXYZ);
@@ -67,9 +67,9 @@ public class WhiteLevelsTest {
 
     @Test
     void whiteFromCIELUV() {
-        var cieXYZ = CIELUV.WHITE.toXyz().usingD65_2DegreeStandardObserver();
+        var cieXYZ = CIELUV.WHITE.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER();
         var ciexyY = CIExyY.from(cieXYZ);
-        var cieLAB = CIELAB.from(cieXYZ).usingD65_2DegreeStandardObserver();
+        var cieLAB = CIELAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
         var okLAB = OkLAB.from(cieXYZ).usingOriginalMatrix();
         var sRgb = Srgb.from(cieXYZ);
         var rec2020 = Rec2020.from(cieXYZ);
@@ -88,8 +88,8 @@ public class WhiteLevelsTest {
     void whiteFromOkLAB() {
         var cieXYZ = OkLAB.WHITE.toXyz().usingOriginalMatrix();
         var ciexyY = CIExyY.from(cieXYZ);
-        var cieLAB = CIELAB.from(cieXYZ).usingD65_2DegreeStandardObserver();
-        var cieLUV = CIELUV.from(cieXYZ).usingD65_2DegreeStandardObserver();
+        var cieLAB = CIELAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
+        var cieLUV = CIELUV.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
         var sRgb = OkLAB.WHITE.toSrgb();
         var rec2020 = Rec2020.from(cieXYZ);
         lenientlyAssertAllWhite(
@@ -107,8 +107,8 @@ public class WhiteLevelsTest {
     void whiteFromSrgb() {
         var cieXYZ = Srgb.WHITE.toXyz();
         var ciexyY = CIExyY.from(cieXYZ);
-        var cieLAB = CIELAB.from(cieXYZ).usingD65_2DegreeStandardObserver();
-        var cieLUV = CIELUV.from(cieXYZ).usingD65_2DegreeStandardObserver();
+        var cieLAB = CIELAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
+        var cieLUV = CIELUV.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
         var okLab = OkLAB.from(Srgb.WHITE);
         var rec2020 = Srgb.WHITE.toRec2020();
         assertAllWhite(
@@ -126,8 +126,8 @@ public class WhiteLevelsTest {
     void whiteFromRec2020() {
         var cieXYZ = Rec2020.WHITE.toXyz();
         var ciexyY = CIExyY.from(cieXYZ);
-        var cieLAB = CIELAB.from(cieXYZ).usingD65_2DegreeStandardObserver();
-        var cieLUV = CIELUV.from(cieXYZ).usingD65_2DegreeStandardObserver();
+        var cieLAB = CIELAB.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
+        var cieLUV = CIELUV.from(cieXYZ).usingD65_2DEGREE_STANDARD_OBSERVER();
         var okLab = OkLAB.from(cieXYZ).usingOriginalMatrix();
         var sRgb = Rec2020.WHITE.toSRGB();
         assertAllWhite(

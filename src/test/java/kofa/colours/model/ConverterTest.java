@@ -66,7 +66,7 @@ class ConverterTest {
         CIELUV Luv_from_LCH = LCH_from_Luv.toLuv();
         assertIsCloseTo(Luv_from_LCH, luvFromXyz, EXACT);
 
-        CIEXYZ Xyz_from_Luv = Luv_from_LCH.toXyz().usingD65_2DegreeStandardObserver();
+        CIEXYZ Xyz_from_Luv = Luv_from_LCH.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER();
         assertIsCloseTo(Xyz_from_Luv, XYZ_from_RGB, EXACT);
 
         var sRGB_from_XYZ = Srgb.from(Xyz_from_Luv);
@@ -78,7 +78,7 @@ class ConverterTest {
         var originalSrgb = new Srgb(1, 1, 1);
         var xyzFromSrgb = originalSrgb.toXyz();
 
-        var luvFromXyzD65 = CIELUV.from(xyzFromSrgb).usingD65_2DegreeStandardObserver();
+        var luvFromXyzD65 = CIELUV.from(xyzFromSrgb).usingD65_2DEGREE_STANDARD_OBSERVER();
         CIELUV luvFromXyz = CIELUV.from(xyzFromSrgb).usingWhitePoint(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
         assertIsCloseTo(luvFromXyzD65, luvFromXyz, EXACT);
 
@@ -87,7 +87,7 @@ class ConverterTest {
         var luvFromLch = lchFromLuv.toLuv();
         assertIsCloseTo(luvFromLch, luvFromXyzD65, EXACT);
 
-        var xyzFromLuvD65 = luvFromLch.toXyz().usingD65_2DegreeStandardObserver();
+        var xyzFromLuvD65 = luvFromLch.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER();
         assertIsCloseTo(xyzFromLuvD65, xyzFromSrgb, EXACT);
         var xyzFromLuv = luvFromLch.toXyz().usingWhitePoint(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
         assertIsCloseTo(xyzFromLuvD65, xyzFromLuv, EXACT);

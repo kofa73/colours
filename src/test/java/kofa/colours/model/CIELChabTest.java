@@ -13,7 +13,7 @@ class CIELChabTest {
 
     @Test
     void white() {
-        assertIsCloseTo(new CIELCh_ab(100, 0, 0).toLab().toXyz().usingD65_2DegreeStandardObserver(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
+        assertIsCloseTo(new CIELCh_ab(100, 0, 0).toLab().toXyz().usingD65_2DEGREE_STANDARD_OBSERVER(), CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
     }
 
     @Test

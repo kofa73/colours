@@ -16,16 +16,16 @@ record ToneMappingParams<S>(
 
     static final ToneMappingParams<CIELAB> FOR_CIELAB = new ToneMappingParams<>(
             CIELCh_ab.WHITE_L,
-            rec2020 -> CIELAB.from(rec2020.toXyz()).usingD65_2DegreeStandardObserver(),
-            cieLab -> Rec2020.from(cieLab.toXyz().usingD65_2DegreeStandardObserver()),
+            rec2020 -> CIELAB.from(rec2020.toXyz()).usingD65_2DEGREE_STANDARD_OBSERVER(),
+            cieLab -> Rec2020.from(cieLab.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER()),
             (cieLab, mappedL) -> new CIELAB(mappedL, cieLab.a(), cieLab.b()),
             CIELAB::L
     );
 
     static final ToneMappingParams<CIELUV> FOR_CIELUV = new ToneMappingParams<>(
             CIELCh_uv.WHITE_L,
-            rec2020 -> CIELUV.from(rec2020.toXyz()).usingD65_2DegreeStandardObserver(),
-            cieLuv -> Rec2020.from(cieLuv.toXyz().usingD65_2DegreeStandardObserver()),
+            rec2020 -> CIELUV.from(rec2020.toXyz()).usingD65_2DEGREE_STANDARD_OBSERVER(),
+            cieLuv -> Rec2020.from(cieLuv.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER()),
             (cieLuv, mappedL) -> new CIELUV(mappedL, cieLuv.u(), cieLuv.v()),
             CIELUV::L
     );

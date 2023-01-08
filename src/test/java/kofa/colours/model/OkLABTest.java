@@ -18,7 +18,7 @@ class OkLABTest {
 
     @Test
     void white_xyzToLab() {
-        assertIsCloseTo(OkLAB.from(CIEXYZ.D65_WHITE_ASTM_E308_01).usingAstmMatrix(), new OkLAB(1, 0, 0), PRECISE, 1E-4);
+        assertIsCloseTo(OkLAB.from(CIEXYZ.D65_WHITE_ASTM_E308_01).usingD65_ASTM_E308_01(), new OkLAB(1, 0, 0), PRECISE, 1E-4);
     }
 
     @ParameterizedTest

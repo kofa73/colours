@@ -18,27 +18,69 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     public static final double WHITE_L_THRESHOLD = WHITE_L - BLACK_L_THRESHOLD;
     public static final OkLAB WHITE = new OkLAB(WHITE_L, 0, 0);
 
-    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_ORIGINAL = new SpaceConversionMatrix<>(
-            LMS::new,
-            new double[][]{
-                    {+0.8189330101, +0.3618667424, -0.1288597137},
-                    {+0.0329845436, +0.9293118715, +0.0361456387},
-                    {+0.0482003018, +0.2643662691, +0.6338517070}
-            }
-    );
+    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_ORIGINAL =
+            new SpaceConversionMatrix<>(
+                    LMS::new,
+                    new double[][]{
+                            {+0.8189330101, +0.3618667424, -0.1288597137},
+                            {+0.0329845436, +0.9293118715, +0.0361456387},
+                            {+0.0482003018, +0.2643662691, +0.6338517070}
+                    }
+            );
 
-    private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_ORIGINAL = XYZ_TO_LMS_ORIGINAL.invert(CIEXYZ::new);
+    private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_ORIGINAL =
+            XYZ_TO_LMS_ORIGINAL.invert(CIEXYZ::new);
 
-    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_WHITE_ASTM_E308_01 = new SpaceConversionMatrix<>(
-            LMS::new,
-            new double[][]{
-                    {0.8189509622312074, 0.3619239498645853, -0.1288651815112738},
-                    {0.0329912500697916, 0.9292746987980047, 0.03615636453206032},
-                    {0.04818496599039293, 0.26427789499842835, 0.6336378538375353}
-            }
-    );
+    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_IEC_61966_2_1 =
+            new SpaceConversionMatrix<>(
+                    LMS::new,
+                    new double[][]{
+                            {0.818967383714981, 0.3619492664312499, -0.12886520149725447},
+                            {0.03299352333036043, 0.9292592106075834, 0.03616146647732637},
+                            {0.04817785658521273, 0.2642390482831809, 0.6335478132503992}
+                    }
+            );
 
-    private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_D65_WHITE_ASTM_E308_01 = XYZ_TO_LMS_D65_WHITE_ASTM_E308_01.invert(CIEXYZ::new);
+    private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_D65_IEC_61966_2_1 =
+            XYZ_TO_LMS_D65_IEC_61966_2_1.invert(CIEXYZ::new);
+
+    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_ASTM_E308_01 =
+            new SpaceConversionMatrix<>(
+                    LMS::new,
+                    new double[][]{
+                            {0.8189509622312074, 0.3619239498645853, -0.1288651815112738},
+                            {0.0329912500697916, 0.9292746987980047, 0.03615636453206032},
+                            {0.04818496599039293, 0.26427789499842835, 0.6336378538375353}
+                    }
+            );
+
+    private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_D65_ASTM_E308_01 = XYZ_TO_LMS_D65_ASTM_E308_01.invert(CIEXYZ::new);
+
+    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_2DEGREE_STANDARD_OBSERVER =
+            new SpaceConversionMatrix<>(
+                    LMS::new,
+                    new double[][]{
+                            {0.8189761623397687, 0.3619321156970304, -0.12885517057340956},
+                            {0.03299330404204958, 0.9292685035507454, 0.03615918056654339},
+                            {0.04818259693608417, 0.2642683151174946, 0.6336096045918206}
+                    }
+            );
+
+    private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_D65_2DEGREE_STANDARD_OBSERVER =
+            XYZ_TO_LMS_D65_2DEGREE_STANDARD_OBSERVER.invert(CIEXYZ::new);
+
+    private static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_10DEGREE_SUPPLEMENTARY_OBSERVER =
+            new SpaceConversionMatrix<>(
+                    LMS::new,
+                    new double[][]{
+                            {0.8197842415296197, 0.36088871802835165, -0.12872024855803574},
+                            {0.0327208042008903, 0.9304891853249381, 0.03586813926096813},
+                            {0.048664577663383925, 0.2669141563783153, 0.6401811778989841}
+                    }
+            );
+
+    private static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_D65_10DEGREE_SUPPLEMENTARY_OBSERVER =
+            XYZ_TO_LMS_D65_10DEGREE_SUPPLEMENTARY_OBSERVER.invert(CIEXYZ::new);
 
     private static final SpaceConversionMatrix<LMSPrime, OkLAB> LMS_PRIME_TO_LAB = new SpaceConversionMatrix<>(
             OkLAB::new,
@@ -73,7 +115,7 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
         return L() >= WHITE_L_THRESHOLD;
     }
 
-    public static class LabXyzConverter {
+    public static class LabXyzConverter implements WhitePointAwareConverter<CIEXYZ> {
         private final LMS lms;
 
         private LabXyzConverter(LMS lms) {
@@ -84,12 +126,28 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
             return LMS_TO_XYZ_ORIGINAL.multiply(lms);
         }
 
-        public CIEXYZ usingAstmMatrix() {
-            return LMS_TO_XYZ_D65_WHITE_ASTM_E308_01.multiply(lms);
+        @Override
+        public CIEXYZ usingD65_IEC_61966_2_1() {
+            return LMS_TO_XYZ_D65_IEC_61966_2_1.multiply(lms);
+        }
+
+        @Override
+        public CIEXYZ usingD65_ASTM_E308_01() {
+            return LMS_TO_XYZ_D65_ASTM_E308_01.multiply(lms);
+        }
+
+        @Override
+        public CIEXYZ usingD65_2DEGREE_STANDARD_OBSERVER() {
+            return LMS_TO_XYZ_D65_2DEGREE_STANDARD_OBSERVER.multiply(lms);
+        }
+
+        @Override
+        public CIEXYZ usingD65_10DEGREE_SUPPLEMENTARY_OBSERVER() {
+            return LMS_TO_XYZ_D65_10DEGREE_SUPPLEMENTARY_OBSERVER.multiply(lms);
         }
     }
 
-    public static class XyzLabConverter {
+    public static class XyzLabConverter implements WhitePointAwareConverter<OkLAB> {
         private final CIEXYZ xyz;
 
         private XyzLabConverter(CIEXYZ xyz) {
@@ -97,14 +155,30 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
         }
 
         public OkLAB usingOriginalMatrix() {
-            return toXyz(XYZ_TO_LMS_ORIGINAL);
+            return toLab(XYZ_TO_LMS_ORIGINAL);
         }
 
-        public OkLAB usingAstmMatrix() {
-            return toXyz(XYZ_TO_LMS_D65_WHITE_ASTM_E308_01);
+        @Override
+        public OkLAB usingD65_IEC_61966_2_1() {
+            return toLab(XYZ_TO_LMS_D65_IEC_61966_2_1);
         }
 
-        private OkLAB toXyz(SpaceConversionMatrix<CIEXYZ, LMS> xyzToLmsMatrix) {
+        @Override
+        public OkLAB usingD65_ASTM_E308_01() {
+            return toLab(XYZ_TO_LMS_D65_ASTM_E308_01);
+        }
+
+        @Override
+        public OkLAB usingD65_2DEGREE_STANDARD_OBSERVER() {
+            return toLab(XYZ_TO_LMS_D65_2DEGREE_STANDARD_OBSERVER);
+        }
+
+        @Override
+        public OkLAB usingD65_10DEGREE_SUPPLEMENTARY_OBSERVER() {
+            return toLab(XYZ_TO_LMS_D65_10DEGREE_SUPPLEMENTARY_OBSERVER);
+        }
+
+        private OkLAB toLab(SpaceConversionMatrix<CIEXYZ, LMS> xyzToLmsMatrix) {
             LMS lms = xyzToLmsMatrix.multiply(xyz);
             LMSPrime lmsPrime = LMSPrime.from(lms);
             return LMS_PRIME_TO_LAB.multiply(lmsPrime);
