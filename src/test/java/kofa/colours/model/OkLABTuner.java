@@ -12,6 +12,11 @@ import static kofa.colours.model.ConversionHelper.cubeOf;
 import static org.apache.commons.math3.linear.MatrixUtils.createRealMatrix;
 import static org.apache.commons.math3.linear.MatrixUtils.inverse;
 
+// A brute-force tool that tries to gradually refine the XYZ -> LMS matrix, starting from
+// Björn Ottosson's version.
+// Change the standardWhite in getError to target a specific white point.
+// Experiment with maxRange (values too high will cause the matrix to shift far from Björn's;
+// values too low will take forever to complete).
 class OkLABTuner extends Vector3 {
 
     private final SpaceConversionMatrix<LMS, CIEXYZ> lmsToXyz;
