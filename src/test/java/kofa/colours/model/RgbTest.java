@@ -1,11 +1,12 @@
 package kofa.colours.model;
 
+import kofa.DoubleArrayAssert;
 import org.junit.jupiter.api.Test;
 
 import static kofa.NumericAssertions.PRECISE;
-import static kofa.NumericAssertions.assertIsCloseTo;
 import static kofa.colours.model.Rgb.calculateToXyzMatrix;
 import static org.assertj.core.api.Assertions.assertThat;
+//import static org.assertj.core.api.Assertions.assertThat;
 
 class RgbTest {
     @Test
@@ -19,9 +20,9 @@ class RgbTest {
         );
 
         // values of sRGB to XYZ matrix from http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
-        assertIsCloseTo(sRgbToXyz[0], new double[]{0.4124564, 0.3575761, 0.1804375}, PRECISE);
-        assertIsCloseTo(sRgbToXyz[1], new double[]{0.2126729, 0.7151522, 0.0721750}, PRECISE);
-        assertIsCloseTo(sRgbToXyz[2], new double[]{0.0193339, 0.1191920, 0.9503041}, PRECISE);
+        DoubleArrayAssert.assertThat(sRgbToXyz[0]).isCloseTo(new double[]{0.4124564, 0.3575761, 0.1804375}, PRECISE);
+        DoubleArrayAssert.assertThat(sRgbToXyz[1]).isCloseTo(new double[]{0.2126729, 0.7151522, 0.0721750}, PRECISE);
+        DoubleArrayAssert.assertThat(sRgbToXyz[2]).isCloseTo(new double[]{0.0193339, 0.1191920, 0.9503041}, PRECISE);
     }
 
     @Test

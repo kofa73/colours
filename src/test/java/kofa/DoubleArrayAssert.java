@@ -2,11 +2,11 @@ package kofa;
 
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
-import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.data.Percentage;
 
 import java.util.Arrays;
 
+import static kofa.NumericAssertions.assertIsCloseTo;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 public class DoubleArrayAssert extends AbstractAssert<DoubleArrayAssert, double[]> {
@@ -34,7 +34,7 @@ public class DoubleArrayAssert extends AbstractAssert<DoubleArrayAssert, double[
         try {
             assertSoftly(softly -> {
                         for (int row = 0; row < actual.length; row++) {
-                            isCloseTo(softly, actual[row], expected[row], percentage, comparisonThreshold);
+                            assertIsCloseTo(softly, actual[row], expected[row], percentage, comparisonThreshold);
                         }
                     }
             );
@@ -50,12 +50,6 @@ public class DoubleArrayAssert extends AbstractAssert<DoubleArrayAssert, double[
     private void isCloseTo(double actualValue, double expectedValue, Percentage percentage, double comparisonThreshold) {
         if (Math.abs(actualValue) > comparisonThreshold || Math.abs(expectedValue) > comparisonThreshold) {
             Assertions.assertThat(actualValue).isCloseTo(expectedValue, percentage);
-        }
-    }
-
-    private void isCloseTo(SoftAssertions softly, double actualValue, double expectedValue, Percentage percentage, double comparisonThreshold) {
-        if (Math.abs(actualValue) > comparisonThreshold || Math.abs(expectedValue) > comparisonThreshold) {
-            softly.assertThat(actualValue).isCloseTo(expectedValue, percentage);
         }
     }
 }

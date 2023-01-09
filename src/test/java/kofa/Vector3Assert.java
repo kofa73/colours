@@ -2,9 +2,9 @@ package kofa;
 
 import kofa.maths.Vector3;
 import org.assertj.core.api.AbstractAssert;
-import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.data.Percentage;
 
+import static kofa.NumericAssertions.assertIsCloseTo;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 public class Vector3Assert<V extends Vector3> extends AbstractAssert<Vector3Assert<V>, V> {
@@ -50,15 +50,9 @@ public class Vector3Assert<V extends Vector3> extends AbstractAssert<Vector3Asse
         double[] actualDoubles = actual.coordinates().toArray();
         double[] expectedDoubles = expectedVector.coordinates().toArray();
         assertSoftly(softly -> {
-            assertIsCloseTo(softly, actualDoubles[0], expectedDoubles[0], percentage0, COMPARISON_THRESHOLD);
-            assertIsCloseTo(softly, actualDoubles[1], expectedDoubles[1], percentage1, COMPARISON_THRESHOLD);
-            assertIsCloseTo(softly, actualDoubles[2], expectedDoubles[2], percentage2, COMPARISON_THRESHOLD);
+            assertIsCloseTo(softly, actualDoubles[0], expectedDoubles[0], percentage0);
+            assertIsCloseTo(softly, actualDoubles[1], expectedDoubles[1], percentage1);
+            assertIsCloseTo(softly, actualDoubles[2], expectedDoubles[2], percentage2);
         });
-    }
-
-    private static void assertIsCloseTo(SoftAssertions softly, double actualValue, double expectedValue, Percentage percentage, double comparisonThreshold) {
-        if (Math.abs(actualValue) > comparisonThreshold || Math.abs(expectedValue) > comparisonThreshold) {
-            softly.assertThat(actualValue).isCloseTo(expectedValue, percentage);
-        }
     }
 }

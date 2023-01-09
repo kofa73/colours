@@ -4,6 +4,7 @@ import kofa.maths.SpaceConversionMatrix;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,6 +49,7 @@ public class OkLabTunedMatrixTest {
     }
 
     // not a test, but can be used to print the error as it'd normally be done when running the optimisation
+    @Disabled
     @Test
     void printError() {
         double[][] matrix = {

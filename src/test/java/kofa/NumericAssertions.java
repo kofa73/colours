@@ -3,40 +3,16 @@ package kofa;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.data.Percentage;
 
-import java.util.Arrays;
-
 import static java.lang.Math.*;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.assertj.core.data.Offset.offset;
 
 public class NumericAssertions {
     public static final Percentage EXACT = Percentage.withPercentage(1E-5);
     public static final Percentage PRECISE = Percentage.withPercentage(0.06);
     public static final Percentage LENIENT = Percentage.withPercentage(0.2);
     public static final Percentage ROUGH = Percentage.withPercentage(5);
-    private static final double COMPARISON_THRESHOLD = 1E-15;
-
-    public static void assertIsCloseTo(double[] actualVector, double[] expectedVector, Percentage percentage) {
-        assertIsCloseTo(actualVector, expectedVector, percentage, COMPARISON_THRESHOLD);
-    }
-
-    public static void assertIsCloseTo(double[] actualVector, double[] expectedVector, Percentage percentage, double comparisonThreshold) {
-        assertThat(actualVector).hasSameSizeAs(expectedVector);
-        try {
-            assertSoftly(softly -> {
-                        for (int row = 0; row < actualVector.length; row++) {
-                            assertIsCloseTo(softly, actualVector[row], expectedVector[row], percentage, comparisonThreshold);
-                        }
-                    }
-            );
-        } catch (AssertionError ae) {
-            throw new AssertionError(
-                    "Comparison failed for actual = %s and expected = %s".formatted(
-                            Arrays.toString(actualVector), Arrays.toString(expectedVector)
-                    ), ae
-            );
-        }
-    }
+    private static final double DEFAULT_COMPARISON_THRESHOLD = 1E-12;
 
     public static void assertDegreesAreClose(double actualDegrees, double expectedDegrees) {
         try {
@@ -48,22 +24,30 @@ public class NumericAssertions {
 
     public static void assertRadiansAreClose(double actualRadians, double expectedRadians) {
         try {
-            assertIsCloseTo(sin(actualRadians), sin(expectedRadians), EXACT, COMPARISON_THRESHOLD);
-            assertIsCloseTo(cos(actualRadians), cos(expectedRadians), EXACT, COMPARISON_THRESHOLD);
+            assertIsCloseTo(sin(actualRadians), sin(expectedRadians));
+            assertIsCloseTo(cos(actualRadians), cos(expectedRadians));
         } catch (AssertionError ae) {
             throw new AssertionError("Expecting actual: " + actualRadians + " to be close to " + expectedRadians, ae);
         }
     }
 
-    // don't compare tiny numbers, numerical imprecision could cause test failures
-    private static void assertIsCloseTo(double actualValue, double expectedValue, Percentage percentage, double comparisonThreshold) {
-        if (Math.abs(actualValue) > comparisonThreshold || Math.abs(expectedValue) > comparisonThreshold) {
-            assertThat(actualValue).isCloseTo(expectedValue, percentage);
-        }
+    public static void assertIsCloseTo(double actualValue, double expectedValue) {
+        assertSoftly(softly -> assertIsCloseTo(softly, actualValue, expectedValue, EXACT));
     }
 
-    private static void assertIsCloseTo(SoftAssertions softly, double actualValue, double expectedValue, Percentage percentage, double comparisonThreshold) {
-        if (Math.abs(actualValue) > comparisonThreshold || Math.abs(expectedValue) > comparisonThreshold) {
+
+    public static void assertIsCloseTo(SoftAssertions softly, double actualValue, double expectedValue, Percentage percentage) {
+        assertIsCloseTo(softly, actualValue, expectedValue, percentage, DEFAULT_COMPARISON_THRESHOLD);
+    }
+
+    public static void assertIsCloseTo(SoftAssertions softly, double actualValue, double expectedValue, Percentage percentage, double comparisonThreshold) {
+        if (actualValue == 0) {
+            softly.assertThat(expectedValue)
+                    .overridingErrorMessage("Expected %s to be close to %s", actualValue, expectedValue)
+                    .isCloseTo(0, offset(comparisonThreshold));
+        } else if (expectedValue == 0) {
+            softly.assertThat(actualValue).isCloseTo(0, offset(comparisonThreshold));
+        } else {
             softly.assertThat(actualValue).isCloseTo(expectedValue, percentage);
         }
     }
