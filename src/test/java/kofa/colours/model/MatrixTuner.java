@@ -28,7 +28,18 @@ class MatrixTuner {
     }
 
     public static void main(String[] args) {
+        optimiseLmsPrimeToLab();
+        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_ASTM_E308_01);
+        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_IEC_61966_2_1);
+        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
+        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER);
+    }
 
+    private static void optimiseLmsToXYZ(CIEXYZ whiteReference) {
+
+    }
+
+    private static void optimiseLmsPrimeToLab() {
         double[][] lmsPrimeToOkLab = new double[][]{
                 {+0.2104542553, +0.7936177850, -0.0040720468},
                 {+1.9779984951, -2.4285922050, +0.4505937099},
@@ -45,10 +56,10 @@ class MatrixTuner {
                 labWhite,
                 maxDeviation,
                 maxCoordinateDifferencePercent / 100.0
-        ).optimise();
+        ).optimise("L'M'S' -> LAB");
     }
 
-    private void optimise() {
+    private void optimise(String name) {
         double originalError = getError(original);
         var currentBest = new Result(originalError, original, totalDeviationFromOriginal(original));
         double maxRange = 0.05;
@@ -65,12 +76,12 @@ class MatrixTuner {
 
             if (lastPrint < System.currentTimeMillis() - 10000) {
                 lastPrint = System.currentTimeMillis();
-                printMatrix("current best", currentBest);
+                printMatrix("current " + name, currentBest);
                 System.out.println("Range: " + range);
             }
         } while (range > 1E-20 && currentBest.error != 0.0);
 
-        printMatrix("Final bestResult", currentBest);
+        printMatrix("Final " + name, currentBest);
     }
 
     private Result optimiseWithRange(Result currentBest, double range) {
