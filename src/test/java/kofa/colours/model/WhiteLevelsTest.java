@@ -224,7 +224,7 @@ public class WhiteLevelsTest {
         assertThat_LIsCloseToMax_andCIsCloseToZero(lchUv, CIELCh_uv.WHITE_L, CIELCh_uv.BLACK_L_THRESHOLD);
 
         assertThat(okLAB.isWhite()).isTrue();
-        assertThat_LIsCloseToMax_and_colourCoordinates_areCloseToZero(okLAB, OkLAB.WHITE_L, 1E-13, 1E-15);
+        assertThat_LIsCloseToMax_and_colourCoordinates_areCloseToZero(okLAB, OkLAB.WHITE_L, 1E-13, 1E-14);
 
         var lchOk = okLAB.toLch();
         assertThat_LIsCloseToMax_andCIsCloseToZero(lchOk, OkLCh.WHITE_L, OkLCh.BLACK_L_THRESHOLD);

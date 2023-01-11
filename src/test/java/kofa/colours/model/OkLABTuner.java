@@ -109,7 +109,7 @@ class OkLABTuner extends Vector3 {
 
         double originalError = getError(originalMatrix);
         var currentBest = new Result(originalError, originalMatrix);
-        double maxRange = 0.0003;
+        double maxRange = 0.0001;
         double range = maxRange;
         int attempts = 50;
         printMatrix("Initial", currentBest);
@@ -228,13 +228,15 @@ class OkLABTuner extends Vector3 {
     }
 
     private static double getError(double[][] xyzToLmsMatrix) {
-        return getError_lab_to_white(xyzToLmsMatrix);
+        CIEXYZ standardWhite = CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER;
+        double errorLabToWhite = getError_lab_to_white(xyzToLmsMatrix, standardWhite);
+        double errorWhiteToLab = getError_white_to_lab(xyzToLmsMatrix, standardWhite);
+        return errorLabToWhite + errorWhiteToLab;
     }
 
-    private static double getError_white_to_lab(double[][] xyzToLmsMatrix) {
+    static double getError_white_to_lab(double[][] xyzToLmsMatrix, CIEXYZ standardWhite) {
         double error;
         try {
-            CIEXYZ standardWhite = CIEXYZ.D65_WHITE_ASTM_E308_01;
             OkLABTuner lab = OkLABTuner.from(standardWhite, xyzToLmsMatrix);
             double error_L = lab.coordinate1 - 1;
             double error_a = lab.coordinate2 - 0;
@@ -248,12 +250,11 @@ class OkLABTuner extends Vector3 {
         return error;
     }
 
-    private static double getError_lab_to_white(double[][] xyzToLmsMatrix) {
+    static double getError_lab_to_white(double[][] xyzToLmsMatrix, CIEXYZ standardWhite) {
         double error;
         try {
             OkLABTuner labWhite = new OkLABTuner(1, 0, 0, xyzToLmsMatrix);
             CIEXYZ whiteXYZ = labWhite.toXyz();
-            CIEXYZ standardWhite = CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER;
             double errorX = whiteXYZ.X() - standardWhite.X();
             double errorY = whiteXYZ.Y() - standardWhite.Y();
             double errorZ = whiteXYZ.Z() - standardWhite.Z();
@@ -286,53 +287,42 @@ class OkLABTuner extends Vector3 {
 }
 
 /*
-ASTM
-[0.8189509622312074, 0.3619239498645853, -0.1288651815112738]
-[0.0329912500697916, 0.9292746987980047, 0.03615636453206032]
-[0.04818496599039293, 0.26427789499842835, 0.6336378538375353]
+ASTM - optimised for white Lab -> XYZ and XYZ -> Lab, maxRange = 0.00001;
+[0.8189185058849386, 0.3619250232288143, -0.12883783525960107]
+[0.032989744106165446, 0.929280894117544, 0.03615198924272081]
+[0.04818496599041629, 0.2642778949982382, 0.6336378538376899]
 
-Matrix produces squared XYZ white error sum = 0.0
-RMS deviation from original matrix: 8.09286681415129E-5
-
-maxRange = 0.001
-Matrix produces squared XYZ white error sum = 0.0
-RMS deviation from original matrix: 2.2076755719756114E-4
-
-maxRange = 0.0005
-Matrix produces squared XYZ white error sum = 0.0
-RMS deviation from original matrix: 1.9119506476085148E-4
-
-maxRange = 0.0003
-Matrix produces squared XYZ white error sum = 0.0
-RMS deviation from original matrix: 1.6194547852138065E-4
----
-
-D65_WHITE_IEC_61966_2_1
-[0.818967383714981, 0.3619492664312499, -0.12886520149725447]
-[0.03299352333036043, 0.9292592106075834, 0.03616146647732637]
-[0.04817785658521273, 0.2642390482831809, 0.6335478132503992]
-
-Matrix produces squared XYZ white error sum = 0.0
-RMS deviation from original matrix: 1.1555015057794739E-4
+Matrix produces squared XYZ white error sum = 6.162975822039155E-32
+RMS deviation from original matrix: 8.089156682114042E-5
 
 ---
 
-D65_WHITE_2DEGREE_STANDARD_OBSERVER
-[0.8189761623397687, 0.3619321156970304, -0.12885517057340956]
-[0.03299330404204958, 0.9292685035507454, 0.03615918056654339]
-[0.04818259693608417, 0.2642683151174946, 0.6336096045918206]
+D65_WHITE_IEC_61966_2_1 - optimised for white Lab -> XYZ and XYZ -> Lab, maxRange = 0.00001;
+[0.8189260971685364, 0.3619373516365322, -0.1288182289340202]
+[0.032993629808442636, 0.9292654058754899, 0.036155684901152806]
+[0.048177856584029476, 0.26423904832527595, 0.6335478132127796]
 
-Matrix produces squared XYZ white error sum = 0.0
-RMS deviation from original matrix: 9.23876802868499E-5
+Matrix produces squared XYZ white error sum = 6.162975822039155E-32
+RMS deviation from original matrix: 1.1457036919076224E-4
+---
+
+D65_WHITE_2DEGREE_STANDARD_OBSERVER - optimised for white Lab -> XYZ and XYZ -> Lab, maxRange = 0.00001;
+[0.8189662359148219, 0.36191961267228145, -0.12883502421019777]
+[0.03299231280841035, 0.9292746988289813, 0.036154356267065285]
+[0.048182596931219776, 0.2642683151531112, 0.6336096045633581]
+
+Matrix produces squared XYZ white error sum = 6.162975822039155E-32
+RMS deviation from original matrix: 9.101219901840008E-5
 
 ---
 
 D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER
-maxRange = 0.0002
-[0.8197842415296197, 0.36088871802835165, -0.12872024855803574]
-[0.0327208042008903, 0.9304891853249381, 0.03586813926096813]
-[0.048664577663383925, 0.2669141563783153, 0.6401811778989841]
+maxRange = 0.0001
+[0.8159843432820131, 0.36371939026641636, -0.1280008061421776]
+[0.032880132515493564, 0.9302414073489597, 0.03595827411754808]
+[0.04868372868954661, 0.2669508466886979, 0.6401300644698302]
 
-Matrix produces squared XYZ white error sum = 0.0
-RMS deviation from original matrix: 0.002357086075768541
+Matrix produces squared XYZ white error sum = 6.162975822039155E-32
+RMS deviation from original matrix: 0.0025842734151369723
+
 */

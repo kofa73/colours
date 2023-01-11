@@ -15,12 +15,20 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 class OkLABTest {
     @Test
     void white_labToXyz() {
-        assertThat(new OkLAB(1, 0, 0).toXyz().usingOriginalMatrix()).isCloseTo(CIEXYZ.D65_WHITE_ASTM_E308_01, PRECISE);
+        assertThat(new OkLAB(1, 0, 0).toXyz().usingOriginalMatrix()).isCloseTo(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, PRECISE);
+        assertThat(new OkLAB(1, 0, 0).toXyz().usingD65_ASTM_E308_01()).isCloseTo(CIEXYZ.D65_WHITE_ASTM_E308_01, EXACT);
+        assertThat(new OkLAB(1, 0, 0).toXyz().usingD65_IEC_61966_2_1()).isCloseTo(CIEXYZ.D65_WHITE_IEC_61966_2_1, EXACT);
+        assertThat(new OkLAB(1, 0, 0).toXyz().usingD65_2DEGREE_STANDARD_OBSERVER()).isCloseTo(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
+        assertThat(new OkLAB(1, 0, 0).toXyz().usingD65_10DEGREE_SUPPLEMENTARY_OBSERVER()).isCloseTo(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER, EXACT);
     }
 
     @Test
     void white_xyzToLab() {
-        assertThat(OkLAB.from(CIEXYZ.D65_WHITE_ASTM_E308_01).usingD65_ASTM_E308_01()).isCloseTo(new OkLAB(1, 0, 0), PRECISE, 1E-4);
+        assertThat(OkLAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingOriginalMatrix()).isCloseTo(new OkLAB(1, 0, 0), PRECISE, 1E-4);
+        assertThat(OkLAB.from(CIEXYZ.D65_WHITE_ASTM_E308_01).usingD65_ASTM_E308_01()).isCloseTo(new OkLAB(1, 0, 0), EXACT, 1E-15);
+        assertThat(OkLAB.from(CIEXYZ.D65_WHITE_IEC_61966_2_1).usingD65_IEC_61966_2_1()).isCloseTo(new OkLAB(1, 0, 0), EXACT, 1E-15);
+        assertThat(OkLAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER()).isCloseTo(new OkLAB(1, 0, 0), EXACT, 1E-15);
+        assertThat(OkLAB.from(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER).usingD65_10DEGREE_SUPPLEMENTARY_OBSERVER()).isCloseTo(new OkLAB(1, 0, 0), EXACT, 1E-15);
     }
 
     @ParameterizedTest

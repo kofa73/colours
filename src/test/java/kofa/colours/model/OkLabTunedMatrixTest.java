@@ -4,7 +4,6 @@ import kofa.maths.SpaceConversionMatrix;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,6 +12,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
+import static kofa.colours.model.OkLABTuner.getError_lab_to_white;
+import static kofa.colours.model.OkLABTuner.getError_white_to_lab;
 import static org.assertj.core.data.Percentage.withPercentage;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -49,14 +50,30 @@ public class OkLabTunedMatrixTest {
     }
 
     // not a test, but can be used to print the error as it'd normally be done when running the optimisation
-    @Disabled
     @Test
     void printError() {
-        double[][] matrix = {
-                {0.8085104474513791, 0.3678260598951263, -0.12522432564646657},
-                {0.03280282965336907, 0.9293118714999982, 0.03689282997710722},
-                {0.047994383865680015, 0.2655670976538347, 0.6420286824189418}
-        };
-        OkLABTuner.printMatrix("testing", new OkLABTuner.Result(0, matrix));
+        System.out.println("D65_WHITE_ASTM_E308_01");
+        System.out.println("Lab -> XYZ gave " + OkLAB.WHITE.toXyz().usingD65_ASTM_E308_01() + ", should be " + CIEXYZ.D65_WHITE_ASTM_E308_01);
+        System.out.println("XYZ -> Lab gave " + OkLAB.from(CIEXYZ.D65_WHITE_ASTM_E308_01).usingD65_ASTM_E308_01() + ", should be " + OkLAB.WHITE);
+        System.out.println();
+        System.out.println("D65_WHITE_IEC_61966_2_1");
+        System.out.println("Lab -> XYZ gave " + OkLAB.WHITE.toXyz().usingD65_IEC_61966_2_1() + ", should be " + CIEXYZ.D65_WHITE_IEC_61966_2_1);
+        System.out.println("XYZ -> Lab gave " + OkLAB.from(CIEXYZ.D65_WHITE_IEC_61966_2_1).usingD65_IEC_61966_2_1() + ", should be " + OkLAB.WHITE);
+        System.out.println();
+        System.out.println("2DEGREE_STANDARD_OBSERVER");
+        System.out.println("Lab -> XYZ gave " + OkLAB.WHITE.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER() + ", should be " + CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
+        System.out.println("XYZ -> Lab gave " + OkLAB.from(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER).usingD65_2DEGREE_STANDARD_OBSERVER() + ", should be " + OkLAB.WHITE);
+        System.out.println();
+        System.out.println("10DEGREE_SUPPLEMENTARY_OBSERVER");
+        System.out.println("Lab -> XYZ gave " + OkLAB.WHITE.toXyz().usingD65_10DEGREE_SUPPLEMENTARY_OBSERVER() + ", should be " + CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER);
+        System.out.println("XYZ -> Lab gave " + OkLAB.from(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER).usingD65_10DEGREE_SUPPLEMENTARY_OBSERVER() + ", should be " + OkLAB.WHITE);
+        System.out.println();
+
+        CIEXYZ standardWhite = CIEXYZ.D65_WHITE_ASTM_E308_01;
+        double[][] matrix = OkLAB.XYZ_TO_LMS_D65_ASTM_E308_01.values();
+        double errorLabToWhite = getError_lab_to_white(matrix, standardWhite);
+        double errorWhiteToLab = getError_white_to_lab(matrix, standardWhite);
+        double error = errorLabToWhite + errorWhiteToLab;
+        OkLABTuner.printMatrix("D65_WHITE_ASTM_E308_01", new OkLABTuner.Result(error, matrix));
     }
 }
