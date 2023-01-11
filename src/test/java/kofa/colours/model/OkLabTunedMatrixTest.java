@@ -12,8 +12,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static kofa.colours.model.OkLABTuner.getError_lab_to_white;
-import static kofa.colours.model.OkLABTuner.getError_white_to_lab;
+import static kofa.colours.model.OkLABTuner.*;
 import static org.assertj.core.data.Percentage.withPercentage;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -69,11 +68,11 @@ public class OkLabTunedMatrixTest {
         System.out.println("XYZ -> Lab gave " + OkLAB.from(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER).usingD65_10DEGREE_SUPPLEMENTARY_OBSERVER() + ", should be " + OkLAB.WHITE);
         System.out.println();
 
-        CIEXYZ standardWhite = CIEXYZ.D65_WHITE_ASTM_E308_01;
-        double[][] matrix = OkLAB.XYZ_TO_LMS_D65_ASTM_E308_01.values();
+        CIEXYZ standardWhite = CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER;
+        double[][] matrix = OkLAB.XYZ_TO_LMS_D65_10DEGREE_SUPPLEMENTARY_OBSERVER.values();
         double errorLabToWhite = getError_lab_to_white(matrix, standardWhite);
         double errorWhiteToLab = getError_white_to_lab(matrix, standardWhite);
         double error = errorLabToWhite + errorWhiteToLab;
-        OkLABTuner.printMatrix("D65_WHITE_ASTM_E308_01", new OkLABTuner.Result(error, matrix));
+        OkLABTuner.printMatrix("XYZ_TO_LMS_D65_10", new OkLABTuner.Result(error, matrix, totalDeviationFromOriginal(matrix)));
     }
 }

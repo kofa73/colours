@@ -5,9 +5,10 @@ import kofa.maths.Vector3;
 import kofa.maths.Vector3Constructor;
 
 import java.util.Arrays;
-import java.util.function.Function;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
+import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
 import static kofa.colours.model.ConversionHelper.cubeOf;
 import static kofa.colours.model.ConversionHelper.cubeRootOf;
@@ -21,6 +22,7 @@ import static org.apache.commons.math3.linear.MatrixUtils.inverse;
 // values too low will take forever to complete).
 class OkLABTuner extends Vector3 {
 
+    private static final double MAX_DEVIATION = 0.00227;
     private final SpaceConversionMatrix<LMS, CIEXYZ> lmsToXyz;
 
     private static final double[][] LMS_PRIME_TO_LAB_VALUES = {
@@ -108,31 +110,25 @@ class OkLABTuner extends Vector3 {
         double[][] originalMatrix = OkLAB.XYZ_TO_LMS_ORIGINAL.values();
 
         double originalError = getError(originalMatrix);
-        var currentBest = new Result(originalError, originalMatrix);
-        double maxRange = 0.0001;
+        var currentBest = new Result(originalError, originalMatrix, totalDeviationFromOriginal(originalMatrix));
+        double maxRange = 0.05;
         double range = maxRange;
-        int attempts = 50;
         printMatrix("Initial", currentBest);
         double lastPrint = 0;
         do {
-//            System.out.println("Range: " + range);
             var newBest = optimise(currentBest, range);
             if (newBest != currentBest) {
                 currentBest = newBest;
-                attempts = 50;
-//                printMatrix("New optimised bestResult", currentBest);
-            } else {
-                attempts--;
-//                System.out.println("No improvement, " + attempts + " refinements left");
-                range /= 3;
             }
+
+            range *= 0.5;
 
             if (lastPrint < System.currentTimeMillis() - 10000) {
                 lastPrint = System.currentTimeMillis();
                 printMatrix("current best", currentBest);
                 System.out.println("Range: " + range);
             }
-        } while (attempts != 0 && currentBest.error != 0.0);
+        } while (range > 1E-20 && currentBest.error != 0.0);
 
         printMatrix("Final bestResult", currentBest);
     }
@@ -146,89 +142,82 @@ class OkLABTuner extends Vector3 {
         System.out.println();
         System.out.println("Matrix produces squared XYZ white error sum = " + result.error);
 
-        double[][] originalMatrix = OkLAB.XYZ_TO_LMS_ORIGINAL.values();
-        double totalError = 0;
-        for (int row = 0; row < 3; row++) {
-            for (int column = 0; column < 3; column++) {
-                double error = result.matrix[row][column] - originalMatrix[row][column];
-                totalError += error * error;
-            }
-        }
-
-        System.out.println("RMS deviation from original matrix: " + sqrt(totalError / 9));
+        System.out.println("RMS deviation from original matrix: " + result.totalDeviationFromOriginal);
         System.out.println();
     }
 
-    private static Result optimise(Result currentBest, double range) {
-        int nSteps = 3;
-        double stepSize = range / nSteps;
-        double[][] bestMatrix = currentBest.matrix;
+    static double totalDeviationFromOriginal(double[][] matrix) {
+        double[][] originalMatrix = OkLAB.XYZ_TO_LMS_ORIGINAL.values();
+        double totalDeviation = 0;
+        for (int row = 0; row < 3; row++) {
+            for (int column = 0; column < 3; column++) {
+                double deviation = matrix[row][column] - originalMatrix[row][column];
+                totalDeviation += deviation * deviation;
+            }
+        }
 
-        Result result = IntStream.rangeClosed(-nSteps, nSteps)
-                .parallel()
-                .mapToObj(i1 ->
-                        IntStream.rangeClosed(-nSteps, nSteps)
-                                .parallel()
-                                .mapToObj(i2 -> {
-                                    double[][] candidate = new double[][]{
-                                            new double[3],
-                                            new double[3],
-                                            new double[3]
-                                    };
-                                    candidate[0][0] = bestMatrix[0][0] * (1 + i1 * stepSize);
-                                    candidate[0][1] = bestMatrix[0][1] * (1 + i2 * stepSize);
-                                    return doInnerScan(currentBest, range, candidate, 3);
-                                })
-                ).flatMap(Function.identity())
-                .reduce(
-                        currentBest,
-                        (r1, r2) -> r1.error < r2.error ? r1 : r2
-                );
-
-        return result;
+        totalDeviation = sqrt(totalDeviation / 9);
+        return totalDeviation;
     }
 
-    private static Result doInnerScan(Result currentBest, double range, double[][] candidate, int nSteps) {
-        double[][] matrix = currentBest.matrix;
-        double stepSize = range / nSteps;
-        var result = currentBest;
-        for (int i3 = -nSteps; i3 <= nSteps; i3++) {
-            double m3 = 1 + i3 * stepSize;
-            candidate[0][2] = matrix[0][2] * m3;
-            for (int i4 = -nSteps; i4 <= nSteps; i4++) {
-                double m4 = 1 + i4 * stepSize;
-                candidate[1][0] = matrix[1][0] * m4;
-                for (int i5 = -nSteps; i5 <= nSteps; i5++) {
-                    double m5 = 1 + i5 * stepSize;
-                    candidate[1][1] = matrix[1][1] * m5;
-                    for (int i6 = -nSteps; i6 <= nSteps; i6++) {
-                        double m6 = 1 + i6 * stepSize;
-                        candidate[1][2] = matrix[1][2] * m6;
-                        for (int i7 = -nSteps; i7 <= nSteps; i7++) {
-                            double m7 = 1 + i7 * stepSize;
-                            candidate[2][0] = matrix[2][0] * m7;
-                            for (int i8 = -nSteps; i8 <= nSteps; i8++) {
-                                double m8 = 1 + i8 * stepSize;
-                                candidate[2][1] = matrix[2][1] * m8;
-                                for (int i9 = -nSteps; i9 <= nSteps; i9++) {
-                                    double m9 = 1 + i9 * stepSize;
-                                    candidate[2][2] = matrix[2][2] * m9;
+    private static Result optimise(Result currentBest, double range) {
+        double[][] bestMatrix = currentBest.matrix;
+
+        return IntStream.rangeClosed(1, 100)
+                .parallel()
+                .mapToObj(ignored -> {
+                            double[][] candidate = new double[][]{
+                                    new double[3],
+                                    new double[3],
+                                    new double[3]
+                            };
+
+                            Result result = currentBest;
+                            ThreadLocalRandom random = ThreadLocalRandom.current();
+
+                            for (int i = 0; i < 50_000; i++) {
+                                for (int row = 0; row < 3; row++) {
+                                    for (int column = 0; column < 3; column++) {
+                                        candidate[row][column] = bestMatrix[row][column] + random.nextDouble(-range, range);
+                                    }
+                                }
+                                double totalDeviationFromOriginal = totalDeviationFromOriginal(candidate);
+                                if (totalDeviationFromOriginal <= MAX_DEVIATION) {
                                     double error = getError(candidate);
                                     if (error < result.error) {
-                                        result = new Result(error, copyOf(candidate));
+                                        result = new Result(error, copyOf(candidate), totalDeviationFromOriginal);
                                     }
                                 }
                             }
+                            return result;
+
+                        }
+                ).reduce(((result1, result2) -> result1.error < result2.error ?
+                        result1 :
+                        result2.error < result1.error ?
+                                result2 :
+                                (result1.totalDeviationFromOriginal < result2.totalDeviationFromOriginal ?
+                                        result1 : result2)
+                )).orElse(currentBest);
+    }
+
+    private static double getError(double[][] xyzToLmsMatrix) {
+        CIEXYZ standardWhite = CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER;
+        double[][] original = OkLAB.XYZ_TO_LMS_ORIGINAL.values();
+        for (int row = 0; row < 3; row++) {
+            for (int column = 0; column < 3; column++) {
+                double difference = abs(xyzToLmsMatrix[row][column] - original[row][column]);
+                if (difference != 0) {
+                    double magnitude = Double.min(abs(xyzToLmsMatrix[row][column]), abs(original[row][column]));
+                    if (magnitude != 0) {
+                        double ratio = difference / magnitude;
+                        if (ratio > 0.01) {
+                            return Double.POSITIVE_INFINITY;
                         }
                     }
                 }
             }
         }
-        return result;
-    }
-
-    private static double getError(double[][] xyzToLmsMatrix) {
-        CIEXYZ standardWhite = CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER;
         double errorLabToWhite = getError_lab_to_white(xyzToLmsMatrix, standardWhite);
         double errorWhiteToLab = getError_white_to_lab(xyzToLmsMatrix, standardWhite);
         return errorLabToWhite + errorWhiteToLab;
@@ -278,10 +267,12 @@ class OkLABTuner extends Vector3 {
     static class Result {
         double error;
         double[][] matrix;
+        private final double totalDeviationFromOriginal;
 
-        Result(double error, double[][] matrix) {
+        Result(double error, double[][] matrix, double totalDeviationFromOriginal) {
             this.error = error;
             this.matrix = matrix;
+            this.totalDeviationFromOriginal = totalDeviationFromOriginal;
         }
     }
 }
@@ -298,31 +289,31 @@ RMS deviation from original matrix: 8.089156682114042E-5
 ---
 
 D65_WHITE_IEC_61966_2_1 - optimised for white Lab -> XYZ and XYZ -> Lab, maxRange = 0.00001;
-[0.8189260971685364, 0.3619373516365322, -0.1288182289340202]
-[0.032993629808442636, 0.9292654058754899, 0.036155684901152806]
-[0.048177856584029476, 0.26423904832527595, 0.6335478132127796]
+[0.819000675034942, 0.3619184812039237, -0.12886598814434513]
+[0.03297134500099032, 0.9293121018200567, 0.03613225619255389]
+[0.04818266855902102, 0.2642341625206832, 0.6335480999143406]
 
 Matrix produces squared XYZ white error sum = 6.162975822039155E-32
-RMS deviation from original matrix: 1.1457036919076224E-4
+RMS deviation from original matrix: 1.1430393471478513E-4
 ---
 
 D65_WHITE_2DEGREE_STANDARD_OBSERVER - optimised for white Lab -> XYZ and XYZ -> Lab, maxRange = 0.00001;
-[0.8189662359148219, 0.36191961267228145, -0.12883502421019777]
-[0.03299231280841035, 0.9292746988289813, 0.036154356267065285]
-[0.048182596931219776, 0.2642683151531112, 0.6336096045633581]
+[0.8189625335336425, 0.36193051420879846, -0.12884180415807572]
+[0.032984437518689624, 0.9293038863085773, 0.03613442553692302]
+[0.048183751157980376, 0.26426142935535324, 0.6336149207409002]
 
 Matrix produces squared XYZ white error sum = 6.162975822039155E-32
-RMS deviation from original matrix: 9.101219901840008E-5
+RMS deviation from original matrix: 8.992698661337344E-5
 
 ---
 
 D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER
-maxRange = 0.0001
-[0.8159843432820131, 0.36371939026641636, -0.1280008061421776]
-[0.032880132515493564, 0.9302414073489597, 0.03595827411754808]
-[0.04868372868954661, 0.2669508466886979, 0.6401300644698302]
+MAX_DEVIATION = 0.00227
+double maxRange = 0.05;
+[0.8188705673458518, 0.3621356674814235, -0.1290750293357169]
+[0.033080872867520816, 0.9297527092351892, 0.036236338024257374]
+[0.048681834435854915, 0.2670038020756251, 0.6400823878597188]
 
 Matrix produces squared XYZ white error sum = 6.162975822039155E-32
-RMS deviation from original matrix: 0.0025842734151369723
-
+RMS deviation from original matrix: 0.0022692206708345686
 */
