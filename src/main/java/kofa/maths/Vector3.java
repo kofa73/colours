@@ -27,7 +27,7 @@ public abstract class Vector3 {
     }
 
     public String toString() {
-        return "%s(%.8f, %.8f, %.8f)".formatted(this.getClass().getSimpleName(), coordinate1, coordinate2, coordinate3);
+        return "%s(%.20f, %.20f, %.20f)".formatted(this.getClass().getSimpleName(), coordinate1, coordinate2, coordinate3);
     }
 
     @Override

@@ -29,13 +29,29 @@ class MatrixTuner {
 
     public static void main(String[] args) {
         optimiseLmsPrimeToLab();
-        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_ASTM_E308_01);
-        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_IEC_61966_2_1);
-        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER);
-        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER);
+//        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_ASTM_E308_01, "D65_WHITE_ASTM_E308_01");
+//        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_IEC_61966_2_1, "D65_WHITE_IEC_61966_2_1");
+//        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, "D65_WHITE_2DEGREE_STANDARD_OBSERVER");
+//        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER, "D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER");
     }
 
-    private static void optimiseLmsToXYZ(CIEXYZ whiteReference) {
+    private static void optimiseLmsToXYZ(CIEXYZ whiteReference, String name) {
+        double[][] originalXyzToLms = new double[][]{
+                {+0.8189330101, +0.3618667424, -0.1288597137},
+                {+0.0329845436, +0.9293118715, +0.0361456387},
+                {+0.0482003018, +0.2643662691, +0.6338517070}
+        };
+        double[] xyzWhite = whiteReference.coordinates().toArray();
+        double[] lmsWhite = {1, 1, 1};
+        double maxDeviation = 1E-3;
+        double maxCoordinateDifferencePercent = 1;
+        new MatrixTuner(
+                originalXyzToLms,
+                xyzWhite,
+                lmsWhite,
+                maxDeviation,
+                maxCoordinateDifferencePercent / 100.0
+        ).printMatrix("XYZ -> LMS " + name, new Result(0, originalXyzToLms, 0));
 
     }
 
@@ -48,15 +64,31 @@ class MatrixTuner {
 
         double[] lmsWhite = {1, 1, 1};
         double[] labWhite = {1, 0, 0};
-        double maxDeviation = 1E-8;
-        double maxCoordinateDifferencePercent = 0.000003;
-        new MatrixTuner(
-                lmsPrimeToOkLab,
-                lmsWhite,
-                labWhite,
-                maxDeviation,
-                maxCoordinateDifferencePercent / 100.0
-        ).optimise("L'M'S' -> LAB");
+
+        for (double scale = 0.99999999350000010000; scale < 1.00001; scale += 1E-15) {
+            double[][] scaled = copyOf(lmsPrimeToOkLab);
+            scaled[0][0] *= scale;
+            scaled[0][1] *= scale;
+            scaled[0][2] *= scale;
+            double[] resultOutput = MatrixUtils.createRealMatrix(scaled).operate(lmsWhite);
+            if (resultOutput[0] == 1) {
+                new MatrixTuner(lmsPrimeToOkLab, lmsWhite, labWhite, 0, 0).printMatrix("Fitted", new Result(0, scaled, 0));
+                System.exit(0);
+            }
+            if (resultOutput[0] >= 1) {
+                System.out.println("%.20f".formatted(scale));
+                System.exit(0);
+            }
+        }
+//        double maxDeviation = 1E-8;
+//        double maxCoordinateDifferencePercent = 0.000003;
+//        new MatrixTuner(
+//                lmsPrimeToOkLab,
+//                lmsWhite,
+//                labWhite,
+//                maxDeviation,
+//                maxCoordinateDifferencePercent / 100.0
+//        ).printMatrix("L'M'S' -> LAB", new Result(0, lmsPrimeToOkLab, 0));
     }
 
     private void optimise(String name) {
@@ -180,7 +212,61 @@ class MatrixTuner {
         System.out.println(Arrays.toString(result.matrix[1]));
         System.out.println(Arrays.toString(result.matrix[2]));
 
+        System.out.println("Scaling factors compared to original matrix:");
+        for (int row = 0; row < 3; row++) {
+            for (int column = 0; column < 3; column++) {
+                System.out.print("%.20f, ".formatted(result.matrix[row][column] / original[row][column]));
+            }
+            System.out.println();
+        }
+
+        double[] originalOutput = MatrixUtils.createRealMatrix(original).operate(input);
+        System.out.println("Output of original matrix:");
+        for (int i = 0; i < 3; i++) {
+            System.out.print("%.20f, ".formatted(originalOutput[i]));
+        }
         System.out.println();
+
+        double[] resultOutput = MatrixUtils.createRealMatrix(result.matrix).operate(input);
+        System.out.println("Output of result matrix:");
+        for (int i = 0; i < 3; i++) {
+            System.out.print("%.20f, ".formatted(resultOutput[i]));
+        }
+        System.out.println();
+
+        System.out.println("Target output:");
+        for (int i = 0; i < 3; i++) {
+            System.out.print("%.20f, ".formatted(targetOutput[i]));
+        }
+        System.out.println();
+
+        double[][] scaled = copyOf(original);
+        double[] scalingFactors = new double[3];
+        for (int row = 0; row < 3; row++) {
+            scalingFactors[row] = targetOutput[row] / originalOutput[row];
+            for (int column = 0; column < 3; column++) {
+                scaled[row][column] *= scalingFactors[row];
+            }
+        }
+        System.out.println("Scaled matrix:");
+        System.out.println(Arrays.toString(scaled[0]));
+        System.out.println(Arrays.toString(scaled[1]));
+        System.out.println(Arrays.toString(scaled[2]));
+
+        System.out.println("Scaling factors from original to target:");
+        for (int i = 0; i < 3; i++) {
+            System.out.print("%.20f, ".formatted(1 / scalingFactors[i]));
+        }
+        System.out.println();
+
+        double[] scaledOutput = MatrixUtils.createRealMatrix(scaled).operate(input);
+        System.out.println("Output of scaled matrix:");
+        for (int i = 0; i < 3; i++) {
+            System.out.print("%.20f, ".formatted(scaledOutput[i]));
+        }
+        System.out.println();
+
+
         System.out.println("Matrix produces squared error sum = " + result.error);
 
         System.out.println("RMS deviation from original matrix: " + result.totalDeviationFromOriginal);

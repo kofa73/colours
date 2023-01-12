@@ -105,6 +105,11 @@ class OkLABTest {
         assertThat(white.toXyz().usingD65_10DEGREE_SUPPLEMENTARY_OBSERVER()).isEqualTo(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER);
         assertThat(white.toXyz().usingD65_IEC_61966_2_1()).isEqualTo(CIEXYZ.D65_WHITE_IEC_61966_2_1);
         assertThat(white.toXyz().usingD65_ASTM_E308_01()).isEqualTo(CIEXYZ.D65_WHITE_ASTM_E308_01);
+
+        assertThat(white.toXyz().usingD65_2DEGREE_STANDARD_OBSERVER()).isCloseTo(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, EXACT);
+        assertThat(white.toXyz().usingD65_10DEGREE_SUPPLEMENTARY_OBSERVER()).isCloseTo(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER, EXACT);
+        assertThat(white.toXyz().usingD65_IEC_61966_2_1()).isCloseTo(CIEXYZ.D65_WHITE_IEC_61966_2_1, EXACT);
+        assertThat(white.toXyz().usingD65_ASTM_E308_01()).isCloseTo(CIEXYZ.D65_WHITE_ASTM_E308_01, EXACT);
     }
 
     @Test
@@ -126,7 +131,7 @@ class OkLABTest {
         // and to D65_WHITE_2DEGREE_STANDARD_OBSERVER =
         //                        new CIEXYZ(0.95042855, 1.00000000, 1.08890037)
         // but with X ~= 0.95047 instead of ~0.95043
-        assertThat(whiteXYZ).isCloseTo(new CIEXYZ(0.95047004, 1.00000003, 1.08830021), EXACT);
+        assertThat(whiteXYZ).isCloseTo(new CIEXYZ(0.95047002, 1.00000001, 1.08829996), EXACT);
 
         CIExyY whitexyY = CIExyY.from(whiteXYZ);
         // Relatively close to xy of CIExyY D65_WHITE_2DEGREE_STANDARD_OBSERVER =
