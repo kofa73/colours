@@ -1,13 +1,13 @@
 package kofa.colours.model;
 
-import org.apache.commons.math3.linear.MatrixUtils;
-
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
+import static org.apache.commons.math3.linear.MatrixUtils.createRealMatrix;
+import static org.apache.commons.math3.linear.MatrixUtils.inverse;
 
 // A brute-force tool that tries to gradually refine a matrix, given an input
 // and the desired result multiplying the input by the matrix.
@@ -27,50 +27,116 @@ class MatrixTuner {
         this.maxCoordinateDifferenceRatio = maxCoordinateDifferenceRatio;
     }
 
-    public static void main(String[] args) {
-        optimiseLmsPrimeToLab();
-//        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_ASTM_E308_01, "D65_WHITE_ASTM_E308_01");
-//        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_IEC_61966_2_1, "D65_WHITE_IEC_61966_2_1");
-//        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, "D65_WHITE_2DEGREE_STANDARD_OBSERVER");
-//        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER, "D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER");
-    }
+//    public static void main(String[] args) {
+////        optimiseLmsPrimeToLab();
+//        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_ASTM_E308_01, OkLAB.LMS_TO_XYZ_D65_ASTM_E308_01.values(), "D65_WHITE_ASTM_E308_01");
+////        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_IEC_61966_2_1, OkLAB.LMS_TO_XYZ_D65_IEC_61966_2_1.values(), "D65_WHITE_IEC_61966_2_1");
+////        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER, OkLAB.LMS_TO_XYZ_D65_2DEGREE_STANDARD_OBSERVER.values(), "D65_WHITE_2DEGREE_STANDARD_OBSERVER");
+////        optimiseLmsToXYZ(CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER, OkLAB.LMS_TO_XYZ_D65_10DEGREE_SUPPLEMENTARY_OBSERVER.values(), "D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER");
+//    }
 
-    private static void optimiseLmsToXYZ(CIEXYZ whiteReference, String name) {
-        double[][] originalXyzToLms = new double[][]{
-                {+0.8189330101, +0.3618667424, -0.1288597137},
-                {+0.0329845436, +0.9293118715, +0.0361456387},
-                {+0.0482003018, +0.2643662691, +0.6338517070}
-        };
-        double[] xyzWhite = whiteReference.coordinates().toArray();
+    private static void optimiseLmsToXYZ(CIEXYZ whiteReference, double[][] matrix, String name) {
+//        double[][] originalXyzToLms = new double[][]{
+//                {+0.8189330101, +0.3618667424, -0.1288597137},
+//                {+0.0329845436, +0.9293118715, +0.0361456387},
+//                {+0.0482003018, +0.2643662691, +0.6338517070}
+//        };
+//        double[] xyzWhite = whiteReference.coordinates().toArray();
+//        double[] lmsWhite = {1, 1, 1};
+//        double maxDeviation = 1E-3;
+//        double maxCoordinateDifferencePercent = 1;
+//        new MatrixTuner(
+//                originalXyzToLms,
+//                xyzWhite,
+//                lmsWhite,
+//                maxDeviation,
+//                maxCoordinateDifferencePercent / 100.0
+//        ).printMatrix("XYZ -> LMS " + name, new Result(0, originalXyzToLms, 0));
         double[] lmsWhite = {1, 1, 1};
-        double maxDeviation = 1E-3;
-        double maxCoordinateDifferencePercent = 1;
-        new MatrixTuner(
-                originalXyzToLms,
-                xyzWhite,
-                lmsWhite,
-                maxDeviation,
-                maxCoordinateDifferencePercent / 100.0
-        ).printMatrix("XYZ -> LMS " + name, new Result(0, originalXyzToLms, 0));
+        double[] targetOutput = whiteReference.coordinates().toArray();
+        double[] scalingFactors = scalingFactors(lmsWhite, targetOutput, matrix);
 
+        System.out.println("Optimising " + name);
+        System.out.println(format(matrix));
+
+        double[][] scaled = copyOf(matrix);
+        for (int row = 0; row < 3; row++) {
+            for (int column = 0; column < 3; column++) {
+                scaled[row][column] *= scalingFactors[row];
+            }
+        }
+
+        System.out.println("Scaled " + name);
+        System.out.println(format(scaled));
+
+        double[] originalOutput = createRealMatrix(matrix).operate(lmsWhite);
+        double[] scaledOutput = createRealMatrix(scaled).operate(lmsWhite);
+
+        System.out.println(name);
+        double[][] tuned = new double[3][];
+        for (int i = 0; i < 3; i++) {
+            tuned[i] = fineTuneScaling(1E-5, matrix[i], lmsWhite, targetOutput[i], scalingFactors[i]);
+        }
+
+        System.out.println("tuned:");
+        System.out.println(format(tuned));
+
+        for (int i = 0; i < 3; i++) {
+            if (tuned[i] == null) {
+                System.out.println("Tuning failed for row " + i);
+                tuned[i] = scaled[i];
+            }
+        }
+        System.out.println("final:");
+        System.out.println(format(tuned));
+
+        double[] tunedOutput = createRealMatrix(tuned).operate(lmsWhite);
+
+        System.out.println("target   output = " + format(targetOutput));
+        System.out.println("original output = " + format(originalOutput));
+        System.out.println("scaled   output = " + format(scaledOutput));
+        System.out.println("tuned    output = " + format(tunedOutput));
+
+        System.out.println("=============================");
     }
 
-    private static void optimiseLmsPrimeToLab() {
-        double[][] lmsPrimeToOkLab = new double[][]{
-                {+0.2104542553, +0.7936177850, -0.0040720468},
-                {+1.9779984951, -2.4285922050, +0.4505937099},
-                {+0.0259040371, +0.7827717662, -0.8086757660}
-        };
+    private static double[] fineTuneScaling(double range, double[] originalMatrixRow, double[] input, double targetOutput, double scalingFactorFromDivision) {
+        int steps = 1000_000;
+        for (int step = -steps; step <= steps; step++) {
+            double tuning = (range / steps) * step;
+            double[] scaledMatrixRow = new double[3];
+            double output = 0;
+            double tunedScalingFactor = scalingFactorFromDivision * (1 + tuning);
+            for (int i = 0; i < 3; i++) {
+                scaledMatrixRow[i] = originalMatrixRow[i] * tunedScalingFactor;
+                output += scaledMatrixRow[i] * input[i];
+            }
+            if (output == targetOutput) {
+//                System.out.println("step = " + step + ", tuning = " + tuning + ", tunedScalingFactor = " + tunedScalingFactor);
+                return scaledMatrixRow;
+            }
+            if (output > targetOutput) {
+//                System.out.println("skipped over");
+                if (step != -steps) {
+                    return fineTuneScaling(range / 2, scaledMatrixRow.clone(), input, targetOutput, 1);
+                }
+                return null;
+            }
+        }
+        System.out.println("range not broad enough");
+        return null;
+    }
 
+    private static void optimiseLmsPrimeToLab(double[][] lmsPrimeToOkLab) {
         double[] lmsWhite = {1, 1, 1};
         double[] labWhite = {1, 0, 0};
 
-        for (double scale = 0.99999999350000010000; scale < 1.00001; scale += 1E-15) {
+        for (double scale = 0.000000001; scale < 0.00000001; scale += 1E-16) {
             double[][] scaled = copyOf(lmsPrimeToOkLab);
-            scaled[0][0] *= scale;
-            scaled[0][1] *= scale;
-            scaled[0][2] *= scale;
-            double[] resultOutput = MatrixUtils.createRealMatrix(scaled).operate(lmsWhite);
+            scaled[0][0] += scaled[0][0] * scale;
+            scaled[0][1] += scaled[0][1] * scale;
+            scaled[0][2] += scaled[0][2] * scale;
+            double[] resultOutput = createRealMatrix(scaled).operate(lmsWhite);
             if (resultOutput[0] == 1) {
                 new MatrixTuner(lmsPrimeToOkLab, lmsWhite, labWhite, 0, 0).printMatrix("Fitted", new Result(0, scaled, 0));
                 System.exit(0);
@@ -160,7 +226,7 @@ class MatrixTuner {
         if (isOverAllowedDifference(candidate)) {
             return Double.POSITIVE_INFINITY;
         }
-        double[] currentOutput = MatrixUtils.createRealMatrix(candidate).operate(input);
+        double[] currentOutput = createRealMatrix(candidate).operate(input);
         double error0 = currentOutput[0] - targetOutput[0];
         double error1 = currentOutput[1] - targetOutput[1];
         double error2 = currentOutput[2] - targetOutput[2];
@@ -220,25 +286,16 @@ class MatrixTuner {
             System.out.println();
         }
 
-        double[] originalOutput = MatrixUtils.createRealMatrix(original).operate(input);
+        double[] originalOutput = createRealMatrix(original).operate(input);
         System.out.println("Output of original matrix:");
-        for (int i = 0; i < 3; i++) {
-            System.out.print("%.20f, ".formatted(originalOutput[i]));
-        }
-        System.out.println();
+        System.out.println(format(originalOutput));
 
-        double[] resultOutput = MatrixUtils.createRealMatrix(result.matrix).operate(input);
+        double[] resultOutput = createRealMatrix(result.matrix).operate(input);
         System.out.println("Output of result matrix:");
-        for (int i = 0; i < 3; i++) {
-            System.out.print("%.20f, ".formatted(resultOutput[i]));
-        }
-        System.out.println();
+        System.out.println(format(resultOutput));
 
         System.out.println("Target output:");
-        for (int i = 0; i < 3; i++) {
-            System.out.print("%.20f, ".formatted(targetOutput[i]));
-        }
-        System.out.println();
+        System.out.println(format(targetOutput));
 
         double[][] scaled = copyOf(original);
         double[] scalingFactors = new double[3];
@@ -249,9 +306,7 @@ class MatrixTuner {
             }
         }
         System.out.println("Scaled matrix:");
-        System.out.println(Arrays.toString(scaled[0]));
-        System.out.println(Arrays.toString(scaled[1]));
-        System.out.println(Arrays.toString(scaled[2]));
+        System.out.println(format(scaled));
 
         System.out.println("Scaling factors from original to target:");
         for (int i = 0; i < 3; i++) {
@@ -259,12 +314,9 @@ class MatrixTuner {
         }
         System.out.println();
 
-        double[] scaledOutput = MatrixUtils.createRealMatrix(scaled).operate(input);
+        double[] scaledOutput = createRealMatrix(scaled).operate(input);
         System.out.println("Output of scaled matrix:");
-        for (int i = 0; i < 3; i++) {
-            System.out.print("%.20f, ".formatted(scaledOutput[i]));
-        }
-        System.out.println();
+        System.out.println(format(scaledOutput));
 
 
         System.out.println("Matrix produces squared error sum = " + result.error);
@@ -284,4 +336,137 @@ class MatrixTuner {
             this.totalDeviationFromOriginal = totalDeviationFromOriginal;
         }
     }
+
+    private static double[] scalingFactors(double[] input, double[] targetOutput, double[][] matrix) {
+        double[] output = createRealMatrix(matrix).operate(input);
+
+        double[] scalingFactors = new double[3];
+        for (int row = 0; row < 3; row++) {
+            scalingFactors[row] = targetOutput[row] / output[row];
+        }
+        return scalingFactors;
+    }
+
+    private static String format(double[] vector) {
+        return "{%.20f, %.20f, %.20f}".formatted(vector[0], vector[1], vector[2]);
+    }
+
+    private static String format(double[][] matrix) {
+        return "{%n\t%s%n\t%s%n\t%s%n}".formatted(format(matrix[0]), format(matrix[1]), format(matrix[2]));
+    }
+
+    private static double[][] tune(String name, double[][] originalMatrix, double[] input, double[] targetOutput) {
+        System.out.println("=====%n%s%n=====".formatted(name));
+        System.out.println("Original matrix:");
+        System.out.println(format(originalMatrix));
+        System.out.println("Target output: " + format(targetOutput));
+
+        double[] originalOutput = multiply(originalMatrix, input);
+        System.out.println("Initial output: " + format(originalOutput));
+
+        double[][] scaledMatrix = copyOf(originalMatrix);
+        for (int row = 0; row < 3; row++) {
+            if (targetOutput[row] != 0 && originalOutput[row] != 0) {
+                double scalingFactor = targetOutput[row] / originalOutput[row];
+                scaledMatrix[row][0] *= scalingFactor;
+                scaledMatrix[row][1] *= scalingFactor;
+                scaledMatrix[row][2] *= scalingFactor;
+            }
+        }
+
+        double[] scaledOutput = multiply(scaledMatrix, input);
+
+        System.out.println("Scaled matrix:");
+        System.out.println(format(scaledMatrix));
+        System.out.println("Output of scaled matrix: " + format(scaledOutput));
+        System.out.println();
+
+        return scaledMatrix;
+    }
+
+    private static double[] multiply(double[][] matrix, double[] vector) {
+        return createRealMatrix(matrix).operate(vector);
+    }
+
+    public static void main(String[] args) {
+
+//        double[][] scaledLmsPrimeToLab = tune("OkLAB.LMS_PRIME_TO_LAB",
+//                OkLAB.LMS_PRIME_TO_LAB_ORIGINAL.values(),
+//                new double[]{1, 1, 1},
+//                new double[]{1, 0, 0}
+//        );
+//
+//        optimiseLmsPrimeToLab(scaledLmsPrimeToLab);
+//
+        tune("OkLAB.LAB_TO_LMS_PRIME",
+                OkLAB.LAB_TO_LMS_PRIME.values(),
+                new double[]{1, 0, 0},
+                new double[]{1, 1, 1}
+        );
+//
+//        tune("OkLAB.LMS_TO_XYZ_D65_ASTM_E308_01",
+//                OkLAB.LMS_TO_XYZ_D65_ASTM_E308_01.values(),
+//                new double[]{1, 1, 1},
+//                CIEXYZ.D65_WHITE_ASTM_E308_01.coordinates().toArray()
+//        );
+//
+//        tune("OkLAB.XYZ_TO_LMS_D65_ASTM_E308_01",
+//                OkLAB.XYZ_TO_LMS_D65_ASTM_E308_01.values(),
+//                CIEXYZ.D65_WHITE_ASTM_E308_01.coordinates().toArray(),
+//                new double[]{1, 1, 1}
+//        );
+//
+//        tune("OkLAB.LMS_TO_XYZ_D65_IEC_61966_2_1",
+//                OkLAB.LMS_TO_XYZ_D65_IEC_61966_2_1.values(),
+//                new double[]{1, 1, 1},
+//                CIEXYZ.D65_WHITE_IEC_61966_2_1.coordinates().toArray()
+//        );
+//
+//        tune("OkLAB.XYZ_TO_LMS_D65_IEC_61966_2_1",
+//                OkLAB.XYZ_TO_LMS_D65_IEC_61966_2_1.values(),
+//                CIEXYZ.D65_WHITE_IEC_61966_2_1.coordinates().toArray(),
+//                new double[]{1, 1, 1}
+//        );
+//
+//        tune("OkLAB.LMS_TO_XYZ_D65_2DEGREE_STANDARD_OBSERVER",
+//                OkLAB.LMS_TO_XYZ_D65_2DEGREE_STANDARD_OBSERVER.values(),
+//                new double[]{1, 1, 1},
+//                CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER.coordinates().toArray()
+//        );
+//
+//        tune("OkLAB.XYZ_TO_LMS_D65_2DEGREE_STANDARD_OBSERVER",
+//                OkLAB.XYZ_TO_LMS_D65_2DEGREE_STANDARD_OBSERVER.values(),
+//                CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER.coordinates().toArray(),
+//                new double[]{1, 1, 1}
+//        );
+//
+//        tune("OkLAB.LMS_TO_XYZ_D65_10DEGREE_SUPPLEMENTARY_OBSERVER",
+//                OkLAB.LMS_TO_XYZ_D65_10DEGREE_SUPPLEMENTARY_OBSERVER.values(),
+//                new double[]{1, 1, 1},
+//                CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER.coordinates().toArray()
+//        );
+//
+//        tune("OkLAB.XYZ_TO_LMS_D65_10DEGREE_SUPPLEMENTARY_OBSERVER",
+//                OkLAB.XYZ_TO_LMS_D65_10DEGREE_SUPPLEMENTARY_OBSERVER.values(),
+//                CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER.coordinates().toArray(),
+//                new double[]{1, 1, 1}
+//        );
+//
+//
+//        tune("OkLAB.LAB_TO_LMS_PRIME with inversion",
+//                inverse(createRealMatrix(OkLAB.LMS_PRIME_TO_LAB.values())).getData(),
+//                new double[]{1, 0, 0},
+//                new double[]{1, 1, 1}
+//        );
+        System.out.println(format(createRealMatrix(OkLAB.LAB_TO_LMS_PRIME.values()).multiply(createRealMatrix(OkLAB.LMS_PRIME_TO_LAB.values())).getData()));
+
+
+        System.out.println(format(
+                inverse(createRealMatrix(OkLAB.LMS_PRIME_TO_LAB.values()))
+                        .multiply(createRealMatrix(OkLAB.LMS_PRIME_TO_LAB.values())).getData())
+        );
+
+
+    }
+
 }

@@ -6,15 +6,10 @@ import org.assertj.core.data.Percentage;
 
 import java.util.Arrays;
 
+import static kofa.NumericAssertions.DEFAULT_COMPARISON_THRESHOLD;
 import static kofa.NumericAssertions.assertIsCloseTo;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
-
 public class DoubleArrayAssert extends AbstractAssert<DoubleArrayAssert, double[]> {
-    public static final Percentage EXACT = Percentage.withPercentage(1E-5);
-    public static final Percentage PRECISE = Percentage.withPercentage(0.06);
-    public static final Percentage LENIENT = Percentage.withPercentage(0.2);
-    public static final Percentage ROUGH = Percentage.withPercentage(5);
-    private static final double COMPARISON_THRESHOLD = 1E-15;
 
     private DoubleArrayAssert(double[] actual) {
         super(actual, DoubleArrayAssert.class);
@@ -25,7 +20,7 @@ public class DoubleArrayAssert extends AbstractAssert<DoubleArrayAssert, double[
     }
 
     public void isCloseTo(double[] expected, Percentage percentage) {
-        isCloseTo(expected, percentage, COMPARISON_THRESHOLD);
+        isCloseTo(expected, percentage, DEFAULT_COMPARISON_THRESHOLD);
     }
 
     public void isCloseTo(double[] expected, Percentage percentage, double comparisonThreshold) {

@@ -26,9 +26,9 @@ class OkLABTuner extends Vector3 {
     private final SpaceConversionMatrix<LMS, CIEXYZ> lmsToXyz;
 
     private static final double[][] LMS_PRIME_TO_LAB_VALUES = {
-            {+0.2104542553, +0.7936177850, -0.0040720468},
-            {+1.9779984951, -2.4285922050, +0.4505937099},
-            {+0.0259040371, +0.7827717662, -0.8086757660}
+            {0.21045425666795267, 0.7936177901585156, -0.004072046826468304},
+            {1.977998495812036, -2.428592208389442, 0.45059371257740577},
+            {0.025904036510579237, 0.7827717514307554, -0.8086757879413347}
     };
 
     private static SpaceConversionMatrix<LMSPrime, OkLABTuner> lmsPrimeToLab(Vector3Constructor<OkLABTuner> constructor) {
@@ -107,7 +107,7 @@ class OkLABTuner extends Vector3 {
     }
 
     public static void main(String[] args) {
-        double[][] originalMatrix = OkLAB.XYZ_TO_LMS_ORIGINAL.values();
+        double[][] originalMatrix = OkLAB.XYZ_TO_LMS_D65_IEC_61966_2_1.values();
 
         double originalError = getError(originalMatrix);
         var currentBest = new Result(originalError, originalMatrix, totalDeviationFromOriginal(originalMatrix));
@@ -202,7 +202,7 @@ class OkLABTuner extends Vector3 {
     }
 
     private static double getError(double[][] xyzToLmsMatrix) {
-        CIEXYZ standardWhite = CIEXYZ.D65_WHITE_10DEGREE_SUPPLEMENTARY_OBSERVER;
+        CIEXYZ standardWhite = CIEXYZ.D65_WHITE_IEC_61966_2_1;
         double[][] original = OkLAB.XYZ_TO_LMS_ORIGINAL.values();
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 3; column++) {

@@ -12,7 +12,7 @@ public class NumericAssertions {
     public static final Percentage PRECISE = Percentage.withPercentage(0.06);
     public static final Percentage LENIENT = Percentage.withPercentage(0.2);
     public static final Percentage ROUGH = Percentage.withPercentage(5);
-    private static final double DEFAULT_COMPARISON_THRESHOLD = 1E-12;
+    public static final double DEFAULT_COMPARISON_THRESHOLD = 1E-12;
 
     public static void assertDegreesAreClose(double actualDegrees, double expectedDegrees) {
         try {

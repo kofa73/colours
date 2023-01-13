@@ -4,16 +4,11 @@ import kofa.maths.Vector3;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.data.Percentage;
 
+import static kofa.NumericAssertions.DEFAULT_COMPARISON_THRESHOLD;
 import static kofa.NumericAssertions.assertIsCloseTo;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 public class Vector3Assert<V extends Vector3> extends AbstractAssert<Vector3Assert<V>, V> {
-    public static final Percentage EXACT = Percentage.withPercentage(1E-5);
-    public static final Percentage PRECISE = Percentage.withPercentage(0.06);
-    public static final Percentage LENIENT = Percentage.withPercentage(0.2);
-    public static final Percentage ROUGH = Percentage.withPercentage(5);
-    private static final double COMPARISON_THRESHOLD = 1E-15;
-
     private Vector3Assert(V actual) {
         super(actual, Vector3Assert.class);
     }
@@ -23,7 +18,7 @@ public class Vector3Assert<V extends Vector3> extends AbstractAssert<Vector3Asse
     }
 
     public Vector3Assert<V> isCloseTo(V expected, Percentage percentage) {
-        return isCloseTo(expected, percentage, COMPARISON_THRESHOLD);
+        return isCloseTo(expected, percentage, DEFAULT_COMPARISON_THRESHOLD);
     }
 
     public Vector3Assert<V> isCloseTo(V expected, Percentage percentage, double comparisonThreshold) {
