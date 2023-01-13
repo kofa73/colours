@@ -111,8 +111,7 @@ class OkLABTuner extends Vector3 {
 
         double originalError = getError(originalMatrix);
         var currentBest = new Result(originalError, originalMatrix, totalDeviationFromOriginal(originalMatrix));
-        double maxRange = 0.05;
-        double range = maxRange;
+        double range = 0.05;
         printMatrix("Initial", currentBest);
         double lastPrint = 0;
         do {

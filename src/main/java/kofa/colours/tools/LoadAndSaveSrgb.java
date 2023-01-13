@@ -43,8 +43,7 @@ public class LoadAndSaveSrgb {
 
         int[] ids = null;
         try {
-            ids = IntStream.range(1, args.length)
-                    .mapToObj(argIndex -> args[argIndex])
+            ids = Arrays.stream(args, 1, args.length)
                     .mapToInt(Integer::parseInt)
                     .toArray();
         } catch (NumberFormatException nfe) {

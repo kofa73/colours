@@ -160,8 +160,7 @@ class MatrixTuner {
     private void optimise(String name) {
         double originalError = getError(original);
         var currentBest = new Result(originalError, original, totalDeviationFromOriginal(original));
-        double maxRange = 0.05;
-        double range = maxRange;
+        double range = 0.05;
         printMatrix("Initial", currentBest);
         double lastPrint = 0;
         do {
