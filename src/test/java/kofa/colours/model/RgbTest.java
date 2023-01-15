@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import static kofa.NumericAssertions.PRECISE;
 import static kofa.colours.model.Rgb.calculateToXyzMatrix;
 import static org.assertj.core.api.Assertions.assertThat;
-//import static org.assertj.core.api.Assertions.assertThat;
 
 class RgbTest {
     @Test

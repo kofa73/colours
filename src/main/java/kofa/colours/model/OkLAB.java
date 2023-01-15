@@ -32,15 +32,14 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
     static final SpaceConversionMatrix<LMS, CIEXYZ> LMS_TO_XYZ_ORIGINAL =
             XYZ_TO_LMS_ORIGINAL.invert(CIEXYZ::new);
 
-    // scaled versions of the original matrix, fit for the different reference whites
-
+    // scaled versions of the original matrix, fit for the different reference whites; see MatrixTuner
     static final SpaceConversionMatrix<CIEXYZ, LMS> XYZ_TO_LMS_D65_IEC_61966_2_1 =
             new SpaceConversionMatrix<>(
                     LMS::new,
                     new double[][]{
-                            {0.8190224659913279, 0.3619062708004724, -0.12887378965053944},
-                            {0.03298365583383246, 0.9292868594322689, 0.0361446658541868},
-                            {0.048177192362893285, 0.26423951977601745, 0.6335478093974771}
+                            {+0.81902246599132790000, +0.36190627080047240000, -0.12887378965053944000},
+                            {+0.03298365583383245500, +0.92928685943226860000, +0.03614466585418679000},
+                            {+0.04817719236289327000, +0.26423951977601740000, +0.63354780939747700000}
                     }
             );
 
@@ -51,9 +50,9 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
             new SpaceConversionMatrix<>(
                     LMS::new,
                     new double[][]{
-                            {0.8189889647022367, 0.36189146738896, -0.128868518197969},
-                            {0.03298391207546648, 0.9292940788255503, 0.03614494665290377},
-                            {0.048184113668356454, 0.26427748135788043, 0.6336388271114471}
+                            {+0.818988964702236700, +0.361891467388960000, -0.128868518197969300},
+                            {+0.032983912075466480, +0.929294078825550300, +0.036144946652903770},
+                            {+0.048184113668356454, +0.264277481357880430, +0.633638827111447100}
                     }
             );
 
@@ -64,9 +63,9 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
             new SpaceConversionMatrix<>(
                     LMS::new,
                     new double[][]{
-                            {0.8190241986802571, 0.3619070364339133, -0.12887406229042156},
-                            {0.032983873279402304, 0.9292929857789572, 0.036144904138793656},
-                            {0.04818206148759924, 0.2642662256737862, 0.6336118401792608}
+                            {+0.81902419868025690000, +0.36190703643391325000, -0.12887406229042153000},
+                            {+0.03298387327940230400, +0.92929298577895720000, +0.03614490413879365600},
+                            {+0.04818206148759922000, +0.26426622567378616000, +0.63361184017926060000}
                     }
             );
 
@@ -77,9 +76,9 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
             new SpaceConversionMatrix<>(
                     LMS::new,
                     new double[][]{
-                            {0.8189155534626621, 0.3618590287330593, -0.12885696688522788},
-                            {0.03300531931251419, 0.9298972097879098, 0.03616840546637942},
-                            {0.04867634422965124, 0.2669772394956293, 0.6401118401396407}
+                            {+0.81891555346266230000, +0.36185902873305936000, -0.12885696688522790000},
+                            {+0.03300531931251419000, +0.92989720978790980000, +0.03616840546637942000},
+                            {+0.04867634422965122500, +0.26697723949562924000, +0.64011184013964060000}
                     }
             );
 
@@ -87,23 +86,25 @@ public class OkLAB extends LAB<OkLAB, OkLCh> {
             XYZ_TO_LMS_D65_10DEGREE_SUPPLEMENTARY_OBSERVER.invert(CIEXYZ::new);
 
     // https://bottosson.github.io/posts/oklab/#converting-from-xyz-to-oklab
-
     static final SpaceConversionMatrix<LMSPrime, OkLAB> LMS_PRIME_TO_LAB_ORIGINAL = new SpaceConversionMatrix<>(
             OkLAB::new,
             new double[][]{
-                    {0.2104542553, 0.7936177850, -0.0040720468},
-                    {1.9779984951, -2.4285922050, 0.4505937099},
-                    {0.0259040371, 0.7827717662, -0.8086757660}
+                    {+0.2104542553, +0.7936177850, -0.0040720468},
+                    {+1.9779984951, -2.4285922050, +0.4505937099},
+                    {+0.0259040371, +0.7827717662, -0.8086757660}
             }
     );
 
-    // 1st row has been scaled so white L'M'S'(1, 0, 0) is mapped exactly to LAB with L = 1
+    // 1st 'L' row has been scaled so white L'M'S'(1, 0, 0) is mapped exactly to LAB with L = 1
+    // 2nd 'a' and 3rd 'b' rows have been fit by random search to map L'M'S'(1, 1, 1) to a = b = 0.
+    // RMS deviations from original rows: {3.081E-9, 9.615E-17, 1.2551E-8}
+    // See MatrixTuner
     static final SpaceConversionMatrix<LMSPrime, OkLAB> LMS_PRIME_TO_LAB = new SpaceConversionMatrix<>(
             OkLAB::new,
             new double[][]{
-                    {0.21045425666795267, 0.7936177901585156, -0.004072046826468304},
-                    {1.977998495812036, -2.428592208389442, 0.45059371257740577},
-                    {0.025904036510579237, 0.7827717514307554, -0.8086757879413347}
+                    {+0.21045425666795264000, +0.79361779015851550000, -0.00407204682646830400},
+                    {+1.97799849510000000000, -2.42859220500000000000, +0.45059370990000014000},
+                    {+0.02590402644928938400, +0.78277175429889740000, -0.80867578074818680000}
             }
     );
 
