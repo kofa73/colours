@@ -7,7 +7,7 @@ import java.awt.image.*;
 public class GrayscaleImageViewer extends JFrame {
 
     
-    public GrayscaleImageViewer(int[] pixels, int width, int height, String windowTitle) {
+    public GrayscaleImageViewer(float[] pixels, int width, int height, String windowTitle) {
         BufferedImage image = createImageFrom16BitGray(pixels, width, height);
         
         // Create image panel
@@ -36,13 +36,13 @@ public class GrayscaleImageViewer extends JFrame {
         setLocationRelativeTo(null);
     }
     
-    private BufferedImage createImageFrom16BitGray(int[] pixels, int width, int height) {
+    private BufferedImage createImageFrom16BitGray(float[] pixels, int width, int height) {
         // Create compatible buffered image
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_USHORT_GRAY);
 
         short[] pixelValues = new short[width * height];
         for (int i = 0; i < pixelValues.length; i++) {
-            pixelValues[i] = (short) ((pixels[i] * 65535 / 4095) & 0xffff);
+            pixelValues[i] = (short) ((pixels[i] * 65535 / 4095));
         }
         
         // Get raster and set pixels
@@ -52,7 +52,7 @@ public class GrayscaleImageViewer extends JFrame {
         return image;
     }
     
-    public static void show(int width, int height, int[] pixels, String windowTitle) {
+    public static void show(int width, int height, float[] pixels, String windowTitle) {
         SwingUtilities.invokeLater(() -> {
             GrayscaleImageViewer viewer = new GrayscaleImageViewer(pixels, width, height, windowTitle);
             viewer.setVisible(true);

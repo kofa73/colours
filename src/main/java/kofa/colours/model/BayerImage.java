@@ -10,25 +10,25 @@ public class BayerImage {
 
     public final int height;
     public final int width;
-    public final int[] pane0;
-    public final int[] pane1;
-    public final int[] pane3;
-    public final int[] pane2;
+    public final float[] pane0;
+    public final float[] pane1;
+    public final float[] pane2;
+    public final float[] pane3;
 
     // just for debugging
-    private int pane01Min = Integer.MAX_VALUE;
-    private int pane00Min = Integer.MAX_VALUE;
-    private int pane_11Min = Integer.MAX_VALUE;
-    private int pane10Min = Integer.MAX_VALUE;
-    private int pane01Max = Integer.MIN_VALUE;
-    private int pane00Max = Integer.MIN_VALUE;
-    private int pane_11Max = Integer.MIN_VALUE;
-    private int pane10Max = Integer.MIN_VALUE;
+    private int pane0Min = Integer.MAX_VALUE;
+    private int pane1Min = Integer.MAX_VALUE;
+    private int pane2Min = Integer.MAX_VALUE;
+    private int pane3Min = Integer.MAX_VALUE;
+    private int pane0Max = Integer.MIN_VALUE;
+    private int pane1Max = Integer.MIN_VALUE;
+    private int pane2Max = Integer.MIN_VALUE;
+    private int pane3Max = Integer.MIN_VALUE;
 
-    public final int[] pane01Histogram = new int[65536];
-    public final int[] pane00Histogram = new int[65536];
-    public final int[] pane_11Histogram = new int[65536];
-    public final int[] pane10Histogram = new int[65536];
+    public final int[] pane0Histogram = new int[65536];
+    public final int[] pane1Histogram = new int[65536];
+    public final int[] pane2Histogram = new int[65536];
+    public final int[] pane3Histogram = new int[65536];
     private final float rMultiplier;
     private final float bMultiplier;
 
@@ -39,10 +39,10 @@ public class BayerImage {
         height = rasterHeight / 2;
         int rasterWidth = raster.getWidth();
         width = rasterWidth / 2;
-        pane0 = new int[height * width];
-        pane1 = new int[height * width];
-        pane2 = new int[height * width];
-        pane3 = new int[height * width];
+        pane0 = new float[height * width];
+        pane1 = new float[height * width];
+        pane2 = new float[height * width];
+        pane3 = new float[height * width];
 
         int[] pixelBuffer = new int[1];
         
@@ -52,30 +52,30 @@ public class BayerImage {
                 raster.getPixel(x, y, pixelBuffer);
                 int pixel = pixelBuffer[0];
                 pane0[index] = pixel;
-                pane00Min = min(pane00Min, pixel);
-                pane00Max = max(pane00Max, pixel);
-                pane00Histogram[pixel]++;
+                pane0Min = min(pane0Min, pixel);
+                pane0Max = max(pane0Max, pixel);
+                pane0Histogram[pixel]++;
 
                 raster.getPixel(x + 1, y, pixelBuffer);
                 pixel = pixelBuffer[0];
                 pane1[index] = pixel;
-                pane01Min = min(pane01Min, pixel);
-                pane01Max = max(pane01Max, pixel);
-                pane01Histogram[pixel]++;
+                pane1Min = min(pane1Min, pixel);
+                pane1Max = max(pane1Max, pixel);
+                pane1Histogram[pixel]++;
 
                 raster.getPixel(x, y + 1, pixelBuffer);
                 pixel = pixelBuffer[0];
                 pane2[index] = pixel;
-                pane10Min = min(pane10Min, pixel);
-                pane10Max = max(pane10Max, pixel);
-                pane10Histogram[pixel]++;
+                pane2Min = min(pane2Min, pixel);
+                pane2Max = max(pane2Max, pixel);
+                pane2Histogram[pixel]++;
 
                 raster.getPixel(x + 1, y + 1, pixelBuffer);
                 pixel = pixelBuffer[0];
                 pane3[index] = pixel;
-                pane_11Min = min(pane_11Min, pixel);
-                pane_11Max = max(pane_11Max, pixel);
-                pane_11Histogram[pixel]++;
+                pane3Min = min(pane3Min, pixel);
+                pane3Max = max(pane3Max, pixel);
+                pane3Histogram[pixel]++;
 
                 index++;
             }
@@ -116,10 +116,10 @@ public class BayerImage {
                 int cellIndexBelowLeft = (lastRow || firstColumn) ? cellIndex : cellIndexBelow - 1;
                 int cell = y % 2 + x % 2;
 
-                int[] g1Pane;
-                int[] rPane;
-                int[] bPane;
-                int[] g2Pane;
+                float[] g1Pane;
+                float[] rPane;
+                float[] bPane;
+                float[] g2Pane;
                 /*
                  * G1 RR 0 1
                  * BB G2 2 3
@@ -138,9 +138,9 @@ public class BayerImage {
                         // ------+-----------+------
                         // G1 RR |  G1   RR  | G1 RR
                         // BB G2 |  BB   G2  | BB G2
-                        red = (rPane[cellIndexLeft] + rPane[cellIndex]) / 2.0f;
+                        red = (rPane[cellIndexLeft] + rPane[cellIndex]) / 2;
                         green = g1Pane[cellIndex];
-                        blue = (bPane[cellIndexAbove] + bPane[cellIndex]) / 2.0f;
+                        blue = (bPane[cellIndexAbove] + bPane[cellIndex]) / 2;
                         break;
                     case 1: // RR: we have the red, must interpolate green and blue
                         // G1 RR |  G1   RR  | G1 RR
@@ -152,8 +152,8 @@ public class BayerImage {
                         // G1 RR |  G1   RR  | G1 RR
                         // BB G2 |  BB   G2  | BB G2
                         red = rPane[cellIndex];
-                        green = (g1Pane[cellIndex] + g1Pane[cellIndexRight] + g2Pane[cellIndexAbove] + g2Pane[cellIndex]) / 4.0f;
-                        blue = (bPane[cellIndexAbove] + bPane[cellIndexAboveRight] + bPane[cellIndex] + bPane[cellIndexRight]) / 4.0f;
+                        green = (g1Pane[cellIndex] + g1Pane[cellIndexRight] + g2Pane[cellIndexAbove] + g2Pane[cellIndex]) / 4;
+                        blue = (bPane[cellIndexAbove] + bPane[cellIndexAboveRight] + bPane[cellIndex] + bPane[cellIndexRight]) / 4;
                         break;
                     case 2: // BB: we have the blue, must interpolate red and green
                         // G1 RR |  G1   RR  | G1 RR
@@ -164,8 +164,8 @@ public class BayerImage {
                         // ------+-----------+------
                         // G1 RR |  G1   RR  | G1 RR
                         // BB G2 |  BB   G2  | BB G2
-                        red = (rPane[cellIndexLeft] + rPane[cellIndex] + rPane[cellIndexBelowLeft] + rPane[cellIndexBelow]) / 4.0f;
-                        green = (g1Pane[cellIndex] + g1Pane[cellIndexBelow] + g2Pane[cellIndexLeft] + g2Pane[cellIndex]) / 4.0f;
+                        red = (rPane[cellIndexLeft] + rPane[cellIndex] + rPane[cellIndexBelowLeft] + rPane[cellIndexBelow]) / 4;
+                        green = (g1Pane[cellIndex] + g1Pane[cellIndexBelow] + g2Pane[cellIndexLeft] + g2Pane[cellIndex]) / 4;
                         blue = pane2[cellIndex];
                         break;
                     case 3: // G2: we have the green, must interpolate red and blue
@@ -177,9 +177,9 @@ public class BayerImage {
                         // ------+-----------+------
                         // G1 RR |  G1   RR  | G1 RR
                         // BB G2 |  BB   G2  | BB G2
-                        red = (rPane[cellIndex] + rPane[cellIndexBelow]) / 2.0f;
+                        red = (rPane[cellIndex] + rPane[cellIndexBelow]) / 2;
                         green = pane3[cellIndex];
-                        blue = (bPane[cellIndex] + bPane[cellIndexRight]) / 2.0f;
+                        blue = (bPane[cellIndex] + bPane[cellIndexRight]) / 2;
                         break;
                     default:
                         throw new IllegalArgumentException("Impossible cell: " + cell);
@@ -222,10 +222,10 @@ public class BayerImage {
                 int cellIndexBelowRight = (lastRow || lastColumn) ? cellIndex : cellIndexBelow + 1;
                 int cell = y % 2 + x % 2;
 
-                int[] g1Pane;
-                int[] rPane;
-                int[] bPane;
-                int[] g2Pane;
+                float[] g1Pane;
+                float[] rPane;
+                float[] bPane;
+                float[] g2Pane;
                 /*
                  * RR G1 0 1
                  * G2 BB 2 3
@@ -245,8 +245,8 @@ public class BayerImage {
                         // RR G1 |  RR   G1  | RR G1
                         // G2 BB |  G2   BB  | G2 BB
                         red = rPane[cellIndex];
-                        green = (g1Pane[cellIndexLeft] + g1Pane[cellIndex] + g2Pane[cellIndexAbove] + g2Pane[cellIndex]) / 4.0f;
-                        blue = (bPane[cellIndexAboveLeft] + bPane[cellIndexAbove] + bPane[cellIndexLeft] + bPane[cellIndex]) / 4.0f;
+                        green = (g1Pane[cellIndexLeft] + g1Pane[cellIndex] + g2Pane[cellIndexAbove] + g2Pane[cellIndex]) / 4;
+                        blue = (bPane[cellIndexAboveLeft] + bPane[cellIndexAbove] + bPane[cellIndexLeft] + bPane[cellIndex]) / 4;
                         break;
                     case 1: // G1: we have the red, must interpolate green and blue
                         // RR G1 |  RR   G1  | RR G1
@@ -257,9 +257,9 @@ public class BayerImage {
                         // ------+-----------+------
                         // RR G1 |  RR   G1  | RR G1
                         // G2 BB |  G2   BB  | G2 BB
-                        red = (rPane[cellIndex] + rPane[cellIndexRight]) / 2.0f;
+                        red = (rPane[cellIndex] + rPane[cellIndexRight]) / 2;
                         green =g1Pane[cellIndex];
-                        blue = (bPane[cellIndexAbove] + bPane[cellIndex]) / 2.0f;
+                        blue = (bPane[cellIndexAbove] + bPane[cellIndex]) / 2;
                         break;
                     case 2: // G2: we have the green, must interpolate red and blue
                         // RR G1 |  RR   G1  | RR G1
@@ -270,9 +270,9 @@ public class BayerImage {
                         // ------+-----------+------
                         // RR G1 |  RR   G1  | RR G1
                         // G2 BB |  G2   BB  | G2 BB
-                        red = (rPane[cellIndex] + rPane[cellIndexBelow]) / 2.0f;
+                        red = (rPane[cellIndex] + rPane[cellIndexBelow]) / 2;
                         green = g2Pane[cellIndex];
-                        blue = (bPane[cellIndexLeft] + bPane[cellIndex]) / 2.0f;
+                        blue = (bPane[cellIndexLeft] + bPane[cellIndex]) / 2;
                         break;
                     case 3: // BB: we have the blue, must interpolate red and green
                         // RR G1 |  RR   G1  | RR G1
@@ -283,8 +283,8 @@ public class BayerImage {
                         // ------+-----------+------
                         // RR G1 |  RR   G1  | RR G1
                         // G2 BB |  G2   BB  | G2 BB
-                        red = (rPane[cellIndex] + rPane[cellIndexRight] + rPane[cellIndexBelow] + rPane[cellIndexBelowRight]) / 4.0f;
-                        green = (g1Pane[cellIndex] + g1Pane[cellIndexBelow] + g2Pane[cellIndex] + g2Pane[cellIndexRight]) / 4.0f;
+                        red = (rPane[cellIndex] + rPane[cellIndexRight] + rPane[cellIndexBelow] + rPane[cellIndexBelowRight]) / 4;
+                        green = (g1Pane[cellIndex] + g1Pane[cellIndexBelow] + g2Pane[cellIndex] + g2Pane[cellIndexRight]) / 4;
                         blue = bPane[cellIndex];
                         break;
                     default:
