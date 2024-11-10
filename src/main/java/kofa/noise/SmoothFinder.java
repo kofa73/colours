@@ -24,14 +24,6 @@ public class SmoothFinder {
     private static final Random random = new Random();
     private static final FastFourierTransformer transformer = new FastFourierTransformer(DftNormalization.STANDARD);
 
-    public static Result findSmoothSquare(int[] monoPane, int width, int height, int size) {
-        float[] floatPane = new float[monoPane.length];
-        for (int i = 0; i < monoPane.length; i++) {
-            floatPane[i] = monoPane[i];
-        }
-        return findSmoothSquare(floatPane, width, height, size);
-    }
-
     public static Result findSmoothSquare(float[] monoPane, int width, int height, int size) {
         int topRightX = random.nextInt(width - size);
         int topRightY = random.nextInt(height - size);

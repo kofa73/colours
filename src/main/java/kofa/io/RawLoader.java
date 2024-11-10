@@ -2,6 +2,7 @@ package kofa.io;
 
 import kofa.colours.model.BayerImage;
 import kofa.colours.model.XYCoordinates;
+import kofa.colours.viewer.GreyscaleImageViewer;
 import kofa.colours.viewer.RGBImageViewer;
 import kofa.noise.SmoothFinder;
 import kofa.noise.SpectrumSubtractingFilter;
@@ -23,8 +24,9 @@ import static java.lang.Float.parseFloat;
  */
 public class RawLoader {
 
-    public static final int FILTER_SIZE = 16;
-    public static final int SEARCH_SEC = 10;
+    private static final int FILTER_SIZE = 16;
+    private static final int SEARCH_SEC = 10;
+    private static final boolean SHOW_PANES = false;
 
     public static BufferedImage decodeRaw(Path rawFilePath) throws IOException, InterruptedException {
         // Build the command array
@@ -135,10 +137,12 @@ public class RawLoader {
         SpectrumSubtractingFilter.filter(bayerImage.pane2, bayerImage.width, bayerImage.height, FILTER_SIZE, smoothest2.magnitudes());
         SpectrumSubtractingFilter.filter(bayerImage.pane3, bayerImage.width, bayerImage.height, FILTER_SIZE, smoothest3.magnitudes());
 
-//        GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane0, "g1");
-//        GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane1, "pane1");
-//        GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane2, "pane2");
-//        GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane3, "pane3");
+        if (SHOW_PANES) {
+            GreyscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane0, "g1");
+            GreyscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane1, "pane1");
+            GreyscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane2, "pane2");
+            GreyscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane3, "pane3");
+        }
         float[] filtered = bayerImage.simpleDemosaic(cfa);
 
         float filteredSum = 0;

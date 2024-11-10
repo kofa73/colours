@@ -21,14 +21,13 @@ public class SpectrumSubtractingFilter {
                 Complex[] filteredSpectrum = new Complex[spectrum.length];
 
                 for (int freq = 0; freq < spectrum.length; freq++) {
-//                    double magnitudeAtFreq = spectrum[freq].abs();
-//                    double reducedMagnitude = max(0, magnitudeAtFreq - noiseMagnitudes[freq]);
-//                    if (magnitudeAtFreq != 0 && !Double.isNaN(magnitudeAtFreq) && !Double.isInfinite(magnitudeAtFreq)) {
-//                        filteredSpectrum[freq] = spectrum[freq].multiply(reducedMagnitude / magnitudeAtFreq);
-//                    } else {
+                    double magnitudeAtFreq = spectrum[freq].abs();
+                    double reducedMagnitude = max(0, magnitudeAtFreq - noiseMagnitudes[freq]);
+                    if (magnitudeAtFreq != 0 && !Double.isNaN(magnitudeAtFreq) && !Double.isInfinite(magnitudeAtFreq)) {
+                        filteredSpectrum[freq] = spectrum[freq].multiply(reducedMagnitude / magnitudeAtFreq);
+                    } else {
                         filteredSpectrum[freq] = spectrum[freq];
-//                    }
-
+                    }
                 }
 
                 Complex[] filtered = transformer.transform(filteredSpectrum, TransformType.INVERSE);

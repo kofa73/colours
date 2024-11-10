@@ -4,11 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.*;
 
-public class GrayscaleImageViewer extends JFrame {
-
-    
-    public GrayscaleImageViewer(float[] pixels, int width, int height, String windowTitle) {
-        BufferedImage image = createImageFrom16BitGray(pixels, width, height);
+public class GreyscaleImageViewer extends JFrame {
+    public GreyscaleImageViewer(float[] pixels, int width, int height, String windowTitle) {
+        BufferedImage image = createImageFrom16BitGrey(pixels, width, height);
         
         // Create image panel
         JPanel imagePanel = new JPanel() {
@@ -36,7 +34,7 @@ public class GrayscaleImageViewer extends JFrame {
         setLocationRelativeTo(null);
     }
     
-    private BufferedImage createImageFrom16BitGray(float[] pixels, int width, int height) {
+    private BufferedImage createImageFrom16BitGrey(float[] pixels, int width, int height) {
         // Create compatible buffered image
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_USHORT_GRAY);
 
@@ -54,7 +52,7 @@ public class GrayscaleImageViewer extends JFrame {
     
     public static void show(int width, int height, float[] pixels, String windowTitle) {
         SwingUtilities.invokeLater(() -> {
-            GrayscaleImageViewer viewer = new GrayscaleImageViewer(pixels, width, height, windowTitle);
+            GreyscaleImageViewer viewer = new GreyscaleImageViewer(pixels, width, height, windowTitle);
             viewer.setVisible(true);
         });
     }

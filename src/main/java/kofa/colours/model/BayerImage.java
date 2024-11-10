@@ -15,20 +15,6 @@ public class BayerImage {
     public final float[] pane2;
     public final float[] pane3;
 
-    // just for debugging
-    private int pane0Min = Integer.MAX_VALUE;
-    private int pane1Min = Integer.MAX_VALUE;
-    private int pane2Min = Integer.MAX_VALUE;
-    private int pane3Min = Integer.MAX_VALUE;
-    private int pane0Max = Integer.MIN_VALUE;
-    private int pane1Max = Integer.MIN_VALUE;
-    private int pane2Max = Integer.MIN_VALUE;
-    private int pane3Max = Integer.MIN_VALUE;
-
-    public final int[] pane0Histogram = new int[65536];
-    public final int[] pane1Histogram = new int[65536];
-    public final int[] pane2Histogram = new int[65536];
-    public final int[] pane3Histogram = new int[65536];
     private final float rMultiplier;
     private final float bMultiplier;
 
@@ -52,30 +38,18 @@ public class BayerImage {
                 raster.getPixel(x, y, pixelBuffer);
                 int pixel = pixelBuffer[0];
                 pane0[index] = pixel;
-                pane0Min = min(pane0Min, pixel);
-                pane0Max = max(pane0Max, pixel);
-                pane0Histogram[pixel]++;
 
                 raster.getPixel(x + 1, y, pixelBuffer);
                 pixel = pixelBuffer[0];
                 pane1[index] = pixel;
-                pane1Min = min(pane1Min, pixel);
-                pane1Max = max(pane1Max, pixel);
-                pane1Histogram[pixel]++;
 
                 raster.getPixel(x, y + 1, pixelBuffer);
                 pixel = pixelBuffer[0];
                 pane2[index] = pixel;
-                pane2Min = min(pane2Min, pixel);
-                pane2Max = max(pane2Max, pixel);
-                pane2Histogram[pixel]++;
 
                 raster.getPixel(x + 1, y + 1, pixelBuffer);
                 pixel = pixelBuffer[0];
                 pane3[index] = pixel;
-                pane3Min = min(pane3Min, pixel);
-                pane3Max = max(pane3Max, pixel);
-                pane3Histogram[pixel]++;
 
                 index++;
             }
