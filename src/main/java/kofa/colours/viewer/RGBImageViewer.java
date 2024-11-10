@@ -8,8 +8,8 @@ import static java.lang.Math.*;
 
 public class RGBImageViewer extends JFrame {
     private final BufferedImage image;
-    
-    public RGBImageViewer(float[] rgbData, int width, int height, float additionalGamma) {
+
+    public RGBImageViewer(String title, float[] rgbData, int width, int height, float additionalGamma) {
         // Create RGB image from the data
         image = createImageFromRGB(rgbData, width, height, additionalGamma);
         
@@ -32,7 +32,7 @@ public class RGBImageViewer extends JFrame {
         scrollPane.setPreferredSize(new Dimension(1920, 1080)); // Default window size
         
         // Setup frame
-        setTitle("RGB Image Viewer");
+        setTitle(title);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         add(scrollPane);
         pack();
@@ -67,10 +67,10 @@ public class RGBImageViewer extends JFrame {
         
         return image;
     }
-    
-    public static void show(float[] rgbData, int width, int height, float additionalGamma) {
+
+    public static void show(String title, float[] rgbData, int width, int height, float additionalGamma) {
         SwingUtilities.invokeLater(() -> {
-            RGBImageViewer viewer = new RGBImageViewer(rgbData, width, height, additionalGamma);
+            RGBImageViewer viewer = new RGBImageViewer(title, rgbData, width, height, additionalGamma);
             viewer.setVisible(true);
         });
     }

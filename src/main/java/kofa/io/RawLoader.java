@@ -85,7 +85,9 @@ public class RawLoader {
         GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane0, "g1");
         GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane3, "g2");
         GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane2, "blue");
-        RGBImageViewer.show(bayerImage.simpleDemosaic(cfa), bayerImage.width * 2, bayerImage.height * 2, additionalGamma);
+        float[] data = bayerImage.simpleDemosaic(cfa);
+
+        RGBImageViewer.show("simple", data, bayerImage.width * 2, bayerImage.height * 2, additionalGamma);
     }
 
     private static void die(String message) {

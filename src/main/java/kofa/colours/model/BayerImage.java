@@ -2,7 +2,8 @@ package kofa.colours.model;
 
 import java.awt.image.Raster;
 
-import static java.lang.Math.*;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 public class BayerImage {
     public enum CFA {RGGB, GRBG}
@@ -82,6 +83,119 @@ public class BayerImage {
     }
 
     public float[] simpleDemosaic(CFA cfa) {
+        return switch (cfa) {
+            case RGGB -> simpleRGGBDemosaic();
+            case GRBG -> simpleGRBGDemosaic();
+        };
+    }
+
+    private float[] simpleGRBGDemosaic() {
+        int fullWidth = width * 2;
+        int fullHeight = height * 2;
+        float[] demosaicked = new float[fullWidth * fullHeight * 3];
+
+        int position = 0;
+
+        for (int y = 0; y < fullHeight; y++) {
+            for (int x = 0; x < fullWidth; x++) {
+                float red;
+                float green;
+                float blue;
+                int paneX = x / 2;
+                int paneY = y / 2;
+                int cellIndex = paneY * width + paneX;
+                boolean firstRow = paneY == 0;
+                boolean lastRow = paneY == height - 1;
+                boolean firstColumn = paneX == 0;
+                boolean lastColumn = paneX == width - 1;
+                int cellIndexAbove = firstRow ? cellIndex : cellIndex - width;
+                int cellIndexBelow = lastRow ? cellIndex : cellIndex + width;
+                int cellIndexLeft = firstColumn ? cellIndex : cellIndex - 1;
+                int cellIndexRight = lastColumn ? cellIndex : cellIndex + 1;
+                int cellIndexAboveRight = (firstRow || lastColumn) ? cellIndex : cellIndexAbove + 1;
+                int cellIndexBelowLeft = (lastRow || firstColumn) ? cellIndex : cellIndexBelow - 1;
+                int cell = y % 2 + x % 2;
+
+                int[] g1Pane;
+                int[] rPane;
+                int[] bPane;
+                int[] g2Pane;
+                /*
+                 * G1 RR 0 1
+                 * BB G2 2 3
+                 */
+                g1Pane = pane0;
+                rPane = pane1;
+                bPane = pane2;
+                g2Pane = pane3;
+                switch (cell) {
+                    case 0: // G1: we have the green, must interpolate red and blue
+                        // G1 RR |  G1   RR  | G1 RR
+                        // BB G2 |  BB   G2  | BB G2
+                        // ------+-----------+------
+                        // G1 RR | (G1)  RR  | G1 RR
+                        // BB G2 |  BB   G2  | BB G2
+                        // ------+-----------+------
+                        // G1 RR |  G1   RR  | G1 RR
+                        // BB G2 |  BB   G2  | BB G2
+                        red = (rPane[cellIndexLeft] + rPane[cellIndex]) / 2.0f;
+                        green = g1Pane[cellIndex];
+                        blue = (bPane[cellIndexAbove] + bPane[cellIndex]) / 2.0f;
+                        break;
+                    case 1: // RR: we have the red, must interpolate green and blue
+                        // G1 RR |  G1   RR  | G1 RR
+                        // BB G2 |  BB   G2  | BB G2
+                        // ------+-----------+------
+                        // G1 RR |  G1  (RR) | G1 RR
+                        // BB G2 |  BB   G2  | BB G2
+                        // ------+-----------+------
+                        // G1 RR |  G1   RR  | G1 RR
+                        // BB G2 |  BB   G2  | BB G2
+                        red = rPane[cellIndex];
+                        green = (g1Pane[cellIndex] + g1Pane[cellIndexRight] + g2Pane[cellIndexAbove] + g2Pane[cellIndex]) / 4.0f;
+                        blue = (bPane[cellIndexAbove] + bPane[cellIndexAboveRight] + bPane[cellIndex] + bPane[cellIndexRight]) / 4.0f;
+                        break;
+                    case 2: // BB: we have the blue, must interpolate red and green
+                        // G1 RR |  G1   RR  | G1 RR
+                        // BB G2 |  BB   G2  | BB G2
+                        // ------+-----------+------
+                        // G1 RR |  G1   RR  | G1 RR
+                        // BB G2 | (BB)  G2  | BB G2
+                        // ------+-----------+------
+                        // G1 RR |  G1   RR  | G1 RR
+                        // BB G2 |  BB   G2  | BB G2
+                        red = (rPane[cellIndexLeft] + rPane[cellIndex] + rPane[cellIndexBelowLeft] + rPane[cellIndexBelow]) / 4.0f;
+                        green = (g1Pane[cellIndex] + g1Pane[cellIndexBelow] + g2Pane[cellIndexLeft] + g2Pane[cellIndex]) / 4.0f;
+                        blue = pane2[cellIndex];
+                        break;
+                    case 3: // G2: we have the green, must interpolate red and blue
+                        // G1 RR |  G1   RR  | G1 RR
+                        // BB G2 |  BB   G2  | BB G2
+                        // ------+-----------+------
+                        // G1 RR |  G1   RR  | G1 RR
+                        // BB G2 |  BB  (G2) | BB G2
+                        // ------+-----------+------
+                        // G1 RR |  G1   RR  | G1 RR
+                        // BB G2 |  BB   G2  | BB G2
+                        red = (rPane[cellIndex] + rPane[cellIndexBelow]) / 2.0f;
+                        green = pane3[cellIndex];
+                        blue = (bPane[cellIndex] + bPane[cellIndexRight]) / 2.0f;
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Impossible cell: " + cell);
+                }
+                demosaicked[position] = rMultiplier * red;
+                position++;
+                demosaicked[position] = green;
+                position++;
+                demosaicked[position] = bMultiplier * blue;
+                position++;
+            }
+        }
+        return demosaicked;
+    }
+
+    private float[] simpleRGGBDemosaic() {
         int fullWidth = width * 2;
         int fullHeight = height * 2;
         float[] demosaicked = new float[fullWidth * fullHeight * 3];
@@ -105,8 +219,6 @@ public class BayerImage {
                 int cellIndexLeft = firstColumn ? cellIndex : cellIndex - 1;
                 int cellIndexRight = lastColumn ? cellIndex : cellIndex + 1;
                 int cellIndexAboveLeft = (firstRow || firstColumn) ? cellIndex : cellIndexAbove - 1;
-                int cellIndexAboveRight = (firstRow || lastColumn) ? cellIndex : cellIndexAbove + 1;
-                int cellIndexBelowLeft = (lastRow || firstColumn) ? cellIndex : cellIndexBelow - 1;
                 int cellIndexBelowRight = (lastRow || lastColumn) ? cellIndex : cellIndexBelow + 1;
                 int cell = y % 2 + x % 2;
 
@@ -114,141 +226,69 @@ public class BayerImage {
                 int[] rPane;
                 int[] bPane;
                 int[] g2Pane;
-                switch (cfa) {
-                    case GRBG:
-                        /*
-                         * G1 RR 0 1
-                         * BB G2 2 3
-                         */
-                        g1Pane = pane0;
-                        rPane = pane1;
-                        bPane = pane2;
-                        g2Pane = pane3;
-                        switch (cell) {
-                            case 0: // G1: we have the green, must interpolate red and blue
-                                // G1 RR |  G1   RR  | G1 RR
-                                // BB G2 |  BB   G2  | BB G2
-                                // ------+-----------+------
-                                // G1 RR | (G1)  RR  | G1 RR
-                                // BB G2 |  BB   G2  | BB G2
-                                // ------+-----------+------
-                                // G1 RR |  G1   RR  | G1 RR
-                                // BB G2 |  BB   G2  | BB G2
-                                red = (rPane[cellIndexLeft] + rPane[cellIndex]) / 2.0f;
-                                green = g1Pane[cellIndex];
-                                blue = (bPane[cellIndexAbove] + bPane[cellIndex]) / 2.0f;
-                                break;
-                            case 1: // RR: we have the red, must interpolate green and blue
-                                // G1 RR |  G1   RR  | G1 RR
-                                // BB G2 |  BB   G2  | BB G2
-                                // ------+-----------+------
-                                // G1 RR |  G1  (RR) | G1 RR
-                                // BB G2 |  BB   G2  | BB G2
-                                // ------+-----------+------
-                                // G1 RR |  G1   RR  | G1 RR
-                                // BB G2 |  BB   G2  | BB G2
-                                red = rPane[cellIndex];
-                                green = (g1Pane[cellIndex] + g1Pane[cellIndexRight] + g2Pane[cellIndexAbove] + g2Pane[cellIndex]) / 4.0f;
-                                blue = (bPane[cellIndexAbove] + bPane[cellIndexAboveRight] + bPane[cellIndex] + bPane[cellIndexRight]) / 4.0f;
-                                break;
-                            case 2: // BB: we have the blue, must interpolate red and green
-                                // G1 RR |  G1   RR  | G1 RR
-                                // BB G2 |  BB   G2  | BB G2
-                                // ------+-----------+------
-                                // G1 RR |  G1   RR  | G1 RR
-                                // BB G2 | (BB)  G2  | BB G2
-                                // ------+-----------+------
-                                // G1 RR |  G1   RR  | G1 RR
-                                // BB G2 |  BB   G2  | BB G2
-                                red = (rPane[cellIndexLeft] + rPane[cellIndex] + rPane[cellIndexBelowLeft] + rPane[cellIndexBelow]) / 4.0f;
-                                green = (g1Pane[cellIndex] + g1Pane[cellIndexBelow] + g2Pane[cellIndexLeft] + g2Pane[cellIndex]) / 4.0f;
-                                blue = pane2[cellIndex];
-                                break;
-                            case 3: // G2: we have the green, must interpolate red and blue
-                                // G1 RR |  G1   RR  | G1 RR
-                                // BB G2 |  BB   G2  | BB G2
-                                // ------+-----------+------
-                                // G1 RR |  G1   RR  | G1 RR
-                                // BB G2 |  BB  (G2) | BB G2
-                                // ------+-----------+------
-                                // G1 RR |  G1   RR  | G1 RR
-                                // BB G2 |  BB   G2  | BB G2
-                                red = (rPane[cellIndex] + rPane[cellIndexBelow]) / 2.0f;
-                                green = pane3[cellIndex];
-                                blue = (bPane[cellIndex] + bPane[cellIndexRight]) / 2.0f;
-                                break;
-                            default:
-                                throw new IllegalArgumentException("Impossible cell: " + cell);
-                        }
+                /*
+                 * RR G1 0 1
+                 * G2 BB 2 3
+                 */
+                rPane = pane0;
+                g1Pane = pane1;
+                g2Pane = pane2;
+                bPane = pane3;
+                switch (cell) {
+                    case 0: // RR: we have the red, must interpolate green and blue
+                        // RR G1 |  RR   G1  | RR G1
+                        // G2 BB |  G2   BB  | G2 BB
+                        // ------+-----------+------
+                        // RR G1 | (RR)  G1  | RR G1
+                        // G2 BB |  G2   BB  | G2 BB
+                        // ------+-----------+------
+                        // RR G1 |  RR   G1  | RR G1
+                        // G2 BB |  G2   BB  | G2 BB
+                        red = rPane[cellIndex];
+                        green = (g1Pane[cellIndexLeft] + g1Pane[cellIndex] + g2Pane[cellIndexAbove] + g2Pane[cellIndex]) / 4.0f;
+                        blue = (bPane[cellIndexAboveLeft] + bPane[cellIndexAbove] + bPane[cellIndexLeft] + bPane[cellIndex]) / 4.0f;
                         break;
-                    case RGGB:
-                        /*
-                         * RR G1 0 1
-                         * G2 BB 2 3
-                         */
-                        rPane = pane0;
-                        g1Pane = pane1;
-                        g2Pane = pane2;
-                        bPane = pane3;
-                        switch (cell) {
-                            case 0: // RR: we have the red, must interpolate green and blue
-                                // RR G1 |  RR   G1  | RR G1
-                                // G2 BB |  G2   BB  | G2 BB
-                                // ------+-----------+------
-                                // RR G1 | (RR)  G1  | RR G1
-                                // G2 BB |  G2   BB  | G2 BB
-                                // ------+-----------+------
-                                // RR G1 |  RR   G1  | RR G1
-                                // G2 BB |  G2   BB  | G2 BB
-                                red = rPane[cellIndex];
-                                green = (g1Pane[cellIndexLeft] + g1Pane[cellIndex] + g2Pane[cellIndexAbove] + g2Pane[cellIndex]) / 4.0f;
-                                blue = (bPane[cellIndexAboveLeft] + bPane[cellIndexAbove] + bPane[cellIndexLeft] + bPane[cellIndex]) / 4.0f;
-                                break;
-                            case 1: // G1: we have the red, must interpolate green and blue
-                                // RR G1 |  RR   G1  | RR G1
-                                // G2 BB |  G2   BB  | G2 BB
-                                // ------+-----------+------
-                                // RR G1 |  RR  (G1) | RR G1
-                                // G2 BB |  G2   BB  | G2 BB
-                                // ------+-----------+------
-                                // RR G1 |  RR   G1  | RR G1
-                                // G2 BB |  G2   BB  | G2 BB
-                                red = (rPane[cellIndex] + rPane[cellIndexRight]) / 2.0f;
-                                green =g1Pane[cellIndex];
-                                blue = (bPane[cellIndexAbove] + bPane[cellIndex]) / 2.0f;
-                                break;
-                            case 2: // G2: we have the green, must interpolate red and blue
-                                // RR G1 |  RR   G1  | RR G1
-                                // G2 BB |  G2   BB  | G2 BB
-                                // ------+-----------+------
-                                // RR G1 |  RR   G1  | RR G1
-                                // G2 BB | (G2)  BB  | G2 BB
-                                // ------+-----------+------
-                                // RR G1 |  RR   G1  | RR G1
-                                // G2 BB |  G2   BB  | G2 BB
-                                red = (rPane[cellIndex] + rPane[cellIndexBelow]) / 2.0f;
-                                green = g2Pane[cellIndex];
-                                blue = (bPane[cellIndexLeft] + bPane[cellIndex]) / 2.0f;
-                                break;
-                            case 3: // BB: we have the blue, must interpolate red and green
-                                // RR G1 |  RR   G1  | RR G1
-                                // G2 BB |  G2   BB  | G2 BB
-                                // ------+-----------+------
-                                // RR G1 |  RR   G1  | RR G1
-                                // G2 BB |  G2  (BB) | G2 BB
-                                // ------+-----------+------
-                                // RR G1 |  RR   G1  | RR G1
-                                // G2 BB |  G2   BB  | G2 BB
-                                red = (rPane[cellIndex] + rPane[cellIndexRight] + rPane[cellIndexBelow] + rPane[cellIndexBelowRight]) / 4.0f;
-                                green = (g1Pane[cellIndex] + g1Pane[cellIndexBelow] + g2Pane[cellIndex] + g2Pane[cellIndexRight]) / 4.0f;
-                                blue = bPane[cellIndex];
-                                break;
-                            default:
-                                throw new IllegalArgumentException("Impossible cell: " + cell);
-                        }
+                    case 1: // G1: we have the red, must interpolate green and blue
+                        // RR G1 |  RR   G1  | RR G1
+                        // G2 BB |  G2   BB  | G2 BB
+                        // ------+-----------+------
+                        // RR G1 |  RR  (G1) | RR G1
+                        // G2 BB |  G2   BB  | G2 BB
+                        // ------+-----------+------
+                        // RR G1 |  RR   G1  | RR G1
+                        // G2 BB |  G2   BB  | G2 BB
+                        red = (rPane[cellIndex] + rPane[cellIndexRight]) / 2.0f;
+                        green =g1Pane[cellIndex];
+                        blue = (bPane[cellIndexAbove] + bPane[cellIndex]) / 2.0f;
+                        break;
+                    case 2: // G2: we have the green, must interpolate red and blue
+                        // RR G1 |  RR   G1  | RR G1
+                        // G2 BB |  G2   BB  | G2 BB
+                        // ------+-----------+------
+                        // RR G1 |  RR   G1  | RR G1
+                        // G2 BB | (G2)  BB  | G2 BB
+                        // ------+-----------+------
+                        // RR G1 |  RR   G1  | RR G1
+                        // G2 BB |  G2   BB  | G2 BB
+                        red = (rPane[cellIndex] + rPane[cellIndexBelow]) / 2.0f;
+                        green = g2Pane[cellIndex];
+                        blue = (bPane[cellIndexLeft] + bPane[cellIndex]) / 2.0f;
+                        break;
+                    case 3: // BB: we have the blue, must interpolate red and green
+                        // RR G1 |  RR   G1  | RR G1
+                        // G2 BB |  G2   BB  | G2 BB
+                        // ------+-----------+------
+                        // RR G1 |  RR   G1  | RR G1
+                        // G2 BB |  G2  (BB) | G2 BB
+                        // ------+-----------+------
+                        // RR G1 |  RR   G1  | RR G1
+                        // G2 BB |  G2   BB  | G2 BB
+                        red = (rPane[cellIndex] + rPane[cellIndexRight] + rPane[cellIndexBelow] + rPane[cellIndexBelowRight]) / 4.0f;
+                        green = (g1Pane[cellIndex] + g1Pane[cellIndexBelow] + g2Pane[cellIndex] + g2Pane[cellIndexRight]) / 4.0f;
+                        blue = bPane[cellIndex];
                         break;
                     default:
-                        throw new IllegalArgumentException("Unhandled CFA: " + cfa);
+                        throw new IllegalArgumentException("Impossible cell: " + cell);
                 }
                 demosaicked[position] = rMultiplier * red;
                 position++;
