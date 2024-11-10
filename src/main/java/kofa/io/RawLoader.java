@@ -9,7 +9,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static java.lang.Float.parseFloat;
 
 /**
  * Loads raw files as greyscale, mosaicked data by decoding them using
@@ -52,14 +55,44 @@ public class RawLoader {
     }
 
     public static void main(String[] args) throws Exception {
-        Raster raster = decodeRaw(Path.of("/home/kofa/digicam/import/2024-11-04/2024-11-04-11-00-04-P1060036.RW2")).getData();
+        if (args.length != 5) {
+            die("");
+        }
+        Path rawFilePath = Path.of(args[0]);
+        if (!Files.isRegularFile(rawFilePath)) {
+            die("Not a regular file: " + rawFilePath);
+        }
+        BayerImage.CFA cfa = null;
+        try {
+            cfa = BayerImage.CFA.valueOf(args[1]);
+        } catch (IllegalArgumentException e) {
+            die("Cannot parse " + args[1]);
+        }
+        float rMultiplier = 1;
+        float bMultiplier = 1;
+        float additionalGamma = 0;
+        try {
+             rMultiplier = parseFloat(args[2]);
+             bMultiplier = parseFloat(args[3]);
+            additionalGamma = parseFloat(args[4]);
+        } catch (NumberFormatException e) {
+            die("Cannot parse %s, %s, %s".formatted(args[1], args[2], args[3]));
+        }
+        Raster raster = decodeRaw(rawFilePath).getData();
 
-        BayerImage bayerImage = new BayerImage(raster);
-        bayerImage.simpleDemosaic();
-        GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.r, "red");
-        GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.g1, "g1");
-        GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.g2, "g2");
-        GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.b, "blue");
-        RGBImageViewer.show(bayerImage.simpleDemosaic(), bayerImage.width * 2, bayerImage.height * 2);
+        BayerImage bayerImage = new BayerImage(raster, rMultiplier, bMultiplier);
+        GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane1, "red");
+        GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane0, "g1");
+        GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane3, "g2");
+        GrayscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane2, "blue");
+        RGBImageViewer.show(bayerImage.simpleDemosaic(cfa), bayerImage.width * 2, bayerImage.height * 2, additionalGamma);
+    }
+
+    private static void die(String message) {
+        if (message != null && !message.isBlank()) {
+            System.out.println(message);
+        }
+        System.out.println("RawLoader path-to-raw (RGGB|GRBG) rMultiplier bMultiplier additionalGamma");
+        System.exit(-1);
     }
 }

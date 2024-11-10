@@ -4,14 +4,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-import static java.lang.Math.round;
+import static java.lang.Math.*;
 
 public class RGBImageViewer extends JFrame {
     private final BufferedImage image;
     
-    public RGBImageViewer(int[] rgbData, int width, int height) {
+    public RGBImageViewer(float[] rgbData, int width, int height, float additionalGamma) {
         // Create RGB image from the data
-        image = createImageFromRGB(rgbData, width, height);
+        image = createImageFromRGB(rgbData, width, height, additionalGamma);
         
         // Create image panel
         JPanel imagePanel = new JPanel() {
@@ -29,7 +29,7 @@ public class RGBImageViewer extends JFrame {
         
         // Create scroll pane
         JScrollPane scrollPane = new JScrollPane(imagePanel);
-        scrollPane.setPreferredSize(new Dimension(800, 600)); // Default window size
+        scrollPane.setPreferredSize(new Dimension(1920, 1080)); // Default window size
         
         // Setup frame
         setTitle("RGB Image Viewer");
@@ -39,17 +39,26 @@ public class RGBImageViewer extends JFrame {
         setLocationRelativeTo(null);
     }
     
-    private BufferedImage createImageFromRGB(int[] rgbData, int width, int height) {
+    private BufferedImage createImageFromRGB(float[] rgbData, int width, int height, float additionalGamma) {
         // Create compatible buffered image
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        
+
+        float max = 0;
+        for (float value : rgbData) {
+            max = max(max, value);
+        }
+
+        float gamma = 2.2f // sRGB-ish
+                + additionalGamma; // for brightness
+        float exponent = 1 / gamma;
+
         // Convert separate RGB values to packed pixels
         int[] pixels = new int[width * height];
         for (int i = 0; i < width * height; i++) {
-            // 12-bit raw -> 0..4095, needs to map to 0..255
-            int r = round(255 * rgbData[i * 3] / 4095f);
-            int g = round(255 * rgbData[i * 3 + 1] / 4095f);
-            int b = round(255 * rgbData[i * 3 + 2] / 4095f);
+            // quick sRGB-ish TRC
+            int r = (int) round(255 * pow(rgbData[i * 3] / max, exponent));
+            int g = (int) round(255 * pow(rgbData[i * 3 + 1] / max, exponent));
+            int b = (int) round(255 * pow(rgbData[i * 3 + 2] / max, exponent));
             pixels[i] = (r << 16) | (g << 8) | b;
         }
         
@@ -59,9 +68,9 @@ public class RGBImageViewer extends JFrame {
         return image;
     }
     
-    public static void show(int[] rgbData, int width, int height) {
+    public static void show(float[] rgbData, int width, int height, float additionalGamma) {
         SwingUtilities.invokeLater(() -> {
-            RGBImageViewer viewer = new RGBImageViewer(rgbData, width, height);
+            RGBImageViewer viewer = new RGBImageViewer(rgbData, width, height, additionalGamma);
             viewer.setVisible(true);
         });
     }
