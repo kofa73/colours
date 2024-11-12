@@ -105,32 +105,38 @@ public class RawLoader {
 
         long start = System.currentTimeMillis();
         long stop = start + SEARCH_SEC * 1_000;
+        long counter = 0;
         while (System.currentTimeMillis() < stop) {
             SmoothFinder.Result result0 = SmoothFinder.findSmoothSquare(bayerImage.pane0, bayerImage.width, bayerImage.height, FILTER_SIZE);
             SmoothFinder.Result result1 = SmoothFinder.findSmoothSquare(bayerImage.pane1, bayerImage.width, bayerImage.height, FILTER_SIZE);
             SmoothFinder.Result result2 = SmoothFinder.findSmoothSquare(bayerImage.pane2, bayerImage.width, bayerImage.height, FILTER_SIZE);
             SmoothFinder.Result result3 = SmoothFinder.findSmoothSquare(bayerImage.pane3, bayerImage.width, bayerImage.height, FILTER_SIZE);
-            if (result0.magnitude() < smoothest0.magnitude() && result0.magnitude() > 1) {
-                double improvement = 1 - result0.magnitude() / smoothest0.magnitude();
-                System.out.println((System.currentTimeMillis() - start) + " Found smooth pane0 area at " + result0.coordinates() + " with power " + result0.magnitude() + ", improvement: " + improvement);
+            if (result0.power() < smoothest0.power() && result0.power() > 1) {
+                double improvement = 1 - result0.power() / smoothest0.power();
+                System.out.println((System.currentTimeMillis() - start) + " Found smooth pane0 area at " + result0.coordinates() + " with power " + result0.power() + ", improvement: " + improvement);
                 smoothest0 = result0;
             }
-            if (result1.magnitude() < smoothest1.magnitude() && result1.magnitude() > 1) {
-                double improvement = 1 - result1.magnitude() / smoothest1.magnitude();
-                System.out.println((System.currentTimeMillis() - start) + " Found smooth pane1 area at " + result1.coordinates() + " with power " + result1.magnitude() + ", improvement: " + improvement);
+            if (result1.power() < smoothest1.power() && result1.power() > 1) {
+                double improvement = 1 - result1.power() / smoothest1.power();
+                System.out.println((System.currentTimeMillis() - start) + " Found smooth pane1 area at " + result1.coordinates() + " with power " + result1.power() + ", improvement: " + improvement);
                 smoothest1 = result1;
             }
-            if (result2.magnitude() < smoothest2.magnitude() && result2.magnitude() > 1) {
-                double improvement = 1 - result2.magnitude() / smoothest2.magnitude();
-                System.out.println((System.currentTimeMillis() - start) + " Found smooth pane2 area at " + result2.coordinates() + " with power " + result2.magnitude() + ", improvement: " + improvement);
+            if (result2.power() < smoothest2.power() && result2.power() > 1) {
+                double improvement = 1 - result2.power() / smoothest2.power();
+                System.out.println((System.currentTimeMillis() - start) + " Found smooth pane2 area at " + result2.coordinates() + " with power " + result2.power() + ", improvement: " + improvement);
                 smoothest2 = result2;
             }
-            if (result3.magnitude() < smoothest3.magnitude() && result3.magnitude() > 1) {
-                double improvement = 1 - result3.magnitude() / smoothest3.magnitude();
-                System.out.println((System.currentTimeMillis() - start) + " Found smooth pane3 area at " + result3.coordinates() + " with power " + result3.magnitude() + ", improvement: " + improvement);
+            if (result3.power() < smoothest3.power() && result3.power() > 1) {
+                double improvement = 1 - result3.power() / smoothest3.power();
+                System.out.println((System.currentTimeMillis() - start) + " Found smooth pane3 area at " + result3.coordinates() + " with power " + result3.power() + ", improvement: " + improvement);
                 smoothest3 = result3;
             }
+            counter++;
+            if (counter % 1000 == 0) {
+                System.out.println("Samples evaluated so far: " + counter);
+            }
         }
+        System.out.println("Total samples evaluated: " + counter);
 
         SpectrumSubtractingFilter.filter(bayerImage.pane0, bayerImage.width, bayerImage.height, FILTER_SIZE, smoothest0.magnitudes());
         SpectrumSubtractingFilter.filter(bayerImage.pane1, bayerImage.width, bayerImage.height, FILTER_SIZE, smoothest1.magnitudes());

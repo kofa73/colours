@@ -11,7 +11,7 @@ import java.util.Random;
 import static kofa.noise.Padding.pad;
 
 public class SmoothFinder {
-    public record Result (XYCoordinates coordinates, double magnitude, Complex[] spectrum) {
+    public record Result(XYCoordinates coordinates, double power, Complex[] spectrum) {
         public double[] magnitudes() {
             double[] magnitudes = new double[spectrum().length];
             for (int i = 0; i < spectrum.length; i++) {
@@ -31,11 +31,16 @@ public class SmoothFinder {
         double[] padded = pad(monoPane, width, height, size, topRightX, topRightY);
 
         Complex[] spectrum = transformer.transform(padded, TransformType.FORWARD);
-        double magnitude = 0;
-        for (int i = 0; i < spectrum.length; i++) {
-            magnitude += spectrum[i].abs();
+        double power = 0;
+        // don't include the offset (frequency = 0) in the power calculation
+        for (int i = 1; i < spectrum.length; i++) {
+            double magnitude = spectrum[i].abs();
+            power += magnitude * magnitude;
         }
 
-        return new Result(new XYCoordinates(topRightX, topRightY), magnitude, spectrum);
+        // zero out the offset - keeping it is basically a black-level adjustment
+//        spectrum[0] = new Complex(0, 0);
+
+        return new Result(new XYCoordinates(topRightX, topRightY), power, spectrum);
     }
 }

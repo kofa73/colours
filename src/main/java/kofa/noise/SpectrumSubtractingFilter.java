@@ -10,6 +10,7 @@ import static kofa.noise.Padding.pad;
 
 public class SpectrumSubtractingFilter {
     private static final FastFourierTransformer transformer = new FastFourierTransformer(DftNormalization.STANDARD);
+    private static final int STRENGTH = 1;
 
     public static void filter(float[] monoPane, int width, int height, int size, double[] noiseMagnitudes) {
         for (int topRightY = 0; topRightY < height - size; topRightY += size) {
@@ -22,7 +23,8 @@ public class SpectrumSubtractingFilter {
 
                 for (int freq = 0; freq < spectrum.length; freq++) {
                     double magnitudeAtFreq = spectrum[freq].abs();
-                    double reducedMagnitude = max(0, magnitudeAtFreq - noiseMagnitudes[freq]);
+                    double strength = freq == 0 ? 1 : STRENGTH;
+                    double reducedMagnitude = max(0, magnitudeAtFreq - strength * noiseMagnitudes[freq]);
                     if (magnitudeAtFreq != 0 && !Double.isNaN(magnitudeAtFreq) && !Double.isInfinite(magnitudeAtFreq)) {
                         filteredSpectrum[freq] = spectrum[freq].multiply(reducedMagnitude / magnitudeAtFreq);
                     } else {
