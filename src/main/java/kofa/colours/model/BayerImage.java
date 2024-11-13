@@ -31,7 +31,10 @@ public class BayerImage {
         pane3 = new float[height * width];
 
         int[] pixelBuffer = new int[1];
-        
+
+        // TODO: pass in the CFA type, and apply the red/blue multipliers ASAP. Does not matter for bilinear,
+        // but may disturb other demosaic algos that calculate gradients etc. (or not?)
+
         int index = 0;
         for (int y = 0; y < rasterHeight; y += 2) {
             for (int x = 0; x < rasterWidth; x += 2) {

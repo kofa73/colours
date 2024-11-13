@@ -146,10 +146,13 @@ public class RawLoader {
 
         var filter = new SpectrumSubtractingFilter(bayerImage.width, bayerImage.height, FILTER_SIZE);
 
+        long filterStartMillis = System.currentTimeMillis();
         filter.filter(bayerImage.pane0, smoothest0.magnitudes());
         filter.filter(bayerImage.pane1, smoothest1.magnitudes());
         filter.filter(bayerImage.pane2, smoothest2.magnitudes());
         filter.filter(bayerImage.pane3, smoothest3.magnitudes());
+        long filterDurationms = System.currentTimeMillis() - filterStartMillis;
+        System.out.println("filtering %d x %d took %d ms".formatted(bayerImage.width, bayerImage.height, filterDurationms));
 
         if (SHOW_PANES) {
             GreyscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane0, "g1");
@@ -157,7 +160,11 @@ public class RawLoader {
             GreyscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane2, "pane2");
             GreyscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane3, "pane3");
         }
+
+        long debayerStartMillis = System.currentTimeMillis();
         float[] filtered = bayerImage.simpleDemosaic(cfa);
+        long debayerDurationms = System.currentTimeMillis() - debayerStartMillis;
+        System.out.println("debayering %d x %d took %d ms".formatted(2 * bayerImage.width, 2 * bayerImage.height, debayerDurationms));
 
         float filteredSum = 0;
         for (float value : filtered) {

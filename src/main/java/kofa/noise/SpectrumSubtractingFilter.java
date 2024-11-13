@@ -13,7 +13,7 @@ import static kofa.noise.Padding.pad;
 
 public class SpectrumSubtractingFilter {
     private static final FastFourierTransformer transformer = new FastFourierTransformer(DftNormalization.STANDARD);
-    private static final int STRENGTH = 2;
+    private static final double STRENGTH = 1.5;
 
     private final int width;
     private final int height;
@@ -40,7 +40,6 @@ public class SpectrumSubtractingFilter {
                 multipliers[y][x] = multiplier;
             }
         }
-
     }
 
     public void filter(float[] monoPane, double[] noiseMagnitudes) {
@@ -58,10 +57,15 @@ public class SpectrumSubtractingFilter {
 
             Complex[] spectrum = transformer.transform(padded, TransformType.FORWARD);
 
-            for (int freq = 0; freq < spectrum.length; freq++) {
+            double offset = spectrum[0].abs();
+            double reducedOffset = max(0, offset - noiseMagnitudes[0]);
+            if (offset != 0 && !Double.isNaN(offset) && !Double.isInfinite(offset)) {
+                spectrum[0] = spectrum[0].multiply(reducedOffset / offset);
+            }
+
+            for (int freq = 1; freq < spectrum.length; freq++) {
                 double magnitudeAtFreq = spectrum[freq].abs();
-                double strength = freq == 0 ? 1 : STRENGTH;
-                double reducedMagnitude = max(0, magnitudeAtFreq - strength * noiseMagnitudes[freq]);
+                double reducedMagnitude = max(0, magnitudeAtFreq - STRENGTH * noiseMagnitudes[freq]);
                 if (magnitudeAtFreq != 0 && !Double.isNaN(magnitudeAtFreq) && !Double.isInfinite(magnitudeAtFreq)) {
                     spectrum[freq] = spectrum[freq].multiply(reducedMagnitude / magnitudeAtFreq);
                 }
@@ -69,12 +73,19 @@ public class SpectrumSubtractingFilter {
 
             Complex[] filtered = transformer.transform(spectrum, TransformType.INVERSE);
 
-            for (int y = 0; y < blockSize; y++) {
-                for (int x = 0; x < blockSize; x++) {
-                    int indexInPane = (topLeftY + y) * width + (topLeftX + x);
-                    int indexInFiltered = (paddingEnd + y) * paddedRowLength + (paddingEnd + x);
-                    double filteredValue = filtered[indexInFiltered].getReal();
-                    monoPane[indexInPane] += multipliers[y][x] * (float) max(0, filteredValue);
+            // monoPane is updated using read - increment - write, need to sync
+            // It's more efficient to get the lock once for the loop than racing for it for each individual update.
+            // Ideally, each thread would have its own area that can be merged in the end.
+            synchronized (monoPane) {
+                for (int y = 0; y < blockSize; y++) {
+                    int rowStartInPane = (topLeftY + y) * width;
+                    int rowStartInFiltered = (paddingEnd + y) * paddedRowLength;
+                    for (int x = 0; x < blockSize; x++) {
+                        int indexInPane = rowStartInPane + (topLeftX + x);
+                        int indexInFiltered = rowStartInFiltered + (paddingEnd + x);
+                        double filteredValue = filtered[indexInFiltered].getReal();
+                        monoPane[indexInPane] += multipliers[y][x] * (float) max(0, filteredValue);
+                    }
                 }
             }
         }
