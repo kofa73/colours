@@ -1,10 +1,10 @@
 package kofa.noise;
 
 public class Padding {
-    public static double[] pad(float[] input, int width, int height, int size, int topRightX, int topRightY) {
+    public static double[] pad(float[] input, int width, int height, int size, int topLeftX, int topLeftY) {
         float sum = 0;
-        for (int y = topRightY; y < topRightY + size; y++) {
-            for (int x = topRightX; x < topRightX + size; x++) {
+        for (int y = topLeftY; y < topLeftY + size; y++) {
+            for (int x = topLeftX; x < topLeftX + size; x++) {
                 int index = y * width + x;
                 sum += input[index];
             }
@@ -22,7 +22,7 @@ public class Padding {
         int padEnd = (nextPowerOf2 - size) / 2;
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
-                int inIndex = (y + topRightY) * width + (x + topRightX);
+                int inIndex = (y + topLeftY) * width + (x + topLeftX);
                 int outIndex = (y + padEnd) * nextPowerOf2 + x + padEnd;
                 padded[outIndex] = input[inIndex];
             }

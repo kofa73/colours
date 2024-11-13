@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 
 import static java.lang.Float.parseFloat;
 
@@ -106,11 +108,18 @@ public class RawLoader {
         long start = System.currentTimeMillis();
         long stop = start + SEARCH_SEC * 1_000;
         long counter = 0;
+
+        ForkJoinPool threadPool = ForkJoinPool.commonPool();
+
         while (System.currentTimeMillis() < stop) {
-            SmoothFinder.Result result0 = SmoothFinder.findSmoothSquare(bayerImage.pane0, bayerImage.width, bayerImage.height, FILTER_SIZE);
-            SmoothFinder.Result result1 = SmoothFinder.findSmoothSquare(bayerImage.pane1, bayerImage.width, bayerImage.height, FILTER_SIZE);
-            SmoothFinder.Result result2 = SmoothFinder.findSmoothSquare(bayerImage.pane2, bayerImage.width, bayerImage.height, FILTER_SIZE);
-            SmoothFinder.Result result3 = SmoothFinder.findSmoothSquare(bayerImage.pane3, bayerImage.width, bayerImage.height, FILTER_SIZE);
+            ForkJoinTask<SmoothFinder.Result> future0 = threadPool.submit(() -> SmoothFinder.findSmoothSquare(bayerImage.pane0, bayerImage.width, bayerImage.height, FILTER_SIZE));
+            ForkJoinTask<SmoothFinder.Result> future1 = threadPool.submit(() -> SmoothFinder.findSmoothSquare(bayerImage.pane1, bayerImage.width, bayerImage.height, FILTER_SIZE));
+            ForkJoinTask<SmoothFinder.Result> future2 = threadPool.submit(() -> SmoothFinder.findSmoothSquare(bayerImage.pane2, bayerImage.width, bayerImage.height, FILTER_SIZE));
+            ForkJoinTask<SmoothFinder.Result> future3 = threadPool.submit(() -> SmoothFinder.findSmoothSquare(bayerImage.pane3, bayerImage.width, bayerImage.height, FILTER_SIZE));
+            SmoothFinder.Result result0 = future0.get();
+            SmoothFinder.Result result1 = future1.get();
+            SmoothFinder.Result result2 = future2.get();
+            SmoothFinder.Result result3 = future3.get();
             if (result0.power() < smoothest0.power() && result0.power() > 1) {
                 double improvement = 1 - result0.power() / smoothest0.power();
                 System.out.println((System.currentTimeMillis() - start) + " Found smooth pane0 area at " + result0.coordinates() + " with power " + result0.power() + ", improvement: " + improvement);
@@ -132,16 +141,15 @@ public class RawLoader {
                 smoothest3 = result3;
             }
             counter++;
-            if (counter % 1000 == 0) {
-                System.out.println("Samples evaluated so far: " + counter);
-            }
         }
         System.out.println("Total samples evaluated: " + counter);
 
-        SpectrumSubtractingFilter.filter(bayerImage.pane0, bayerImage.width, bayerImage.height, FILTER_SIZE, smoothest0.magnitudes());
-        SpectrumSubtractingFilter.filter(bayerImage.pane1, bayerImage.width, bayerImage.height, FILTER_SIZE, smoothest1.magnitudes());
-        SpectrumSubtractingFilter.filter(bayerImage.pane2, bayerImage.width, bayerImage.height, FILTER_SIZE, smoothest2.magnitudes());
-        SpectrumSubtractingFilter.filter(bayerImage.pane3, bayerImage.width, bayerImage.height, FILTER_SIZE, smoothest3.magnitudes());
+        var filter = new SpectrumSubtractingFilter(bayerImage.width, bayerImage.height, FILTER_SIZE);
+
+        filter.filter(bayerImage.pane0, smoothest0.magnitudes());
+        filter.filter(bayerImage.pane1, smoothest1.magnitudes());
+        filter.filter(bayerImage.pane2, smoothest2.magnitudes());
+        filter.filter(bayerImage.pane3, smoothest3.magnitudes());
 
         if (SHOW_PANES) {
             GreyscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane0, "g1");

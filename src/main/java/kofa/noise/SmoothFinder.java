@@ -7,6 +7,7 @@ import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static kofa.noise.Padding.pad;
 
@@ -21,18 +22,18 @@ public class SmoothFinder {
         }
     }
 
-    private static final Random random = new Random();
     private static final FastFourierTransformer transformer = new FastFourierTransformer(DftNormalization.STANDARD);
 
     public static Result findSmoothSquare(float[] monoPane, int width, int height, int size) {
-        int topRightX = random.nextInt(width - size);
-        int topRightY = random.nextInt(height - size);
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        int topLeftX = random.nextInt(width - size);
+        int topLeftY = random.nextInt(height - size);
 
-        double[] padded = pad(monoPane, width, height, size, topRightX, topRightY);
+        double[] padded = pad(monoPane, width, height, size, topLeftX, topLeftY);
 
         Complex[] spectrum = transformer.transform(padded, TransformType.FORWARD);
         double power = 0;
-        // don't include the offset (frequency = 0) in the power calculation
+        // don't include the offset (frequency = 0) in the power calculation; it does not influence 'smoothness'
         for (int i = 1; i < spectrum.length; i++) {
             double magnitude = spectrum[i].abs();
             power += magnitude * magnitude;
@@ -41,6 +42,6 @@ public class SmoothFinder {
         // zero out the offset - keeping it is basically a black-level adjustment
 //        spectrum[0] = new Complex(0, 0);
 
-        return new Result(new XYCoordinates(topRightX, topRightY), power, spectrum);
+        return new Result(new XYCoordinates(topLeftX, topLeftY), power, spectrum);
     }
 }
