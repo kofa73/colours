@@ -4,7 +4,7 @@ import kofa.colours.model.BayerImage;
 import kofa.colours.model.XYCoordinates;
 import kofa.colours.viewer.GreyscaleImageViewer;
 import kofa.colours.viewer.RGBImageViewer;
-import kofa.noise.SmoothFinder;
+import kofa.noise.SpectralPowerCalculator;
 import kofa.noise.SpectrumSubtractingFilter;
 import org.apache.commons.math3.complex.Complex;
 
@@ -100,10 +100,10 @@ public class RawLoader {
         }
         RGBImageViewer.show("original", data, bayerImage.width * 2, bayerImage.height * 2, additionalGamma);
 
-        SmoothFinder.Result smoothest0 = new SmoothFinder.Result(new XYCoordinates(0, 0), Double.MAX_VALUE, new Complex[0]);
-        SmoothFinder.Result smoothest1 = smoothest0;
-        SmoothFinder.Result smoothest2 = smoothest0;
-        SmoothFinder.Result smoothest3 = smoothest0;
+        SpectralPowerCalculator.Result smoothest0 = new SpectralPowerCalculator.Result(new XYCoordinates(0, 0), Double.MAX_VALUE, new Complex[0]);
+        SpectralPowerCalculator.Result smoothest1 = smoothest0;
+        SpectralPowerCalculator.Result smoothest2 = smoothest0;
+        SpectralPowerCalculator.Result smoothest3 = smoothest0;
 
         long start = System.currentTimeMillis();
         long stop = start + SEARCH_SEC * 1_000;
@@ -111,33 +111,38 @@ public class RawLoader {
 
         ForkJoinPool threadPool = ForkJoinPool.commonPool();
 
+        var spCalculator0 = new SpectralPowerCalculator(bayerImage.pane0, bayerImage.width, bayerImage.height, FILTER_SIZE);
+        var spCalculator1 = new SpectralPowerCalculator(bayerImage.pane1, bayerImage.width, bayerImage.height, FILTER_SIZE);
+        var spCalculator2 = new SpectralPowerCalculator(bayerImage.pane2, bayerImage.width, bayerImage.height, FILTER_SIZE);
+        var spCalculator3 = new SpectralPowerCalculator(bayerImage.pane3, bayerImage.width, bayerImage.height, FILTER_SIZE);
+
         while (System.currentTimeMillis() < stop) {
-            ForkJoinTask<SmoothFinder.Result> future0 = threadPool.submit(() -> SmoothFinder.findSmoothSquare(bayerImage.pane0, bayerImage.width, bayerImage.height, FILTER_SIZE));
-            ForkJoinTask<SmoothFinder.Result> future1 = threadPool.submit(() -> SmoothFinder.findSmoothSquare(bayerImage.pane1, bayerImage.width, bayerImage.height, FILTER_SIZE));
-            ForkJoinTask<SmoothFinder.Result> future2 = threadPool.submit(() -> SmoothFinder.findSmoothSquare(bayerImage.pane2, bayerImage.width, bayerImage.height, FILTER_SIZE));
-            ForkJoinTask<SmoothFinder.Result> future3 = threadPool.submit(() -> SmoothFinder.findSmoothSquare(bayerImage.pane3, bayerImage.width, bayerImage.height, FILTER_SIZE));
-            SmoothFinder.Result result0 = future0.get();
-            SmoothFinder.Result result1 = future1.get();
-            SmoothFinder.Result result2 = future2.get();
-            SmoothFinder.Result result3 = future3.get();
+            ForkJoinTask<SpectralPowerCalculator.Result> future0 = threadPool.submit(() -> spCalculator0.measureRandomSquare());
+            ForkJoinTask<SpectralPowerCalculator.Result> future1 = threadPool.submit(() -> spCalculator1.measureRandomSquare());
+            ForkJoinTask<SpectralPowerCalculator.Result> future2 = threadPool.submit(() -> spCalculator2.measureRandomSquare());
+            ForkJoinTask<SpectralPowerCalculator.Result> future3 = threadPool.submit(() -> spCalculator3.measureRandomSquare());
+            SpectralPowerCalculator.Result result0 = future0.get();
+            SpectralPowerCalculator.Result result1 = future1.get();
+            SpectralPowerCalculator.Result result2 = future2.get();
+            SpectralPowerCalculator.Result result3 = future3.get();
             if (result0.power() < smoothest0.power() && result0.power() > 1) {
                 double improvement = 1 - result0.power() / smoothest0.power();
-                System.out.println((System.currentTimeMillis() - start) + " Found smooth pane0 area at " + result0.coordinates() + " with power " + result0.power() + ", improvement: " + improvement);
+                System.out.println((System.currentTimeMillis() - start) + " Found smoother pane0 area at " + result0.coordinates() + " with power " + result0.power() + ", improvement: " + improvement);
                 smoothest0 = result0;
             }
             if (result1.power() < smoothest1.power() && result1.power() > 1) {
                 double improvement = 1 - result1.power() / smoothest1.power();
-                System.out.println((System.currentTimeMillis() - start) + " Found smooth pane1 area at " + result1.coordinates() + " with power " + result1.power() + ", improvement: " + improvement);
+                System.out.println((System.currentTimeMillis() - start) + " Found smoother pane1 area at " + result1.coordinates() + " with power " + result1.power() + ", improvement: " + improvement);
                 smoothest1 = result1;
             }
             if (result2.power() < smoothest2.power() && result2.power() > 1) {
                 double improvement = 1 - result2.power() / smoothest2.power();
-                System.out.println((System.currentTimeMillis() - start) + " Found smooth pane2 area at " + result2.coordinates() + " with power " + result2.power() + ", improvement: " + improvement);
+                System.out.println((System.currentTimeMillis() - start) + " Found smoother pane2 area at " + result2.coordinates() + " with power " + result2.power() + ", improvement: " + improvement);
                 smoothest2 = result2;
             }
             if (result3.power() < smoothest3.power() && result3.power() > 1) {
                 double improvement = 1 - result3.power() / smoothest3.power();
-                System.out.println((System.currentTimeMillis() - start) + " Found smooth pane3 area at " + result3.coordinates() + " with power " + result3.power() + ", improvement: " + improvement);
+                System.out.println((System.currentTimeMillis() - start) + " Found smoother pane3 area at " + result3.coordinates() + " with power " + result3.power() + ", improvement: " + improvement);
                 smoothest3 = result3;
             }
             counter++;
