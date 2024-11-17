@@ -10,7 +10,6 @@ import org.apache.commons.math3.complex.Complex;
 import java.awt.image.Raster;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
@@ -81,18 +80,15 @@ public class NoiseExperiment {
         Raster raster = load();
 
         BayerImage bayerImage = new BayerImage(raster, cfa, rMultiplier, bMultiplier);
-
         float[] data = bayerImage.simpleDemosaic();
+        RGBImageViewer.show("original", data, bayerImage.width * 2, bayerImage.height * 2, additionalGamma);
+
         float accumulator = 0;
         for (float value : data) {
             accumulator += value;
         }
 
         float originalSum = accumulator;
-
-        RGBImageViewer.show("original", data, bayerImage.width * 2, bayerImage.height * 2, additionalGamma);
-
-
 
         SpectralPowerCalculator.Result smoothest0 = new SpectralPowerCalculator.Result(new XYCoordinates(0, 0), Double.MAX_VALUE, new Complex[0]);
         SpectralPowerCalculator.Result smoothest1 = smoothest0;
