@@ -2,14 +2,11 @@ package kofa.colours.model;
 
 import java.awt.image.Raster;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-
-public class BayerImage {
+public class BayerImage implements Cloneable {
     public enum CFA {RGGB, GRBG}
 
-    public final int height;
     public final int width;
+    public final int height;
     public final float[] pane0;
     public final float[] pane1;
     public final float[] pane2;
@@ -17,6 +14,17 @@ public class BayerImage {
 
     private final float rMultiplier;
     private final float bMultiplier;
+
+    private BayerImage(int width, int height, float[] pane0, float[] pane1, float[] pane2, float[] pane3, float rMultiplier, float bMultiplier) {
+        this.width = width;
+        this.height = height;
+        this.pane0 = pane0;
+        this.pane1 = pane1;
+        this.pane2 = pane2;
+        this.pane3 = pane3;
+        this.rMultiplier = rMultiplier;
+        this.bMultiplier = bMultiplier;
+    }
 
     public BayerImage(Raster raster, float rMultiplier, float bMultiplier) {
         this.rMultiplier = rMultiplier;
@@ -276,5 +284,14 @@ public class BayerImage {
             }
         }
         return demosaicked;
+    }
+
+    @Override
+    public BayerImage clone() {
+        return new BayerImage(
+                this.width, this.height,
+                pane0.clone(), pane1.clone(), pane2.clone(), pane3.clone(),
+                rMultiplier, bMultiplier
+        );
     }
 }

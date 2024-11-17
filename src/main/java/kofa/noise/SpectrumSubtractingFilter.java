@@ -53,7 +53,7 @@ public class SpectrumSubtractingFilter {
 
     private void processOneRow(int topLeftY, float[] copy, float[] monoPane, double[] noiseMagnitudes) {
         for (int topLeftX = 0; topLeftX < width - blockSize; topLeftX += blockSize / 2) {
-            double[] padded = pad(copy, width, height, blockSize, topLeftX, topLeftY);
+            double[] padded = pad(copy, width, paddedRowLength, blockSize, topLeftX, topLeftY);
 
             Complex[] spectrum = transformer.transform(padded, TransformType.FORWARD);
 
