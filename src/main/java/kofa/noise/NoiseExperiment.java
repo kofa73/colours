@@ -80,9 +80,9 @@ public class NoiseExperiment {
     private void run() {
         Raster raster = load();
 
-        BayerImage bayerImage = new BayerImage(raster, rMultiplier, bMultiplier);
+        BayerImage bayerImage = new BayerImage(raster, cfa, rMultiplier, bMultiplier);
 
-        float[] data = bayerImage.simpleDemosaic(cfa);
+        float[] data = bayerImage.simpleDemosaic();
         float accumulator = 0;
         for (float value : data) {
             accumulator += value;
@@ -270,7 +270,7 @@ public class NoiseExperiment {
             GreyscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane3, "pane3");
         }
         long debayerStartMillis = System.currentTimeMillis();
-        float[] filtered = bayerImage.simpleDemosaic(cfa);
+        float[] filtered = bayerImage.simpleDemosaic();
         long debayerDurationms = System.currentTimeMillis() - debayerStartMillis;
         int debayeredWidth = 2 * bayerImage.width;
         int debayeredHeight = 2 * bayerImage.height;

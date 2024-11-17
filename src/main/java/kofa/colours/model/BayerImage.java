@@ -14,8 +14,10 @@ public class BayerImage implements Cloneable {
 
     private final float rMultiplier;
     private final float bMultiplier;
+    private final CFA cfa;
 
-    private BayerImage(int width, int height, float[] pane0, float[] pane1, float[] pane2, float[] pane3, float rMultiplier, float bMultiplier) {
+    private BayerImage(CFA cfa, int width, int height, float[] pane0, float[] pane1, float[] pane2, float[] pane3, float rMultiplier, float bMultiplier) {
+        this.cfa = cfa;
         this.width = width;
         this.height = height;
         this.pane0 = pane0;
@@ -26,9 +28,10 @@ public class BayerImage implements Cloneable {
         this.bMultiplier = bMultiplier;
     }
 
-    public BayerImage(Raster raster, float rMultiplier, float bMultiplier) {
+    public BayerImage(Raster raster, CFA cfa, float rMultiplier, float bMultiplier) {
         this.rMultiplier = rMultiplier;
         this.bMultiplier = bMultiplier;
+        this.cfa = cfa;
         int rasterHeight = raster.getHeight();
         height = rasterHeight / 2;
         int rasterWidth = raster.getWidth();
@@ -67,7 +70,7 @@ public class BayerImage implements Cloneable {
         }
     }
 
-    public float[] simpleDemosaic(CFA cfa) {
+    public float[] simpleDemosaic() {
         return switch (cfa) {
             case RGGB -> simpleRGGBDemosaic();
             case GRBG -> simpleGRBGDemosaic();
@@ -289,7 +292,8 @@ public class BayerImage implements Cloneable {
     @Override
     public BayerImage clone() {
         return new BayerImage(
-                this.width, this.height,
+                cfa,
+                width, height,
                 pane0.clone(), pane1.clone(), pane2.clone(), pane3.clone(),
                 rMultiplier, bMultiplier
         );
