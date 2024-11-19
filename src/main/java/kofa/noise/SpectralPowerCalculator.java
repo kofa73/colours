@@ -50,23 +50,22 @@ public class SpectralPowerCalculator {
     }
 
     public Result measure(int topLeftX, int topLeftY) {
-        double[] padded = pad(pane, width, paddedSize, filterSize, topLeftX, topLeftY);
+        DoubleFFT_2D fft = new DoubleFFT_2D(paddedSize, paddedSize);
+        double[] buffer = pad(pane, width, paddedSize, filterSize, topLeftX, topLeftY);
 
-        double[] spectrum = fft2d(padded, new DoubleFFT_2D(paddedSize, paddedSize));
-        histogramByFrequencyIndex[0].recordValue((long) (magnitude(spectrum[0], spectrum[1]) * SCALE));
+        fft.realForward(buffer);
+        histogramByFrequencyIndex[0].recordValue((long) (magnitude(buffer[0], buffer[1]) * SCALE));
         double power = 0;
         // don't include the offset (frequency = 0) in the power calculation; it does not influence 'smoothness'
-        for (int i = 1; i < padded.length; i++) {
-            double freqPower = power(spectrum[2 * i], spectrum[2 * i + 1]);
+        for (int i = 1; i < buffer.length - 1; i += 2) {
+            double freqPower = power(buffer[i], buffer[i + 1]);
             power += freqPower;
-            histogramByFrequencyIndex[i].recordValue(Math.round(sqrt(freqPower) * SCALE));
+            histogramByFrequencyIndex[i/2].recordValue(Math.round(sqrt(freqPower) * SCALE));
         }
 
         // zero out the offset - keeping it is basically a black-level adjustment
 //        spectrum[0] = 0; spectrum[1] = 0;
 
-        return new Result(new XYCoordinates(topLeftX, topLeftY), power, spectrum);
+        return new Result(new XYCoordinates(topLeftX, topLeftY), power, buffer);
     }
-
-
 }

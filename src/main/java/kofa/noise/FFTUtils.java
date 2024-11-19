@@ -13,11 +13,11 @@ public class FFTUtils {
         return complex;
     }
 
-    public static double[] fft2d(double[] real, DoubleFFT_2D fft) {
-        double[] buffer = realToComplex(real);
-        fft.complexForward(buffer);
-        return buffer;
-    }
+//    public static double[] fft2d(double[] real, DoubleFFT_2D fft) {
+//        double[] buffer = realToComplex(real);
+//        fft.complexForward(buffer);
+//        return buffer;
+//    }
 
 
     public static double magnitude(double re, double im) {
