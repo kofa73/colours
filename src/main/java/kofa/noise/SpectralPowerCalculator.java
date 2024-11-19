@@ -29,7 +29,7 @@ public class SpectralPowerCalculator {
         this.height = height;
         this.filterSize = filterSize;
         paddedSize = Integer.highestOneBit(filterSize) * 2;
-        histogramByFrequencyIndex = new Histogram[paddedSize * paddedSize];
+        histogramByFrequencyIndex = new Histogram[paddedSize * paddedSize / 2];
         setAll(histogramByFrequencyIndex, ignoredIndex -> new ConcurrentHistogram(3));
     }
 
@@ -60,7 +60,7 @@ public class SpectralPowerCalculator {
         for (int i = 1; i < buffer.length - 1; i += 2) {
             double freqPower = power(buffer[i], buffer[i + 1]);
             power += freqPower;
-            histogramByFrequencyIndex[i/2].recordValue(Math.round(sqrt(freqPower) * SCALE));
+            histogramByFrequencyIndex[i / 2].recordValue(Math.round(sqrt(freqPower) * SCALE));
         }
 
         // zero out the offset - keeping it is basically a black-level adjustment
