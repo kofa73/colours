@@ -5,7 +5,6 @@ import kofa.colours.model.XYCoordinates;
 import kofa.colours.viewer.GreyscaleImageViewer;
 import kofa.colours.viewer.RGBImageViewer;
 import org.HdrHistogram.Histogram;
-import org.apache.commons.math3.complex.Complex;
 
 import java.awt.image.Raster;
 import java.nio.file.Files;
@@ -90,7 +89,7 @@ public class NoiseExperiment {
 
         float originalSum = accumulator;
 
-        SpectralPowerCalculator.Result smoothest0 = new SpectralPowerCalculator.Result(new XYCoordinates(0, 0), Double.MAX_VALUE, new Complex[0]);
+        SpectralPowerCalculator.Result smoothest0 = new SpectralPowerCalculator.Result(new XYCoordinates(0, 0), Double.MAX_VALUE, new double[0]);
         SpectralPowerCalculator.Result smoothest1 = smoothest0;
         SpectralPowerCalculator.Result smoothest2 = smoothest0;
         SpectralPowerCalculator.Result smoothest3 = smoothest0;
@@ -157,15 +156,15 @@ public class NoiseExperiment {
                 originalSum
         );
 
-        DoubleStream.of(0, 1, 10, 50, 90, 99, 99.9).forEach(percentile -> {
-            double[] magnitudes0 = new double[spCalculator0.histogramByFreqencyIndex.length];
-            double[] magnitudes1 = new double[spCalculator0.histogramByFreqencyIndex.length];
-            double[] magnitudes2 = new double[spCalculator0.histogramByFreqencyIndex.length];
-            double[] magnitudes3 = new double[spCalculator0.histogramByFreqencyIndex.length];
-            setAll(magnitudes0, index -> spCalculator0.histogramByFreqencyIndex[index].getValueAtPercentile(percentile) / SCALE);
-            setAll(magnitudes1, index -> spCalculator1.histogramByFreqencyIndex[index].getValueAtPercentile(percentile) / SCALE);
-            setAll(magnitudes2, index -> spCalculator2.histogramByFreqencyIndex[index].getValueAtPercentile(percentile) / SCALE);
-            setAll(magnitudes3, index -> spCalculator3.histogramByFreqencyIndex[index].getValueAtPercentile(percentile) / SCALE);
+        DoubleStream.of(0, 1, 2, 5, 10, 20, 50).forEach(percentile -> {
+            double[] magnitudes0 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            double[] magnitudes1 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            double[] magnitudes2 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            double[] magnitudes3 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            setAll(magnitudes0, index -> spCalculator0.histogramByFrequencyIndex[index].getValueAtPercentile(percentile) / SCALE);
+            setAll(magnitudes1, index -> spCalculator1.histogramByFrequencyIndex[index].getValueAtPercentile(percentile) / SCALE);
+            setAll(magnitudes2, index -> spCalculator2.histogramByFrequencyIndex[index].getValueAtPercentile(percentile) / SCALE);
+            setAll(magnitudes3, index -> spCalculator3.histogramByFrequencyIndex[index].getValueAtPercentile(percentile) / SCALE);
 
             filterAndShow(
                     "filtered using values at percentile " + percentile,
@@ -175,15 +174,15 @@ public class NoiseExperiment {
                     originalSum
             );
         });
-        DoubleStream.of(1_000, 2_000, 4_000, 5_000, 7_500, 10_000).forEach(divisor -> {
-            double[] magnitudes0 = new double[spCalculator0.histogramByFreqencyIndex.length];
-            double[] magnitudes1 = new double[spCalculator0.histogramByFreqencyIndex.length];
-            double[] magnitudes2 = new double[spCalculator0.histogramByFreqencyIndex.length];
-            double[] magnitudes3 = new double[spCalculator0.histogramByFreqencyIndex.length];
-            setAll(magnitudes0, index -> spCalculator0.histogramByFreqencyIndex[index].getMaxValue() / SCALE / divisor);
-            setAll(magnitudes1, index -> spCalculator1.histogramByFreqencyIndex[index].getMaxValue() / SCALE / divisor);
-            setAll(magnitudes2, index -> spCalculator2.histogramByFreqencyIndex[index].getMaxValue() / SCALE / divisor);
-            setAll(magnitudes3, index -> spCalculator3.histogramByFreqencyIndex[index].getMaxValue() / SCALE / divisor);
+        DoubleStream.of(1_000, 2_000, 4_000, 5_000).forEach(divisor -> {
+            double[] magnitudes0 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            double[] magnitudes1 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            double[] magnitudes2 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            double[] magnitudes3 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            setAll(magnitudes0, index -> spCalculator0.histogramByFrequencyIndex[index].getMaxValue() / SCALE / divisor);
+            setAll(magnitudes1, index -> spCalculator1.histogramByFrequencyIndex[index].getMaxValue() / SCALE / divisor);
+            setAll(magnitudes2, index -> spCalculator2.histogramByFrequencyIndex[index].getMaxValue() / SCALE / divisor);
+            setAll(magnitudes3, index -> spCalculator3.histogramByFrequencyIndex[index].getMaxValue() / SCALE / divisor);
 
             filterAndShow(
                     "filtered using max / " + divisor,
@@ -194,15 +193,15 @@ public class NoiseExperiment {
             );
         });
 
-        DoubleStream.of(1, 2, 3, 5, 10, 100, 1_000).forEach(divisor -> {
-            double[] magnitudes0 = new double[spCalculator0.histogramByFreqencyIndex.length];
-            double[] magnitudes1 = new double[spCalculator0.histogramByFreqencyIndex.length];
-            double[] magnitudes2 = new double[spCalculator0.histogramByFreqencyIndex.length];
-            double[] magnitudes3 = new double[spCalculator0.histogramByFreqencyIndex.length];
-            setAll(magnitudes0, index -> spCalculator0.histogramByFreqencyIndex[index].getValueAtPercentile(50) / SCALE / divisor);
-            setAll(magnitudes1, index -> spCalculator1.histogramByFreqencyIndex[index].getValueAtPercentile(50) / SCALE / divisor);
-            setAll(magnitudes2, index -> spCalculator2.histogramByFreqencyIndex[index].getValueAtPercentile(50) / SCALE / divisor);
-            setAll(magnitudes3, index -> spCalculator3.histogramByFreqencyIndex[index].getValueAtPercentile(50) / SCALE / divisor);
+        DoubleStream.of(2, 3, 5, 10, 100, 1_000).forEach(divisor -> {
+            double[] magnitudes0 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            double[] magnitudes1 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            double[] magnitudes2 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            double[] magnitudes3 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            setAll(magnitudes0, index -> spCalculator0.histogramByFrequencyIndex[index].getValueAtPercentile(50) / SCALE / divisor);
+            setAll(magnitudes1, index -> spCalculator1.histogramByFrequencyIndex[index].getValueAtPercentile(50) / SCALE / divisor);
+            setAll(magnitudes2, index -> spCalculator2.histogramByFrequencyIndex[index].getValueAtPercentile(50) / SCALE / divisor);
+            setAll(magnitudes3, index -> spCalculator3.histogramByFrequencyIndex[index].getValueAtPercentile(50) / SCALE / divisor);
 
             filterAndShow(
                     "filtered using median / " + divisor,
@@ -214,8 +213,8 @@ public class NoiseExperiment {
         });
 
         System.out.println("\nStats for all pane0 samples:");
-        for (int i = 0; i < spCalculator0.histogramByFreqencyIndex.length; i++) {
-            Histogram histogramAtFreqencyIndex = spCalculator0.histogramByFreqencyIndex[i];
+        for (int i = 0; i < spCalculator0.histogramByFrequencyIndex.length; i++) {
+            Histogram histogramAtFreqencyIndex = spCalculator0.histogramByFrequencyIndex[i];
             System.out.println("freq[%d]:\tmin: %f,\tp10: %f,\tp25: %f,\tp50: %f,\tp75: %f,\tp90: %f,\tp95: %f,\tp99: %f,\tp99.9: %f,\tmax: %f,\tpercentiles for\tmax/10: %f,\tmax/100: %f,\tmax/1000: %f".formatted(
                     i,
                     histogramAtFreqencyIndex.getMinValue() / SCALE, // min
@@ -237,7 +236,7 @@ public class NoiseExperiment {
         System.out.println("\nStats for 'smoothest' pane0 sample:");
         double[] magnitudes0 = smoothest0.magnitudes();
         for (int i = 0; i < magnitudes0.length; i++) {
-            System.out.println("freq[%d]: %f, percentile: %f".formatted(i, magnitudes0[i], spCalculator0.histogramByFreqencyIndex[i].getPercentileAtOrBelowValue((long) (magnitudes0[i] * SCALE))));
+            System.out.println("freq[%d]: %f, percentile: %f".formatted(i, magnitudes0[i], spCalculator0.histogramByFrequencyIndex[i].getPercentileAtOrBelowValue((long) (magnitudes0[i] * SCALE))));
         }
     }
 

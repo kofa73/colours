@@ -1,14 +1,15 @@
 package kofa.noise;
 
-import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
-import org.apache.commons.math3.transform.TransformType;
+import org.jtransforms.fft.DoubleFFT_2D;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.max;
+import static kofa.noise.FFTUtils.fft2d;
+import static kofa.noise.FFTUtils.magnitude;
 import static kofa.noise.Padding.pad;
 
 public class SpectrumSubtractingFilter {
@@ -52,26 +53,34 @@ public class SpectrumSubtractingFilter {
     }
 
     private void processOneRow(int topLeftY, float[] copy, float[] monoPane, double[] noiseMagnitudes) {
+        DoubleFFT_2D fft = new DoubleFFT_2D(paddedRowLength, paddedRowLength);
         for (int topLeftX = 0; topLeftX < width - blockSize; topLeftX += blockSize / 2) {
             double[] padded = pad(copy, width, paddedRowLength, blockSize, topLeftX, topLeftY);
+//            Complex[] buffer = transformer.transform(padded, TransformType.FORWARD);
+            double[] buffer = fft2d(padded, fft);
 
-            Complex[] spectrum = transformer.transform(padded, TransformType.FORWARD);
-
-            double offset = spectrum[0].abs();
+            double offset = magnitude(buffer[0], buffer[1]);
             double reducedOffset = max(0, offset - noiseMagnitudes[0]);
             if (offset != 0 && !Double.isNaN(offset) && !Double.isInfinite(offset)) {
-                spectrum[0] = spectrum[0].multiply(reducedOffset / offset);
+                double multiplier = reducedOffset / offset;
+                buffer[0] *= multiplier;
+                buffer[1] *= multiplier;
             }
 
-            for (int freq = 1; freq < spectrum.length; freq++) {
-                double magnitudeAtFreq = spectrum[freq].abs();
+            for (int freq = 1; freq < padded.length; freq++) {
+                int reIndex = 2 * freq;
+                int imIndex = reIndex + 1;
+                double magnitudeAtFreq = magnitude(buffer[reIndex], buffer[imIndex]);
                 double reducedMagnitude = max(0, magnitudeAtFreq - STRENGTH * noiseMagnitudes[freq]);
                 if (magnitudeAtFreq != 0 && !Double.isNaN(magnitudeAtFreq) && !Double.isInfinite(magnitudeAtFreq)) {
-                    spectrum[freq] = spectrum[freq].multiply(reducedMagnitude / magnitudeAtFreq);
+                    double multiplier = reducedMagnitude / magnitudeAtFreq;
+                    buffer[reIndex] *= multiplier;
+                    buffer[imIndex] *= multiplier;
                 }
             }
 
-            Complex[] filtered = transformer.transform(spectrum, TransformType.INVERSE);
+            //Complex[] filtered = transformer.transform(buffer, TransformType.INVERSE);
+            fft.complexInverse(buffer, true);
 
             // monoPane is updated using read - increment - write, need to sync
             // It's more efficient to get the lock once for the loop than racing for it for each individual update.
@@ -83,7 +92,7 @@ public class SpectrumSubtractingFilter {
                     for (int x = 0; x < blockSize; x++) {
                         int indexInPane = rowStartInPane + (topLeftX + x);
                         int indexInFiltered = rowStartInFiltered + (paddingEnd + x);
-                        double filteredValue = filtered[indexInFiltered].getReal();
+                        double filteredValue = buffer[2 * indexInFiltered];
                         monoPane[indexInPane] += multipliers[y][x] * (float) max(0, filteredValue);
                     }
                 }
