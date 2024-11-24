@@ -2,7 +2,9 @@ package kofa.colours.model;
 
 import java.awt.image.Raster;
 
-public class BayerImage implements Cloneable {
+public class BayerImage2 implements Cloneable {
+    private static final int PADDING_SIZE = 16;
+
     public final int paneWidth;
     public final int paneHeight;
     public final float[] pane0;
@@ -14,7 +16,7 @@ public class BayerImage implements Cloneable {
     private final float bMultiplier;
     private final CFA cfa;
 
-    private BayerImage(CFA cfa, int paneWidth, int paneHeight, float[] pane0, float[] pane1, float[] pane2, float[] pane3, float rMultiplier, float bMultiplier) {
+    private BayerImage2(CFA cfa, int paneWidth, int paneHeight, float[] pane0, float[] pane1, float[] pane2, float[] pane3, float rMultiplier, float bMultiplier) {
         this.cfa = cfa;
         this.paneWidth = paneWidth;
         this.paneHeight = paneHeight;
@@ -26,7 +28,7 @@ public class BayerImage implements Cloneable {
         this.bMultiplier = bMultiplier;
     }
 
-    public BayerImage(Raster raster, CFA cfa, float rMultiplier, float bMultiplier) {
+    public BayerImage2(Raster raster, CFA cfa, float rMultiplier, float bMultiplier) {
         this.rMultiplier = rMultiplier;
         this.bMultiplier = bMultiplier;
         this.cfa = cfa;
@@ -68,11 +70,92 @@ public class BayerImage implements Cloneable {
         }
     }
 
-    public float[] simpleDemosaic() {
-        return switch (cfa) {
-            case RGGB -> simpleRGGBDemosaic();
-            case GRBG -> simpleGRBGDemosaic();
+    public float[] toRGB() {
+        // 2x2 pixels per cell; padding is applied on both sides
+        int innerContentWidth = 2 * paneWidth;
+        int paddedWidth = innerContentWidth + 2 * PADDING_SIZE;
+        int innerContentHeight = paneHeight * 2;
+        int paddedHeight = innerContentHeight + 2 * PADDING_SIZE;
+        int componentsPerRow = paddedWidth * 3;
+        float[] rgb = new float[componentsPerRow * paddedHeight];
+        switch (cfa) {
+            case RGGB: prepareRGGB(rgb, componentsPerRow); break;
+            case GRBG: prepareGRBG(rgb, componentsPerRow); break;
+            default: throw new IllegalArgumentException("Unsupported CFA: " + cfa);
         };
+        for (int y = PADDING_SIZE; y < innerContentHeight + PADDING_SIZE; y++) {
+            int rowStart = y * componentsPerRow;
+            int firstPixelOffset = rowStart + 3 * PADDING_SIZE;
+            // -2, because we copy 2 pixels
+            int lastPixelPairOffset = firstPixelOffset + 3 * (innerContentWidth - 2);
+            int rightBorderStart = firstPixelOffset + 3 * (innerContentWidth);
+            for (int paddingPixelNumber = 0; paddingPixelNumber < PADDING_SIZE; paddingPixelNumber += 2) {
+                int leftPaddingPixelOffset = rowStart + paddingPixelNumber * 3;
+                int rightPaddingPixelOffset = rightBorderStart + paddingPixelNumber * 3;
+                // 2 pixels, 2 * 3 components
+                for (int c = 0; c < 6; c++) {
+                    rgb[leftPaddingPixelOffset + c] = rgb[firstPixelOffset + c];
+                    rgb[rightPaddingPixelOffset + c] = rgb[lastPixelPairOffset + c];
+                }
+            }
+        }
+
+        int firstContentRowStart = PADDING_SIZE * componentsPerRow;
+        int lastContentRowStart = firstContentRowStart + (innerContentHeight - 1) * componentsPerRow;
+        for (int row = 0; row < PADDING_SIZE; row++) {
+            int topBorderRowStart = row * componentsPerRow;
+            System.arraycopy(rgb, firstContentRowStart, rgb, topBorderRowStart, componentsPerRow);
+            int bottomBorderRowStart = topBorderRowStart + (PADDING_SIZE + innerContentHeight) * componentsPerRow;
+            System.arraycopy(rgb, lastContentRowStart, rgb, bottomBorderRowStart, componentsPerRow);
+        }
+        return rgb;
+    }
+
+    private void prepareRGGB(float[] rgb, int componentsPerRow) {
+        int paneIndex = 0;
+        for (int paneY = 0; paneY < paneHeight; paneY++) {
+            // 2 output rows for each pane row; skip padding rows on top; skip padding columns on left, 3 components per pixel
+            int outIndex = (paneY * 2 + PADDING_SIZE) * componentsPerRow + 3 * PADDING_SIZE;
+            for (int paneX = 0; paneX < paneWidth; paneX++) {
+                float r = pane0[paneIndex];
+                float g1 = pane1[paneIndex];
+                float g2 = pane2[paneIndex];
+                float b = pane3[paneIndex];
+                rgb[outIndex] = r;
+                // +3: next pixel; +1: green component
+                rgb[outIndex + 3 + 1] = g1;
+                // + componentsPerRow: next row; +1: green component
+                rgb[outIndex + componentsPerRow + 1] = g2;
+                // + 3: next pixel; + 2: blue component
+                rgb[outIndex + componentsPerRow + 3 + 2] = b;
+                paneIndex++;
+                outIndex += 6;
+            }
+        }
+    }
+
+    private void prepareGRBG(float[] rgb, int componentsPerRow) {
+        int paneIndex = 0;
+        for (int paneY = 0; paneY < paneHeight; paneY++) {
+            // 2 output rows for each pane row; skip padding rows on top; skip padding columns on left, 3 components per pixel
+            int outIndex = (paneY * 2 + PADDING_SIZE) * componentsPerRow + 3 * PADDING_SIZE;
+            for (int paneX = 0; paneX < paneWidth; paneX++) {
+                float g1 = pane0[paneIndex];
+                float r = pane1[paneIndex];
+                float b = pane2[paneIndex];
+                float g2 = pane3[paneIndex];
+                // +1: green component
+                rgb[outIndex + 1] = g1;
+                // +3: next pixel
+                rgb[outIndex + 3] = r;
+                // + componentsPerRow: next row; +2: blue component
+                rgb[outIndex + componentsPerRow + 2] = b;
+                // + 3: next pixel; + 1: green component
+                rgb[outIndex + componentsPerRow + 3 + 1] = g2;
+                paneIndex++;
+                outIndex += 6;
+            }
+        }
     }
 
     private float[] simpleGRBGDemosaic() {
@@ -288,8 +371,8 @@ public class BayerImage implements Cloneable {
     }
 
     @Override
-    public BayerImage clone() {
-        return new BayerImage(
+    public BayerImage2 clone() {
+        return new BayerImage2(
                 cfa,
                 paneWidth, paneHeight,
                 pane0.clone(), pane1.clone(), pane2.clone(), pane3.clone(),

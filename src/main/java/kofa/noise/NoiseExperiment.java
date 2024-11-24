@@ -1,6 +1,8 @@
 package kofa.noise;
 
 import kofa.colours.model.BayerImage;
+import kofa.colours.model.BayerImage2;
+import kofa.colours.model.CFA;
 import kofa.colours.model.XYCoordinates;
 import kofa.colours.viewer.GreyscaleImageViewer;
 import kofa.colours.viewer.RGBImageViewer;
@@ -29,12 +31,12 @@ public class NoiseExperiment {
     private static final int SEARCH_SEC = 5;
     private static final boolean SHOW_PANES = false;
     private final Path rawFilePath;
-    private final BayerImage.CFA cfa;
+    private final CFA cfa;
     private final float rMultiplier;
     private final float bMultiplier;
     private final float additionalGamma;
 
-    public NoiseExperiment(Path rawFilePath, BayerImage.CFA cfa, float rMultiplier, float bMultiplier, float additionalGamma) {
+    public NoiseExperiment(Path rawFilePath, CFA cfa, float rMultiplier, float bMultiplier, float additionalGamma) {
         this.cfa = cfa;
         if (!Files.isRegularFile(rawFilePath)) {
             die("Not a regular file: " + rawFilePath);
@@ -78,9 +80,11 @@ public class NoiseExperiment {
     private void run() {
         Raster raster = load();
 
-        BayerImage bayerImage = new BayerImage(raster, cfa, rMultiplier, bMultiplier);
+        var bayerImage = new BayerImage(raster, cfa, rMultiplier, bMultiplier);
+        var bayerImage2 = new BayerImage2(raster, cfa, rMultiplier, bMultiplier);
+
         float[] data = bayerImage.simpleDemosaic();
-        RGBImageViewer.show("original", data, bayerImage.width * 2, bayerImage.height * 2, additionalGamma);
+        RGBImageViewer.show("original", data, bayerImage.paneWidth * 2, bayerImage.paneHeight * 2, additionalGamma);
 
         float accumulator = 0;
         for (float value : data) {
@@ -100,10 +104,10 @@ public class NoiseExperiment {
 
         ForkJoinPool threadPool = ForkJoinPool.commonPool();
 
-        var spCalculator0 = new SpectralPowerCalculator(bayerImage.pane0, bayerImage.width, bayerImage.height, FILTER_SIZE);
-        var spCalculator1 = new SpectralPowerCalculator(bayerImage.pane1, bayerImage.width, bayerImage.height, FILTER_SIZE);
-        var spCalculator2 = new SpectralPowerCalculator(bayerImage.pane2, bayerImage.width, bayerImage.height, FILTER_SIZE);
-        var spCalculator3 = new SpectralPowerCalculator(bayerImage.pane3, bayerImage.width, bayerImage.height, FILTER_SIZE);
+        var spCalculator0 = new SpectralPowerCalculator(bayerImage.pane0, bayerImage.paneWidth, bayerImage.paneHeight, FILTER_SIZE);
+        var spCalculator1 = new SpectralPowerCalculator(bayerImage.pane1, bayerImage.paneWidth, bayerImage.paneHeight, FILTER_SIZE);
+        var spCalculator2 = new SpectralPowerCalculator(bayerImage.pane2, bayerImage.paneWidth, bayerImage.paneHeight, FILTER_SIZE);
+        var spCalculator3 = new SpectralPowerCalculator(bayerImage.pane3, bayerImage.paneWidth, bayerImage.paneHeight, FILTER_SIZE);
 
         SpectralPowerCalculator.Result result0;
         SpectralPowerCalculator.Result result1;
@@ -146,7 +150,7 @@ public class NoiseExperiment {
         } while (System.currentTimeMillis() < stop);
         System.out.println("Total samples evaluated: " + counter);
 
-        var filter = new SpectrumSubtractingFilter(bayerImage.width, bayerImage.height, FILTER_SIZE);
+        var filter = new SpectrumSubtractingFilter(bayerImage.paneWidth, bayerImage.paneHeight, FILTER_SIZE);
 
         filterAndShow(
                 "filtered using smoothest",
@@ -156,7 +160,7 @@ public class NoiseExperiment {
                 originalSum
         );
 
-        DoubleStream.of(0, 1, 2, 5, 10, 20, 50).forEach(percentile -> {
+        DoubleStream.of(1, 2, 5, 10, 20, 25, 50, 90).forEach(percentile -> {
             double[] magnitudes0 = new double[spCalculator0.histogramByFrequencyIndex.length];
             double[] magnitudes1 = new double[spCalculator0.histogramByFrequencyIndex.length];
             double[] magnitudes2 = new double[spCalculator0.histogramByFrequencyIndex.length];
@@ -256,19 +260,19 @@ public class NoiseExperiment {
         filter.filter(bayerImage.pane2, magnitudes2);
         filter.filter(bayerImage.pane3, magnitudes3);
         long filterDurationms = System.currentTimeMillis() - filterStartMillis;
-        System.out.println("filtering %d x %d took %d ms".formatted(bayerImage.width, bayerImage.height, filterDurationms));
+        System.out.println("filtering %d x %d took %d ms".formatted(bayerImage.paneWidth, bayerImage.paneHeight, filterDurationms));
 
         if (SHOW_PANES) {
-            GreyscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane0, "g1");
-            GreyscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane1, "pane1");
-            GreyscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane2, "pane2");
-            GreyscaleImageViewer.show(bayerImage.width, bayerImage.height, bayerImage.pane3, "pane3");
+            GreyscaleImageViewer.show(bayerImage.paneWidth, bayerImage.paneHeight, bayerImage.pane0, "g1");
+            GreyscaleImageViewer.show(bayerImage.paneWidth, bayerImage.paneHeight, bayerImage.pane1, "pane1");
+            GreyscaleImageViewer.show(bayerImage.paneWidth, bayerImage.paneHeight, bayerImage.pane2, "pane2");
+            GreyscaleImageViewer.show(bayerImage.paneWidth, bayerImage.paneHeight, bayerImage.pane3, "pane3");
         }
         long debayerStartMillis = System.currentTimeMillis();
         float[] filtered = bayerImage.simpleDemosaic();
         long debayerDurationms = System.currentTimeMillis() - debayerStartMillis;
-        int debayeredWidth = 2 * bayerImage.width;
-        int debayeredHeight = 2 * bayerImage.height;
+        int debayeredWidth = 2 * bayerImage.paneWidth;
+        int debayeredHeight = 2 * bayerImage.paneHeight;
         System.out.println("debayering %d x %d took %d ms".formatted(debayeredWidth, debayeredHeight, debayerDurationms));
 
         float filteredSum = 0;
@@ -283,10 +287,10 @@ public class NoiseExperiment {
         RGBImageViewer.show(title, filtered, debayeredWidth, debayeredHeight, additionalGamma);
     }
 
-    private static BayerImage.CFA parseCFA(String name) {
-        BayerImage.CFA cfa = null;
+    private static CFA parseCFA(String name) {
+        CFA cfa = null;
         try {
-            cfa = BayerImage.CFA.valueOf(name);
+            cfa = CFA.valueOf(name);
         } catch (IllegalArgumentException e) {
             die("Cannot parse " + name);
         }
