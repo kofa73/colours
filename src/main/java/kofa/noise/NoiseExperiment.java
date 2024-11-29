@@ -9,6 +9,10 @@ import kofa.colours.viewer.RGBImageViewer;
 import org.HdrHistogram.Histogram;
 
 import java.awt.image.Raster;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
@@ -83,9 +87,13 @@ public class NoiseExperiment {
         var bayerImage = new BayerImage(raster, cfa, rMultiplier, bMultiplier);
         var bayerImage2 = new BayerImage2(raster, cfa, rMultiplier, bMultiplier);
 
-        float[] data = bayerImage.simpleDemosaic();
-        RGBImageViewer.show("original", data, bayerImage.paneWidth * 2, bayerImage.paneHeight * 2, additionalGamma);
-
+        float[] data = bayerImage2.bilinearDemosaic();
+        RGBImageViewer.show("original", data, bayerImage.paneWidth * 2 + 32, bayerImage.paneHeight * 2 + 32, additionalGamma);
+        try {
+            new BufferedReader(new InputStreamReader(System.in)).readLine();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         float accumulator = 0;
         for (float value : data) {
             accumulator += value;

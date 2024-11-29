@@ -158,6 +158,66 @@ public class BayerImage2 implements Cloneable {
         }
     }
 
+    public float[] bilinearDemosaic() {
+        float[] rgb = toRGB();
+        int redColumn = switch (cfa) {
+            case RGGB -> PADDING_SIZE;
+            case GRBG -> PADDING_SIZE - 1;
+        };
+        int innerContentHeight = paneHeight * 2;
+        int innerContentWidth = 2 * paneWidth;
+        int paddedWidth = innerContentWidth + 2 * PADDING_SIZE;
+        int paddedHeight = innerContentHeight + 2 * PADDING_SIZE;
+        int componentsPerRow = paddedWidth * 3;
+        for (int y = PADDING_SIZE; y < PADDING_SIZE + innerContentHeight; y += 2) {
+            for (int x = redColumn; x < redColumn + innerContentWidth; x++) {
+                int pixelIndex = y * componentsPerRow + 3 * x;
+                // RG | RG row
+                // original red pixel
+                int redIndex = pixelIndex;
+                int greenIndex = redIndex + 1;
+                int blueIndex = redIndex + 2;
+                // original red pixel: red is already set
+                // green: left, right, above, below
+                rgb[greenIndex] = (rgb[greenIndex - 3] + rgb[greenIndex + 3] + rgb[greenIndex - componentsPerRow] + rgb[greenIndex + componentsPerRow]) / 4;
+                // blue: above left, above right, below left, below right
+                rgb[blueIndex] = (rgb[blueIndex - componentsPerRow - 3] + rgb[blueIndex - componentsPerRow + 3] + rgb[blueIndex + componentsPerRow - 3] + rgb[blueIndex + componentsPerRow + 3]) / 4;
+
+                // original green1 pixel
+                redIndex = redIndex + 3;
+                greenIndex = redIndex + 1;
+                blueIndex = redIndex + 2;
+                // red: left and right
+                rgb[redIndex] = (rgb[redIndex - 3] + rgb[redIndex + 3]) / 2;
+                // green: already set
+                // blue: above, below
+                rgb[blueIndex] = (rgb[blueIndex - componentsPerRow] + rgb[blueIndex + componentsPerRow]) / 2;
+
+
+                // GB | GB row
+                // green2 pixel
+                redIndex = pixelIndex + componentsPerRow;
+                greenIndex = redIndex + 1;
+                blueIndex = redIndex + 2;
+                // red: above and below
+                rgb[redIndex] = (rgb[redIndex - componentsPerRow] + rgb[redIndex + componentsPerRow]) / 2;
+                // original green pixel: green is already set
+                // blue: left and right
+                rgb[blueIndex] = (rgb[blueIndex - 3] + rgb[blueIndex + 3]) / 2;
+
+                // blue pixel
+                redIndex = redIndex + 3;
+                greenIndex = redIndex + 1;
+                blueIndex = redIndex + 2;
+                // red: top left/right, bottom left/right
+                rgb[redIndex] = (rgb[redIndex - componentsPerRow - 3] + rgb[redIndex - componentsPerRow + 3] + rgb[redIndex + componentsPerRow - 3] + rgb[redIndex + componentsPerRow + 3]) / 4;
+                // green: left, right, above, below
+                rgb[greenIndex] = (rgb[greenIndex - 3] + rgb[greenIndex + 3] + rgb[greenIndex - componentsPerRow] + rgb[greenIndex + componentsPerRow]) / 4;
+            }
+        }
+        return rgb;
+    }
+
     private float[] simpleGRBGDemosaic() {
         int fullWidth = paneWidth * 2;
         int fullHeight = paneHeight * 2;
