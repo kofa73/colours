@@ -1,15 +1,12 @@
 package kofa.noise;
 
 import kofa.colours.model.BayerImage;
-import kofa.colours.model.BayerImage2;
 import kofa.colours.model.CFA;
 import kofa.colours.model.XYCoordinates;
 import kofa.colours.viewer.GreyscaleImageViewer;
 import kofa.colours.viewer.RGBImageViewer;
-import org.HdrHistogram.Histogram;
 
 import java.awt.image.Raster;
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,8 +28,8 @@ import static kofa.noise.SpectralPowerCalculator.SCALE;
  */
 public class NoiseExperiment {
 
-    private static final int FILTER_SIZE = 16;
-    private static final int SEARCH_SEC = 5;
+//    private static final int FILTER_SIZE = 16;
+    private static final int SEARCH_SEC = 10;
     private static final boolean SHOW_PANES = false;
     private final Path rawFilePath;
     private final CFA cfa;
@@ -85,89 +82,28 @@ public class NoiseExperiment {
         Raster raster = load();
 
         var bayerImage = new BayerImage(raster, cfa, rMultiplier, bMultiplier);
-        var bayerImage2 = new BayerImage2(raster, cfa, rMultiplier, bMultiplier);
+//        var bayerImage2 = new BayerImage2(raster, cfa, rMultiplier, bMultiplier);
 
-        float[] data = bayerImage2.bilinearDemosaic();
-        RGBImageViewer.show("original", data, bayerImage.paneWidth * 2 + 32, bayerImage.paneHeight * 2 + 32, additionalGamma);
-        try {
-            new BufferedReader(new InputStreamReader(System.in)).readLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        float accumulator = 0;
+        float[] data = bayerImage.simpleDemosaic();
+        RGBImageViewer.show("original", data, bayerImage.paneWidth * 2 /*+ 32*/, bayerImage.paneHeight * 2 /*+ 32*/, additionalGamma);
+//        try {
+//            new BufferedReader(new InputStreamReader(System.in)).readLine();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+
+        float originalSum = 0;
         for (float value : data) {
-            accumulator += value;
+            originalSum += value;
         }
 
-        float originalSum = accumulator;
+        for (int size = 128 ; size > 2; size /= 2) {
+            filter(bayerImage, size, originalSum);
+        }
 
-        SpectralPowerCalculator.Result smoothest0 = new SpectralPowerCalculator.Result(new XYCoordinates(0, 0), Double.MAX_VALUE, new double[0]);
-        SpectralPowerCalculator.Result smoothest1 = smoothest0;
-        SpectralPowerCalculator.Result smoothest2 = smoothest0;
-        SpectralPowerCalculator.Result smoothest3 = smoothest0;
 
-        long start = System.currentTimeMillis();
-        long stop = start + SEARCH_SEC * 1_000;
-        long counter = 0;
 
-        ForkJoinPool threadPool = ForkJoinPool.commonPool();
-
-        var spCalculator0 = new SpectralPowerCalculator(bayerImage.pane0, bayerImage.paneWidth, bayerImage.paneHeight, FILTER_SIZE);
-        var spCalculator1 = new SpectralPowerCalculator(bayerImage.pane1, bayerImage.paneWidth, bayerImage.paneHeight, FILTER_SIZE);
-        var spCalculator2 = new SpectralPowerCalculator(bayerImage.pane2, bayerImage.paneWidth, bayerImage.paneHeight, FILTER_SIZE);
-        var spCalculator3 = new SpectralPowerCalculator(bayerImage.pane3, bayerImage.paneWidth, bayerImage.paneHeight, FILTER_SIZE);
-
-        SpectralPowerCalculator.Result result0;
-        SpectralPowerCalculator.Result result1;
-        SpectralPowerCalculator.Result result2;
-        SpectralPowerCalculator.Result result3;
-        do {
-            ForkJoinTask<SpectralPowerCalculator.Result> future0 = threadPool.submit(() -> spCalculator0.measureRandomSquare());
-            ForkJoinTask<SpectralPowerCalculator.Result> future1 = threadPool.submit(() -> spCalculator1.measureRandomSquare());
-            ForkJoinTask<SpectralPowerCalculator.Result> future2 = threadPool.submit(() -> spCalculator2.measureRandomSquare());
-            ForkJoinTask<SpectralPowerCalculator.Result> future3 = threadPool.submit(() -> spCalculator3.measureRandomSquare());
-            try {
-                result0 = future0.get();
-                result1 = future1.get();
-                result2 = future2.get();
-                result3 = future3.get();
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-            if (result0.power() < smoothest0.power() && result0.power() > 1) {
-                double improvement = 1 - result0.power() / smoothest0.power();
-                System.out.println((System.currentTimeMillis() - start) + " Found smoother pane0 area at " + result0.coordinates() + " with power " + result0.power() + ", improvement: " + improvement);
-                smoothest0 = result0;
-            }
-            if (result1.power() < smoothest1.power() && result1.power() > 1) {
-                double improvement = 1 - result1.power() / smoothest1.power();
-                System.out.println((System.currentTimeMillis() - start) + " Found smoother pane1 area at " + result1.coordinates() + " with power " + result1.power() + ", improvement: " + improvement);
-                smoothest1 = result1;
-            }
-            if (result2.power() < smoothest2.power() && result2.power() > 1) {
-                double improvement = 1 - result2.power() / smoothest2.power();
-                System.out.println((System.currentTimeMillis() - start) + " Found smoother pane2 area at " + result2.coordinates() + " with power " + result2.power() + ", improvement: " + improvement);
-                smoothest2 = result2;
-            }
-            if (result3.power() < smoothest3.power() && result3.power() > 1) {
-                double improvement = 1 - result3.power() / smoothest3.power();
-                System.out.println((System.currentTimeMillis() - start) + " Found smoother pane3 area at " + result3.coordinates() + " with power " + result3.power() + ", improvement: " + improvement);
-                smoothest3 = result3;
-            }
-            counter++;
-        } while (System.currentTimeMillis() < stop);
-        System.out.println("Total samples evaluated: " + counter);
-
-        var filter = new SpectrumSubtractingFilter(bayerImage.paneWidth, bayerImage.paneHeight, FILTER_SIZE);
-
-        filterAndShow(
-                "filtered using smoothest",
-                filter,
-                bayerImage.clone(),
-                smoothest0.magnitudes(), smoothest1.magnitudes(), smoothest2.magnitudes(), smoothest3.magnitudes(),
-                originalSum
-        );
-
+/*
         DoubleStream.of(1, 2, 5, 10, 20, 25, 50, 90).forEach(percentile -> {
             double[] magnitudes0 = new double[spCalculator0.histogramByFrequencyIndex.length];
             double[] magnitudes1 = new double[spCalculator0.histogramByFrequencyIndex.length];
@@ -244,12 +180,102 @@ public class NoiseExperiment {
                     histogramAtFreqencyIndex.getPercentileAtOrBelowValue(histogramAtFreqencyIndex.getMaxValue() / 1000)
             ));
         }
+*/
+//        System.out.println("\nStats for 'smoothest' pane0 sample:");
+//        double[] magnitudes0 = smoothest0.magnitudes();
+//        for (int i = 0; i < magnitudes0.length; i++) {
+//            System.out.println("freq[%d]: %f, percentile: %f".formatted(i, magnitudes0[i], spCalculator0.histogramByFrequencyIndex[i].getPercentileAtOrBelowValue((long) (magnitudes0[i] * SCALE))));
+//        }
+    }
 
-        System.out.println("\nStats for 'smoothest' pane0 sample:");
-        double[] magnitudes0 = smoothest0.magnitudes();
-        for (int i = 0; i < magnitudes0.length; i++) {
-            System.out.println("freq[%d]: %f, percentile: %f".formatted(i, magnitudes0[i], spCalculator0.histogramByFrequencyIndex[i].getPercentileAtOrBelowValue((long) (magnitudes0[i] * SCALE))));
-        }
+    void filter(BayerImage bayerImage, int size, float originalSum) {
+        SpectralPowerCalculator.Result smoothest0 = new SpectralPowerCalculator.Result(new XYCoordinates(0, 0), Double.MAX_VALUE, new double[0]);
+        SpectralPowerCalculator.Result smoothest1 = smoothest0;
+        SpectralPowerCalculator.Result smoothest2 = smoothest0;
+        SpectralPowerCalculator.Result smoothest3 = smoothest0;
+
+        long start = System.currentTimeMillis();
+        long stop = start + SEARCH_SEC * 1_000;
+        long counter = 0;
+
+        ForkJoinPool threadPool = ForkJoinPool.commonPool();
+
+        var spCalculator0 = new SpectralPowerCalculator(bayerImage.pane0, bayerImage.paneWidth, bayerImage.paneHeight, size);
+        var spCalculator1 = new SpectralPowerCalculator(bayerImage.pane1, bayerImage.paneWidth, bayerImage.paneHeight, size);
+        var spCalculator2 = new SpectralPowerCalculator(bayerImage.pane2, bayerImage.paneWidth, bayerImage.paneHeight, size);
+        var spCalculator3 = new SpectralPowerCalculator(bayerImage.pane3, bayerImage.paneWidth, bayerImage.paneHeight, size);
+
+        SpectralPowerCalculator.Result result0;
+        SpectralPowerCalculator.Result result1;
+        SpectralPowerCalculator.Result result2;
+        SpectralPowerCalculator.Result result3;
+        do {
+            ForkJoinTask<SpectralPowerCalculator.Result> future0 = threadPool.submit(() -> spCalculator0.measureRandomSquare());
+            ForkJoinTask<SpectralPowerCalculator.Result> future1 = threadPool.submit(() -> spCalculator1.measureRandomSquare());
+            ForkJoinTask<SpectralPowerCalculator.Result> future2 = threadPool.submit(() -> spCalculator2.measureRandomSquare());
+            ForkJoinTask<SpectralPowerCalculator.Result> future3 = threadPool.submit(() -> spCalculator3.measureRandomSquare());
+            try {
+                result0 = future0.get();
+                result1 = future1.get();
+                result2 = future2.get();
+                result3 = future3.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+            if (result0.power() < smoothest0.power() && result0.power() > 1) {
+                double improvement = 1 - result0.power() / smoothest0.power();
+                System.out.println((System.currentTimeMillis() - start) + " Found smoother pane0 area at " + result0.coordinates() + " with power " + result0.power() + ", improvement: " + improvement);
+                smoothest0 = result0;
+            }
+            if (result1.power() < smoothest1.power() && result1.power() > 1) {
+                double improvement = 1 - result1.power() / smoothest1.power();
+                System.out.println((System.currentTimeMillis() - start) + " Found smoother pane1 area at " + result1.coordinates() + " with power " + result1.power() + ", improvement: " + improvement);
+                smoothest1 = result1;
+            }
+            if (result2.power() < smoothest2.power() && result2.power() > 1) {
+                double improvement = 1 - result2.power() / smoothest2.power();
+                System.out.println((System.currentTimeMillis() - start) + " Found smoother pane2 area at " + result2.coordinates() + " with power " + result2.power() + ", improvement: " + improvement);
+                smoothest2 = result2;
+            }
+            if (result3.power() < smoothest3.power() && result3.power() > 1) {
+                double improvement = 1 - result3.power() / smoothest3.power();
+                System.out.println((System.currentTimeMillis() - start) + " Found smoother pane3 area at " + result3.coordinates() + " with power " + result3.power() + ", improvement: " + improvement);
+                smoothest3 = result3;
+            }
+            counter++;
+        } while (System.currentTimeMillis() < stop);
+        System.out.println("Total samples evaluated: " + counter);
+
+        var filter = new SpectrumSubtractingFilter(bayerImage.paneWidth, bayerImage.paneHeight, size);
+
+//        filterAndShow(
+//                "filtered using smoothest and size " + size,
+//                filter,
+//                bayerImage,
+//                smoothest0.magnitudes(), smoothest1.magnitudes(), smoothest2.magnitudes(), smoothest3.magnitudes(),
+//                originalSum
+//        );
+
+//        DoubleStream.of(.1, .2, 0.5, 1, 2, 5, 10/*, 20, 25, 50, 90*/).forEach(percentile -> {
+        double percentile = 2;
+            double[] magnitudes0 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            double[] magnitudes1 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            double[] magnitudes2 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            double[] magnitudes3 = new double[spCalculator0.histogramByFrequencyIndex.length];
+            setAll(magnitudes0, index -> spCalculator0.histogramByFrequencyIndex[index].getValueAtPercentile(percentile) / SCALE);
+            setAll(magnitudes1, index -> spCalculator1.histogramByFrequencyIndex[index].getValueAtPercentile(percentile) / SCALE);
+            setAll(magnitudes2, index -> spCalculator2.histogramByFrequencyIndex[index].getValueAtPercentile(percentile) / SCALE);
+            setAll(magnitudes3, index -> spCalculator3.histogramByFrequencyIndex[index].getValueAtPercentile(percentile) / SCALE);
+
+            filterAndShow(
+                    "filtered using values at percentile " + percentile + " and size " + size,
+                    filter,
+                    bayerImage,
+                    magnitudes0, magnitudes1, magnitudes2, magnitudes3,
+                    originalSum
+            );
+//        });
+
     }
 
     private void filterAndShow(

@@ -1,19 +1,15 @@
 package kofa.noise;
 
-import org.apache.commons.math3.transform.DftNormalization;
-import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.jtransforms.fft.DoubleFFT_2D;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.max;
-//import static kofa.noise.FFTUtils.fft2d;
 import static kofa.noise.FFTUtils.magnitude;
 import static kofa.noise.Padding.pad;
 
 public class SpectrumSubtractingFilter {
-    private static final FastFourierTransformer transformer = new FastFourierTransformer(DftNormalization.STANDARD);
     private static final double STRENGTH = 1.5;
 
     private final int width;

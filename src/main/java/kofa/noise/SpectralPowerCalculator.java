@@ -12,19 +12,37 @@ import static java.util.Arrays.setAll;
 import static kofa.noise.FFTUtils.*;
 import static kofa.noise.Padding.pad;
 
+/**
+ * Calculates spectral power and frequency analysis of 2D monochromatic image data using Fast Fourier Transform (FFT).
+ * Maintains histograms of frequency components and can analyze square regions of an image.
+ */
 public class SpectralPowerCalculator {
+    /**
+     * Scaling factor used for histogram value recording.
+     */
     public static final double SCALE = 1;
 
+    /**
+     * Histograms for each frequency index in the transformed data.
+     */
     public final Histogram[] histogramByFrequencyIndex;
 
-    private final float[] pane;
+    private final float[] image;
     private final int width;
     private final int height;
     private final int filterSize;
     private final int paddedSize;
 
-    public SpectralPowerCalculator(float[] pane, int width, int height, int filterSize) {
-        this.pane = pane;
+    /**
+     * Constructs a new SpectralPowerCalculator.
+     *
+     * @param image       The input image data as a float array
+     * @param width       The width of the input image
+     * @param height      The height of the input image
+     * @param filterSize  The size of the square region to analyze
+     */
+    public SpectralPowerCalculator(float[] image, int width, int height, int filterSize) {
+        this.image = image;
         this.width = width;
         this.height = height;
         this.filterSize = filterSize;
@@ -33,9 +51,13 @@ public class SpectralPowerCalculator {
         setAll(histogramByFrequencyIndex, ignoredIndex -> new ConcurrentHistogram(3));
     }
 
+    /**
+     * Represents the result of a spectral power measurement.
+     */
     public record Result(XYCoordinates coordinates, double power, double[] spectrum) {
         public double[] magnitudes() {
             double[] magnitudes = new double[spectrum.length / 2];
+            // the 'spectrum' is made up by pair representing complex(Re, Im)
             setAll(magnitudes, index -> magnitude(spectrum[2 * index], spectrum[2 * index + 1]));
             return magnitudes;
         }
@@ -51,7 +73,7 @@ public class SpectralPowerCalculator {
 
     public Result measure(int topLeftX, int topLeftY) {
         DoubleFFT_2D fft = new DoubleFFT_2D(paddedSize, paddedSize);
-        double[] buffer = pad(pane, width, paddedSize, filterSize, topLeftX, topLeftY);
+        double[] buffer = pad(image, width, paddedSize, filterSize, topLeftX, topLeftY);
 
         fft.realForward(buffer);
         histogramByFrequencyIndex[0].recordValue((long) (magnitude(buffer[0], buffer[1]) * SCALE));
