@@ -49,6 +49,33 @@ public class CIExyYGamutBoundaries {
 
                 System.out.println("indexY: %d, indexPolar: %d, angle: %f, distanceFromNeutral: %f, xyY: %s, rgb: %s"
                         .formatted(indexY, indexPolar, angle, distanceFromNeutral, Arrays.toString(xyY), Arrays.toString(rgb)));
+
+            }
+        }
+        for (int indexY = 0; indexY < LUMA_RESOLUTION; indexY++) {
+            float Y = 1f / LUMA_RESOLUTION * indexY;
+            xyY[2] = Y;
+            float[] boundariesForLuma = boundaries[indexY];
+            for (int indexPolar = 0; indexPolar < POLAR_RESOLUTION; indexPolar++) {
+                float angle = PI2 / POLAR_RESOLUTION * indexPolar;
+                float distanceFromNeutral = boundariesForLuma[indexPolar];
+                float x = (float) (distanceFromNeutral * cos(angle) + D65_WHITE_2DEG_x);
+                float y = (float) (distanceFromNeutral * sin(angle) + D65_WHITE_2DEG_y);
+                xyY[0] = x;
+                xyY[1] = y;
+                xyY_to_XYZ(xyY, XYZ);
+                cieXYZ_to_Rec709(XYZ, rgb);
+                if (outOfGamut(rgb)) {
+                    System.out.println("Found out-of-gamut colour " + Arrays.toString(rgb));
+                } else {
+                    if (
+                            0.01 < rgb[0] && rgb[0] < 0.99
+                            && 0.01 < rgb[1] && rgb[1] < 0.99
+                            && 0.01 < rgb[2] && rgb[2] < 0.99
+                    ) {
+                        System.out.println("Colour is not on edge of gamut: " + Arrays.toString(rgb));
+                    }
+                }
             }
         }
     }
@@ -82,12 +109,12 @@ public class CIExyYGamutBoundaries {
                     double cos = cos(angle);
                     double sin = sin(angle);
 
-                    float minDistanceForThisRound = 0;
-                    float maxDistanceForThisRound = STARTING_MAX_DISTANCE;
+                    double minDistanceForThisRound = 0;
+                    double maxDistanceForThisRound = STARTING_MAX_DISTANCE;
                     int count = 0;
                     while (count < 100 && indexPolar < POLAR_RESOLUTION && maxDistanceForThisRound - minDistanceForThisRound > 0) {
                         count++;
-                        float distanceFromNeutral = (minDistanceForThisRound + maxDistanceForThisRound) / 2;
+                        double distanceFromNeutral = (minDistanceForThisRound + maxDistanceForThisRound) / 2;
                         float x = (float) (distanceFromNeutral * cos + D65_WHITE_2DEG_x);
                         float y = (float) (distanceFromNeutral * sin + D65_WHITE_2DEG_y);
                         xyY[0] = x;
@@ -107,7 +134,7 @@ public class CIExyYGamutBoundaries {
                     }
                     synchronized (boundaries[indexY]) {
                         if (boundaries[indexY][indexPolar] > minDistanceForThisRound) {
-                            boundaries[indexY][indexPolar] = minDistanceForThisRound;
+                            boundaries[indexY][indexPolar] = (float) minDistanceForThisRound;
 //                        System.out.println("new boundaries[%d][%d]: %f".formatted(indexY, indexPolar, minDistanceForThisRound));
                         }
                     }
