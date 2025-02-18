@@ -36,7 +36,7 @@ public class RgbCubeGamutBoundaries {
                 rgb[1] = g * step;
                 for (int b = 0; b <= steps; b ++) {
                     rgb[2] = b * step;
-                    Rec709.rec709ToXyz(rgb, XYZ);
+                    Rec709.rec709_to_XYZ(rgb, XYZ);
                     CIExyY.XZY_to_xyY(XYZ, xyY);
 
                     float Y = xyY[2];
@@ -52,7 +52,7 @@ public class RgbCubeGamutBoundaries {
                     float y = xyY[1];
                     float dx = CIExyY.D65_WHITE_2DEG_x - x;
                     float dy = CIExyY.D65_WHITE_2DEG_y - y;
-                    int polarIndex = (int) Math.round(Math.atan2(dx, dy) / Math.PI / 2 * (POLAR_RESOLUTION - 1) + (POLAR_RESOLUTION / 2 - 1));
+                    int polarIndex = (int) Math.round(Math.atan2(dy, dx) / Math.PI / 2 * (POLAR_RESOLUTION - 1) + (POLAR_RESOLUTION / 2 - 1));
 //                    if (polarIndex < 0 || polarIndex >= POLAR_RESOLUTION) {
 //                        throw new RuntimeException("Got polarIndex " + polarIndex);
 //                    }
@@ -87,6 +87,5 @@ public class RgbCubeGamutBoundaries {
                 .mapToObj(Integer::toString)
                 .collect(Collectors.joining(", "))
         );
-
     }
 }

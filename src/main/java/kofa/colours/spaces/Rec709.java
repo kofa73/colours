@@ -13,13 +13,13 @@ public class Rec709 {
     }
      */
 
-    public static void rec709ToXyz(float[] rgb, float[] xyz) {
+    public static void rec709_to_XYZ(float[] rgb, float[] xyz) {
         xyz[0] = 0.41238656325299233f  * rgb[0] + 0.35759149092062525f * rgb[1] + 0.1804504912035636f  * rgb[2];
         xyz[1] = 0.21263682167732417f  * rgb[0] + 0.7151829818412505f  * rgb[1] + 0.07218019648142544f * rgb[2];
         xyz[2] = 0.019330620152483994f * rgb[0] + 0.1191971636402084f  * rgb[1] + 0.950372587005435f   * rgb[2];
     }
 
-    public static void cieXYZ_to_Rec709(float[] xyz, float[] rgb) {
+    public static void XYZ_to_rec709(float[] xyz, float[] rgb) {
         rgb[0] =  3.241003232976353f   * xyz[0] - 1.5373989694887833f  * xyz[1] - 0.4986158819963621f  * xyz[2];
         rgb[1] = -0.9692242522025167f  * xyz[0] + 1.8759299836951773f  * xyz[1] + 0.04155422634008489f * xyz[2];
         rgb[2] =  0.05563941985197549f * xyz[0] - 0.20401120612391002f * xyz[1] + 1.0571489771875335f  * xyz[2];

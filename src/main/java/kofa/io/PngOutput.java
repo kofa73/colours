@@ -40,7 +40,7 @@ public class PngOutput {
                     bankData[0][index++] = roundPixelToShort(greenChannel[row][column]);
                     bankData[0][index++] = roundPixelToShort(blueChannel[row][column]);
                 } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("%s at (%d, %d)".formatted(e.getMessage(), row, column));
+                    throw new IllegalArgumentException("%s at (%d, %d)".formatted(e.getMessage(), row, column), e);
                 }
             }
         }
@@ -49,8 +49,14 @@ public class PngOutput {
 
     private static short roundPixelToShort(double pixel) {
         long value = Math.round(65535 * pixel);
+        if (value > 65535) {
+            value = 65535;
+        } else if (value < 0) {
+            value = 0;
+        }
+
         if (value > 65535 || value < 0) {
-            throw new IllegalArgumentException("Out of 16-bit range: value");
+            throw new IllegalArgumentException("Out of 16-bit range: " + value);
         }
         return (short) value;
     }
