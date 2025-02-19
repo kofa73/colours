@@ -9,8 +9,8 @@ import static kofa.colours.spaces.CIExyY.*;
 import static kofa.colours.spaces.Rec709.XYZ_to_rec709;
 
 public class CIExyYGamutBoundaries {
-    public static final int POLAR_RESOLUTION = 16384;
-    public static final int LUMA_RESOLUTION = 16384;
+    public static final int POLAR_RESOLUTION = 1000;
+    public static final int LUMA_RESOLUTION = 1000;
     private static final float PI2 = (float) (2 * Math.PI);
     private static final float STARTING_MAX_DISTANCE = 2;
 

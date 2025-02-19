@@ -49,11 +49,6 @@ public class PngOutput {
 
     private static short roundPixelToShort(double pixel) {
         long value = Math.round(65535 * pixel);
-        if (value > 65535) {
-            value = 65535;
-        } else if (value < 0) {
-            value = 0;
-        }
 
         if (value > 65535 || value < 0) {
             throw new IllegalArgumentException("Out of 16-bit range: " + value);

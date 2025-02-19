@@ -30,6 +30,7 @@ public class Solver {
         // for safety, if we're oscillating somehow
         int iterations = 0;
         do {
+            current = (high + low) / 2;
             iterations++;
             double error = errorFunction.apply(current);
             if (abs(error) <= threshold) {
@@ -40,7 +41,6 @@ public class Solver {
                 } else {
                     high = current;
                 }
-                current = (high + low) / 2;
             }
         } while (solution.isEmpty() && current != high && current != low && iterations < 200);
         return solution;

@@ -60,7 +60,7 @@ public class SimpleXyzCompressor {
     private static <S> double findOptimalShoulderStart(double maxValue) {
         double shoulderStart;
         if (maxValue <= 1) {
-            System.out.println("Tone mapping is not needed, maxBrightness = " + maxValue);
+            System.out.println("Compression is not needed, maxValue = " + maxValue);
             shoulderStart = 1;
         } else {
             var shoulderSearchLow = 0.99;
@@ -81,13 +81,14 @@ public class SimpleXyzCompressor {
                 }
             } while (shoulder.isEmpty() && shoulderSearchLow > 0.5);
             shoulderStart = shoulder.orElse(0.5);
-            System.out.println("Will use shoulderStart = " + shoulderStart + " for tone mapping, maxBrightness = " + maxValue);
+            System.out.println("Will use shoulderStart = " + shoulderStart + " for tone mapping, maxValue = " + maxValue);
         }
         return shoulderStart;
     }
 
     private static class CurveBasedYCompressor implements RgbImage.PixelTransformer {
         private final ThanatomanicCurve6 curve;
+        private final AtomicDouble maxMappedY = new AtomicDouble(0);
 
         private CurveBasedYCompressor(double shoulder) {
             curve = ThanatomanicCurve6.linearUntil(shoulder);
@@ -96,7 +97,9 @@ public class SimpleXyzCompressor {
         @Override
         public double[] transform(int row, int column, double red, double green, double blue) {
             float[] valuesXYZ = rec2020_to_XYZ((float) red, (float) green, (float) blue);
-            valuesXYZ[1] = (float) curve.mappedValueOf(valuesXYZ[1]);
+            double mappedY = curve.mappedValueOf(valuesXYZ[1]);
+            valuesXYZ[1] = (float) mappedY;
+            maxMappedY.accumulateAndGet(mappedY, Math::max);
             var valuesRec2020 = new float[3];
             Rec2020.XYZ_to_rec2020(valuesXYZ, valuesRec2020);
             return new double[] {valuesRec2020[0], valuesRec2020[1], valuesRec2020[2]};
@@ -110,10 +113,8 @@ public class SimpleXyzCompressor {
         image.forEachPixel((int row, int column, double red, double green, double blue) ->
                     updateMaxGamutCompression((float) red, (float) green, (float) blue, maxGamutCompressionHolder, boundaries)
         );
-        double maxGamutCompression = maxGamutCompressionHolder.get();
-        System.out.println("max gamut compression: " + maxGamutCompression);
 
-        double shoulderStart = findOptimalShoulderStart(maxGamutCompression);
+        double shoulderStart = 0.9;//findOptimalShoulderStart(maxGamutCompression);
 
         if (shoulderStart != 1) {
             var gamutCompressor = new CurveBased_xyY_gamutCompressor(shoulderStart, boundaries);
@@ -159,14 +160,6 @@ public class SimpleXyzCompressor {
 
         @Override
         public double[] transform(int row, int column, double red, double green, double blue) {
-            /*
-            float[] valuesXYZ = rec2020_to_XYZ((float) red, (float) green, (float) blue);
-            valuesXYZ[1] = (float) curve.mappedValueOf(valuesXYZ[1]);
-            var valuesRec2020 = new float[3];
-            Rec2020.XYZ_to_rec2020(valuesXYZ, valuesRec2020);
-            return new double[] {valuesRec2020[0], valuesRec2020[1], valuesRec2020[2]};
-
-             */
             float[] valuesXYZ = rec2020_to_XYZ((float) red, (float) green, (float) blue);
             float[] values_xyY = new float[3];
             CIExyY.XZY_to_xyY(valuesXYZ, values_xyY);
@@ -178,7 +171,7 @@ public class SimpleXyzCompressor {
                 float dx = x - D65_WHITE_2DEG_x;
                 float dy = y - D65_WHITE_2DEG_y;
                 float distanceFromNeutral = (float) sqrt(dx * dx + dy * dy);
-                if (distanceFromNeutral > 1e-4) {
+                if (distanceFromNeutral > 0) {
                     double angle = atan2(dy, dx);
                     // may wrap around the circle because of the rounding, 0 radian vs 2*PI radian
                     double normalisedAngle = ((angle < 0) ? (angle + PI2) : angle) / PI2;
@@ -186,7 +179,7 @@ public class SimpleXyzCompressor {
                     float maxDistanceFromNeutral = boundaries[indexY][indexPolar];
                     float ratioFromMax = distanceFromNeutral / maxDistanceFromNeutral;
                     double compressedRatioFromMax = curve.mappedValueOf(ratioFromMax);
-                    double compressedDistance = distanceFromNeutral * compressedRatioFromMax;
+                    double compressedDistance = maxDistanceFromNeutral * compressedRatioFromMax;
                     values_xyY[0] = (float) (compressedDistance * cos(angle)) + D65_WHITE_2DEG_x;
                     values_xyY[1] = (float) (compressedDistance * sin(angle)) + D65_WHITE_2DEG_y;
                 }
@@ -197,14 +190,22 @@ public class SimpleXyzCompressor {
             CIExyY.xyY_to_XYZ(values_xyY, valuesXYZ);
             var rec709 = new float[3];
             Rec709.XYZ_to_rec709(valuesXYZ, rec709);
-            if (
-                    rec709[0] < 0 || rec709[0] > 1
-                    || rec709[1] < 0 || rec709[1] > 1
-                    || rec709[2] < 0 || rec709[2] > 1
-            ) {
-                System.out.println("out");
-            }
-            return new double[] {rec709[0], rec709[1], rec709[2]};
+            // clip away any minor remaining under/overshoot
+            if (rec709[0] < 0) {rec709[0] = 0;}
+            if (rec709[0] > 1) {rec709[0] = 1;}
+            if (rec709[1] < 0) {rec709[1] = 0;}
+            if (rec709[1] > 1) {rec709[1] = 1;}
+            if (rec709[2] < 0) {rec709[2] = 0;}
+            if (rec709[2] > 1) {rec709[2] = 1;}
+            return new double[] {applyGamma(rec709[0]), applyGamma(rec709[1]), applyGamma(rec709[2])};
         }
+    }
+
+    private static final double LINEAR_THRESHOLD = 0.0031308;
+
+    private static double applyGamma(double linear) {
+        return linear <= LINEAR_THRESHOLD ?
+                12.92 * linear :
+                1.055 * Math.pow(linear, 1 / 2.4) - 0.055;
     }
 }
