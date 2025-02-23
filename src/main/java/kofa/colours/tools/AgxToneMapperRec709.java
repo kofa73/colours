@@ -2,7 +2,7 @@ package kofa.colours.tools;
 
 import kofa.colours.spaces.Rec2020;
 
-import static kofa.colours.tools.MathHelpers.*;
+import static kofa.maths.MathHelpers.*;
 
 // based on https://github.com/google/filament/blob/main/filament/src/ToneMapper.cpp#L263
 // https://iolite-engine.com/blog_posts/minimal_agx_implementation

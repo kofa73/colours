@@ -1,6 +1,8 @@
 package kofa.io;
 
+import java.awt.image.ComponentSampleModel;
 import java.awt.image.Raster;
+import java.awt.image.SampleModel;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;

@@ -2,8 +2,8 @@ package kofa.colours.tools;
 
 import static java.lang.Math.exp;
 import static java.lang.Math.pow;
-import static kofa.colours.tools.MathHelpers.smoothstep;
-import static kofa.colours.tools.MathHelpers.step;
+import static kofa.maths.MathHelpers.smoothstep;
+import static kofa.maths.MathHelpers.step;
 
 // Uchimura 2017, "HDR theory and practice"
 // https://github.com/dmnsgn/glsl-tone-map/blob/main/uchimura.glsl

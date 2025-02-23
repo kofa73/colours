@@ -11,7 +11,7 @@ import static java.lang.Math.*;
 import static kofa.colours.spaces.CIExyY.D65_WHITE_2DEG_x;
 import static kofa.colours.spaces.CIExyY.D65_WHITE_2DEG_y;
 import static kofa.colours.tools.CurveSolver.findOptimalShoulderStart;
-import static kofa.colours.tools.MathHelpers.vec3;
+import static kofa.maths.MathHelpers.vec3;
 
 public class GamutCompressor_xyY {
     private static final double PI2 = 2 * PI;

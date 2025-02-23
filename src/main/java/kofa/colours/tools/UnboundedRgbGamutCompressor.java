@@ -4,7 +4,7 @@ import kofa.io.RgbImage;
 
 import static java.lang.Math.max;
 import static java.lang.Math.*;
-import static kofa.colours.tools.MathHelpers.*;
+import static kofa.maths.MathHelpers.*;
 
 public class UnboundedRgbGamutCompressor {
     private static final double cyan = 0.3;

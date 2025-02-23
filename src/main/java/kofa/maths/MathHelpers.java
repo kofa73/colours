@@ -1,4 +1,4 @@
-package kofa.colours.tools;
+package kofa.maths;
 
 public class MathHelpers {
     private static final double ln2 = Math.log(2);

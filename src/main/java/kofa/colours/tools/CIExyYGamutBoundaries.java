@@ -1,13 +1,16 @@
 package kofa.colours.tools;
 
+import kofa.colours.spaces.Rec709;
+
 import java.util.Arrays;
+import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.*;
 import static java.util.Arrays.fill;
 import static kofa.colours.spaces.CIExyY.*;
 import static kofa.colours.spaces.Rec709.XYZ_to_rec709;
-import static kofa.colours.tools.MathHelpers.vec3;
+import static kofa.maths.MathHelpers.vec3;
 
 public class CIExyYGamutBoundaries {
     private static double TWO_PI = 2 * Math.PI;
@@ -18,6 +21,9 @@ public class CIExyYGamutBoundaries {
     private final double lumaStep;
     private final double polarStep;
     private final double maxY;
+    private final BiConsumer<double[], double[]> XYZ_to_rgb;
+    private final double whitePoint_x;
+    private final double whitePoint_y;
 
     public CIExyYGamutBoundaries(int lumaResolution, int chromaResolution) {
         this(lumaResolution, chromaResolution, 1);
@@ -29,6 +35,9 @@ public class CIExyYGamutBoundaries {
         this.maxY = maxY;
         lumaStep = maxY / lumaResolution;
         polarStep = TWO_PI / chromaResolution;
+        XYZ_to_rgb = Rec709::XYZ_to_rec709;
+        whitePoint_x = D65_WHITE_2DEG_x;
+        whitePoint_y = D65_WHITE_2DEG_y;
     }
 
     public double[][] findRec709GamutBoundaries() {
@@ -69,12 +78,12 @@ public class CIExyYGamutBoundaries {
         int count = 0;
         do {
             count++;
-            double x = distanceFromNeutral * cos + D65_WHITE_2DEG_x;
-            double y = distanceFromNeutral * sin + D65_WHITE_2DEG_y;
+            double x = distanceFromNeutral * cos + whitePoint_x;
+            double y = distanceFromNeutral * sin + whitePoint_y;
             xyY[0] = x;
             xyY[1] = y;
             xyY_to_XYZ(xyY, XYZ);
-            XYZ_to_rec709(XYZ, rgb);
+            XYZ_to_rgb.accept(XYZ, rgb);
             boolean outOfGamut = outOfGamut(rgb);
             if (outOfGamut) {
                 maxDistanceForThisRound = distanceFromNeutral;
@@ -115,12 +124,12 @@ public class CIExyYGamutBoundaries {
             for (int indexPolar = 0; indexPolar < chromaResolution; indexPolar++) {
                 double angle = TWO_PI / chromaResolution * indexPolar;
                 double distanceFromNeutral = boundariesForLuma[indexPolar];
-                double x = (distanceFromNeutral * cos(angle) + D65_WHITE_2DEG_x);
-                double y = (distanceFromNeutral * sin(angle) + D65_WHITE_2DEG_y);
+                double x = (distanceFromNeutral * cos(angle) + whitePoint_x);
+                double y = (distanceFromNeutral * sin(angle) + whitePoint_y);
                 xyY[0] = x;
                 xyY[1] = y;
                 xyY_to_XYZ(xyY, XYZ);
-                XYZ_to_rec709(XYZ, rgb);
+                XYZ_to_rgb.accept(XYZ, rgb);
                 result.append("xyY: %.20f, %.20f, %.20f; radius: %.20f, angle: %.20f, rgb: %s\n".formatted(xyY[0], xyY[1], xyY[2], distanceFromNeutral, angle, Arrays.toString(rgb)));
 
                 if (outOfGamut(rgb)) {
