@@ -17,7 +17,7 @@ public class PngOutput {
 
     private BufferedImage asBufferedImage(RgbImage image) {
         WritableRaster raster = rasterFrom(image);
-        ColorSpace linearRgb = ColorSpace.getInstance(ColorSpace.CS_LINEAR_RGB);
+        ColorSpace linearRgb = ColorSpace.getInstance(ColorSpace.CS_sRGB);
         ColorModel colourModel = new ComponentColorModel(linearRgb, false, false, Transparency.OPAQUE, DataBuffer.TYPE_USHORT);
         return new BufferedImage(colourModel, raster, colourModel.isAlphaPremultiplied(), null);
     }

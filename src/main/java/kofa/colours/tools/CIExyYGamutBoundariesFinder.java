@@ -1,5 +1,6 @@
 package kofa.colours.tools;
 
+import kofa.colours.spaces.Rec2020;
 import kofa.colours.spaces.Rec709;
 
 import java.util.Arrays;
@@ -9,10 +10,9 @@ import java.util.stream.IntStream;
 import static java.lang.Math.*;
 import static java.util.Arrays.fill;
 import static kofa.colours.spaces.CIExyY.*;
-import static kofa.colours.spaces.Rec709.XYZ_to_rec709;
 import static kofa.maths.MathHelpers.vec3;
 
-public class CIExyYGamutBoundaries {
+public class CIExyYGamutBoundariesFinder {
     private static double TWO_PI = 2 * Math.PI;
     private static final double STARTING_MAX_DISTANCE = 2;
     // the distance of the gamut boundary from the white point, by luma and polar index
@@ -25,22 +25,34 @@ public class CIExyYGamutBoundaries {
     private final double whitePoint_x;
     private final double whitePoint_y;
 
-    public CIExyYGamutBoundaries(int lumaResolution, int chromaResolution) {
-        this(lumaResolution, chromaResolution, 1);
+    public static CIExyYGamutBoundariesFinder forRec709(int lumaResolution, int chromaResolution) {
+        return new CIExyYGamutBoundariesFinder(
+                lumaResolution, chromaResolution, 1, D65_WHITE_2DEG_x, D65_WHITE_2DEG_y, Rec709::XYZ_to_rec709
+        );
     }
 
-    public CIExyYGamutBoundaries(int lumaResolution, int chromaResolution, double maxY) {
+    public static CIExyYGamutBoundariesFinder forRec2020(int lumaResolution, int chromaResolution) {
+        return new CIExyYGamutBoundariesFinder(
+                lumaResolution, chromaResolution, 1, D65_WHITE_2DEG_x, D65_WHITE_2DEG_y, Rec2020::XYZ_to_rec2020
+        );
+    }
+
+    public CIExyYGamutBoundariesFinder(int lumaResolution, int chromaResolution) {
+        this(lumaResolution, chromaResolution, 1, D65_WHITE_2DEG_x, D65_WHITE_2DEG_y, Rec709::XYZ_to_rec709);
+    }
+
+    private CIExyYGamutBoundariesFinder(int lumaResolution, int chromaResolution, double maxY, double whitePoint_x, double whitePoint_y, BiConsumer<double[], double[]> XYZ_to_rgb) {
         this.lumaResolution = lumaResolution;
         this.chromaResolution = chromaResolution;
         this.maxY = maxY;
         lumaStep = maxY / lumaResolution;
         polarStep = TWO_PI / chromaResolution;
-        XYZ_to_rgb = Rec709::XYZ_to_rec709;
-        whitePoint_x = D65_WHITE_2DEG_x;
-        whitePoint_y = D65_WHITE_2DEG_y;
+        this.XYZ_to_rgb = XYZ_to_rgb;
+        this.whitePoint_x = whitePoint_x;
+        this.whitePoint_y = whitePoint_y;
     }
 
-    public double[][] findRec709GamutBoundaries() {
+    public double[][] findRgbGamutBoundaries() {
         double[][] boundaries = new double[lumaResolution][chromaResolution];
         for (double[] boundariesForLuma : boundaries) {
             fill(boundariesForLuma, STARTING_MAX_DISTANCE);
@@ -101,8 +113,8 @@ public class CIExyYGamutBoundaries {
     public static void main(String[] args) {
         int lumaResolution = 4096;
         int chromaResolution = 4096;
-        CIExyYGamutBoundaries finder = new CIExyYGamutBoundaries(lumaResolution, chromaResolution);
-        double[][] boundaries = finder.findRec709GamutBoundaries();
+        CIExyYGamutBoundariesFinder finder = new CIExyYGamutBoundariesFinder(lumaResolution, chromaResolution);
+        double[][] boundaries = finder.findRgbGamutBoundaries();
 
         finder.testBoundaries(boundaries);
     }

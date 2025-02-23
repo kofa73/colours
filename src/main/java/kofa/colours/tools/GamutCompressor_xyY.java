@@ -23,7 +23,7 @@ public class GamutCompressor_xyY {
     public GamutCompressor_xyY(int lumaResolution, int chromaResolution) {
         this.lumaResolution = lumaResolution;
         this.chromaResolution = chromaResolution;
-        boundaries = new CIExyYGamutBoundaries(lumaResolution, chromaResolution).findRec709GamutBoundaries();
+        boundaries = new CIExyYGamutBoundariesFinder(lumaResolution, chromaResolution).findRgbGamutBoundaries();
     }
 
     public void compressGamut_in_xyY(RgbImage image) {
