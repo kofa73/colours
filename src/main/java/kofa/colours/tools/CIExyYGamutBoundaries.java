@@ -1,15 +1,13 @@
 package kofa.colours.tools;
 
-import kofa.colours.spaces.Buffer3;
-
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.*;
 import static java.util.Arrays.fill;
-import static kofa.colours.spaces.Buffer3.newBuffer;
 import static kofa.colours.spaces.CIExyY.*;
 import static kofa.colours.spaces.Rec709.XYZ_to_rec709;
+import static kofa.colours.tools.MathHelpers.vec3;
 
 public class CIExyYGamutBoundaries {
     private static double TWO_PI = 2 * Math.PI;
@@ -19,13 +17,18 @@ public class CIExyYGamutBoundaries {
     private final int chromaResolution;
     private final double lumaStep;
     private final double polarStep;
+    private final double maxY;
 
     public CIExyYGamutBoundaries(int lumaResolution, int chromaResolution) {
+        this(lumaResolution, chromaResolution, 1);
+    }
+
+    public CIExyYGamutBoundaries(int lumaResolution, int chromaResolution, double maxY) {
         this.lumaResolution = lumaResolution;
         this.chromaResolution = chromaResolution;
-        lumaStep = 1f / lumaResolution;
+        this.maxY = maxY;
+        lumaStep = maxY / lumaResolution;
         polarStep = TWO_PI / chromaResolution;
-
     }
 
     public double[][] findRec709GamutBoundaries() {
@@ -39,9 +42,9 @@ public class CIExyYGamutBoundaries {
 
         // start with indexY = 1, skip black
         IntStream.range(1, lumaResolution).parallel().forEach(indexY -> {
-            double[] rgb = newBuffer();
-            double[] XYZ = newBuffer();
-            double[] xyY = newBuffer();
+            double[] rgb = vec3();
+            double[] XYZ = vec3();
+            double[] xyY = vec3();
             double Y = indexY * lumaStep;
             xyY[2] = Y;
             for (int indexPolar = 0; indexPolar < chromaResolution; indexPolar++) {
@@ -89,8 +92,13 @@ public class CIExyYGamutBoundaries {
     public static void main(String[] args) {
         int lumaResolution = 4096;
         int chromaResolution = 4096;
-        double[][] boundaries = new CIExyYGamutBoundaries(lumaResolution, chromaResolution).findRec709GamutBoundaries();
+        CIExyYGamutBoundaries finder = new CIExyYGamutBoundaries(lumaResolution, chromaResolution);
+        double[][] boundaries = finder.findRec709GamutBoundaries();
 
+        finder.testBoundaries(boundaries);
+    }
+
+    private void testBoundaries(double[][] boundaries) {
         double[] xyY = new double[3];
         double[] XYZ = new double[3];
         double[] rgb = new double[3];
@@ -140,7 +148,8 @@ public class CIExyYGamutBoundaries {
         System.out.println(notOnGamutBoundary);
     }
 
-    private static boolean outOfGamut(double[] rgb) {
-        return rgb[0] < 0 || rgb[1] < 0 || rgb[2] < 0;
+    private boolean outOfGamut(double[] rgb) {
+        return rgb[0] < 0 || rgb[1] < 0 || rgb[2] < 0
+                || rgb[0] > maxY || rgb[1] > maxY || rgb[2] > maxY;
     }
 }

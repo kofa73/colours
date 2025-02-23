@@ -108,5 +108,16 @@ public class MathHelpers {
         vector[2] = Math.log(vector[2]) / ln2;
     }
 
+    public static double[] vec3(double value) {
+        return new double[] {value, value, value};
+    }
+
+    public static double[] vec3(double x, double y, double z) {
+        return new double[] {x, y, z};
+    }
+
+    public static double[] vec3() {
+        return new double[3];
+    }
 
 }

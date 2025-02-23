@@ -8,10 +8,10 @@ import kofa.io.RgbImage;
 import kofa.maths.ThanatomanicCurve6;
 
 import static java.lang.Math.*;
-import static kofa.colours.spaces.Buffer3.newBuffer;
 import static kofa.colours.spaces.CIExyY.D65_WHITE_2DEG_x;
 import static kofa.colours.spaces.CIExyY.D65_WHITE_2DEG_y;
 import static kofa.colours.tools.CurveSolver.findOptimalShoulderStart;
+import static kofa.colours.tools.MathHelpers.vec3;
 
 public class GamutCompressor_xyY {
     private static final double PI2 = 2 * PI;
@@ -42,7 +42,7 @@ public class GamutCompressor_xyY {
 
     private void updateMaxGamutCompression(double red, double green, double blue, AtomicDouble maxGamutCompressionHolder, double[][] boundaries) {
         double[] valuesXYZ = rec2020_to_XYZ(red, green, blue);
-        double[] values_xyY = newBuffer();
+        double[] values_xyY = vec3();
         CIExyY.XZY_to_xyY(valuesXYZ, values_xyY);
         int indexY = (int) min(round(values_xyY[2] * lumaResolution), lumaResolution);
         if (indexY != 0 && indexY != lumaResolution) {
@@ -80,7 +80,7 @@ public class GamutCompressor_xyY {
         @Override
         public double[] transform(int row, int column, double red, double green, double blue) {
             double[] valuesXYZ = rec2020_to_XYZ(red, green, blue);
-            double[] values_xyY = newBuffer();
+            double[] values_xyY = vec3();
             CIExyY.XZY_to_xyY(valuesXYZ, values_xyY);
             int indexY = (int) min(round(values_xyY[2] * lumaResolution), lumaResolution);
             if (indexY != 0 && indexY != lumaResolution) {
@@ -107,7 +107,7 @@ public class GamutCompressor_xyY {
                 values_xyY[1] = D65_WHITE_2DEG_y;
             }
             CIExyY.xyY_to_XYZ(values_xyY, valuesXYZ);
-            var rec709 = newBuffer();
+            var rec709 = vec3();
             Rec709.XYZ_to_rec709(valuesXYZ, rec709);
             // clip away any minor remaining under/overshoot
             rec709[0] = clamp(rec709[0], 0, 1);

@@ -1,20 +1,11 @@
 package kofa.colours.tools;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import kofa.colours.spaces.CIExyY;
-import kofa.colours.spaces.Rec2020;
-import kofa.colours.spaces.Rec709;
 import kofa.io.ImageLoader;
 import kofa.io.PngOutput;
 import kofa.io.RgbImage;
-import kofa.maths.Solver;
 import kofa.maths.ThanatomanicCurve6;
 
-import java.util.Optional;
-
-import static java.lang.Math.*;
-import static kofa.colours.spaces.CIExyY.D65_WHITE_2DEG_x;
-import static kofa.colours.spaces.CIExyY.D65_WHITE_2DEG_y;
 import static kofa.colours.tools.CurveSolver.findOptimalShoulderStart;
 import static kofa.colours.tools.SrgbOut.SRGB_OUT;
 
@@ -57,7 +48,6 @@ public class SimpleRgbCompressor {
 
     private static class CurveBasedRgbCompressor implements RgbImage.PixelTransformer {
         private final ThanatomanicCurve6 curve;
-        private final AtomicDouble maxMappedComponent = new AtomicDouble(0);
 
         private CurveBasedRgbCompressor(double shoulder) {
             curve = ThanatomanicCurve6.linearUntil(shoulder);
@@ -68,9 +58,6 @@ public class SimpleRgbCompressor {
             double mappedRed = curve.mappedValueOf(red);
             double mappedGreen = curve.mappedValueOf(green);
             double mappedBlue = curve.mappedValueOf(blue);
-            maxMappedComponent.accumulateAndGet(mappedRed, Math::max);
-            maxMappedComponent.accumulateAndGet(mappedGreen, Math::max);
-            maxMappedComponent.accumulateAndGet(mappedBlue, Math::max);
             return new double[] {mappedRed, mappedGreen, mappedBlue};
         }
     }

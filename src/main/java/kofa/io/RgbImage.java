@@ -9,7 +9,7 @@ import static java.awt.image.DataBuffer.*;
 
 public class RgbImage {
     // disable for easier debugging
-    private final boolean PARALLEL = false;
+    private final boolean PARALLEL = true;
 
     private final Raster raster;
     private final double[][] redChannel;

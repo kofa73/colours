@@ -1,6 +1,7 @@
 package kofa.colours.tools;
 
-import static java.lang.Math.*;
+import static java.lang.Math.exp;
+import static java.lang.Math.pow;
 import static kofa.colours.tools.MathHelpers.smoothstep;
 import static kofa.colours.tools.MathHelpers.step;
 
