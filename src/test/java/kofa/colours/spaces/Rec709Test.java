@@ -7,7 +7,7 @@ import static kofa.colours.spaces.Buffer3.newBuffer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 
-class Rec709est {
+class Rec709Test {
     @Test
     void rec709_to_XYZ_and_back() {
         // given

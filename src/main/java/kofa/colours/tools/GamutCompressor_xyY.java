@@ -42,24 +42,28 @@ public class GamutCompressor_xyY {
 
     private void updateMaxGamutCompression(double red, double green, double blue, AtomicDouble maxGamutCompressionHolder, double[][] boundaries) {
         double[] valuesXYZ = rec2020_to_XYZ(red, green, blue);
-        double[] values_xyY = vec3();
-        CIExyY.XZY_to_xyY(valuesXYZ, values_xyY);
-        int indexY = (int) min(round(values_xyY[2] * lumaResolution), lumaResolution);
-        if (indexY != 0 && indexY != lumaResolution) {
-            // not black and not white
-            double x = values_xyY[0];
-            double y = values_xyY[1];
-            double dx = x - D65_WHITE_2DEG_x;
-            double dy = y - D65_WHITE_2DEG_y;
-            double distanceFromNeutral = sqrt(dx * dx + dy * dy);
-            if (distanceFromNeutral > 1e-4) {
-                double angle = atan2(dy, dx);
-                // may wrap around the circle because of the rounding, 0 radian vs 2*PI radian
-                double normalisedAngle = ((angle < 0) ? (angle + PI2) : angle) / PI2;
-                int indexPolar = (int) (round(normalisedAngle * chromaResolution) % chromaResolution);
-                double maxDistanceFromNeutral = boundaries[indexY][indexPolar];
-                double compression = distanceFromNeutral / maxDistanceFromNeutral;
-                maxGamutCompressionHolder.accumulateAndGet(compression, Math::max);
+        if (valuesXYZ[1] > 0.01 && valuesXYZ[1] < 0.99) {
+            double[] values_xyY = vec3();
+            CIExyY.XZY_to_xyY(valuesXYZ, values_xyY);
+            int indexY = (int) min(round(values_xyY[2] * lumaResolution), lumaResolution);
+            if (indexY != 0 && indexY != lumaResolution) {
+                // not black and not white
+                double x = values_xyY[0];
+                double y = values_xyY[1];
+                double dx = x - D65_WHITE_2DEG_x;
+                double dy = y - D65_WHITE_2DEG_y;
+                double distanceFromNeutral = sqrt(dx * dx + dy * dy);
+                if (distanceFromNeutral > 1e-4) {
+                    double angle = atan2(dy, dx);
+                    // may wrap around the circle because of the rounding, 0 radian vs 2*PI radian
+                    double normalisedAngle = ((angle < 0) ? (angle + PI2) : angle) / PI2;
+                    int indexPolar = (int) (round(normalisedAngle * chromaResolution) % chromaResolution);
+                    double maxDistanceFromNeutral = boundaries[indexY][indexPolar];
+                    if (maxDistanceFromNeutral > 1e-4) {
+                        double compression = distanceFromNeutral / maxDistanceFromNeutral;
+                        maxGamutCompressionHolder.accumulateAndGet(compression, Math::max);
+                    }
+                }
             }
         }
     }

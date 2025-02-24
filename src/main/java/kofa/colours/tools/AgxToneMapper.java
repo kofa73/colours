@@ -34,13 +34,13 @@ public class AgxToneMapper {
         DEFAULT, GOLDEN, PUNCHY
     }
 
-    // color is in Rec2020
+    // color is in Rec709
     public static double[] agx(double r, double g, double b, Look look) {
         // Input transform (inset)
 
-        double insetR = 0.856627153315983  * r + 0.137318972929847 * g + 0.11189821299995   * b;
-        double insetG = 0.0951212405381588 * r + 0.761241990602591 * g + 0.0767994186031903 * b;
-        double insetB = 0.0482516061458583 * r + 0.101439036467562 * g + 0.811302368396859  * b;
+        double insetR = 0.856627153315983  * r + 0.0951212405381588 * g + 0.0482516061458583   * b;
+        double insetG = 0.137318972929847 * r + 0.761241990602591 * g + 0.101439036467562 * b;
+        double insetB = 0.11189821299995 * r + 0.0767994186031903 * g + 0.811302368396859  * b;
 
         double[] color = new double[]{insetR, insetG, insetB};
 
@@ -65,10 +65,10 @@ public class AgxToneMapper {
 
         // 3. agxEotf()
         // Inverse input transform (outset)
-        color = new double[]{
-                 1.1271005818144368   * color[0] - 0.1413297634984383   * color[1] - 0.14132976349843826 * color[2],
-                -0.11060664309660323  * color[0] + 1.157823702216272    * color[1] - 0.11060664309660294 * color[2],
-                -0.016493938717834573 * color[0] - 0.016493938717834257 * color[1] + 1.2519364065950405  * color[2]
+        color = new double[] {
+                 1.1271005818144368  * color[0] - 0.11060664309660323 * color[1] - 0.016493938717834573 * color[2],
+                -0.1413297634984383  * color[0] + 1.157823702216272   * color[1] - 0.016493938717834257 * color[2],
+                -0.14132976349843826 * color[0] - 0.11060664309660294 * color[1] + 1.2519364065950405  * color[2]
         };
         color = clamp(color, 0, 1);
         return pow(color, GAMMA_2_2);
@@ -85,5 +85,11 @@ public class AgxToneMapper {
                 + 0.4298 * x2
                 + 0.1191 * x
                 - 0.00232;
+    }
+
+    public static void main(String[] args) {
+        agx(1, 1, 1, Look.DEFAULT);
+        agx(0.3, 0.3, 0.3, Look.DEFAULT);
+        agx(10, 10, 10, Look.DEFAULT);
     }
 }
