@@ -4,8 +4,6 @@ import kofa.io.ImageLoader;
 import kofa.io.JpgOutput;
 import kofa.io.RgbImage;
 
-import static kofa.colours.tools.SrgbOut.SRGB_OUT;
-
 public class UchimuraRgbCompressor {
     private static final int lumaResolution = 4096;
     private static final int chromaResolution = 4096;
@@ -23,8 +21,6 @@ public class UchimuraRgbCompressor {
         toneMapUsingRGB(image);
 
         GAMUT_COMPRESSOR_XY_Y.compressGamut_in_xyY(image);
-
-        image.transformAllPixels(SRGB_OUT);
 
         new JpgOutput().write(baseName + "-UchimuraToneMapped-xyYCompressed", image);
     }

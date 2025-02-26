@@ -2,10 +2,7 @@ package kofa.colours.tools;
 
 import kofa.io.ImageLoader;
 import kofa.io.JpgOutput;
-import kofa.io.PngOutput;
 import kofa.io.RgbImage;
-
-import static kofa.colours.tools.SrgbOut.SRGB_OUT;
 
 public class AgxRgbCompressor {
     private static final int lumaResolution = 4096;
@@ -25,8 +22,6 @@ public class AgxRgbCompressor {
         toneMapUsingAgx(image, look);
 
         GAMUT_COMPRESSOR_XY_Y.compressGamut_in_xyY(image);
-
-        image.transformAllPixels(SRGB_OUT);
 
         new JpgOutput().write(baseName + "-Agx-" + look + "-ToneMapped-xyYCompressed", image);
     }

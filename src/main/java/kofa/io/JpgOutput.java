@@ -1,5 +1,7 @@
 package kofa.io;
 
+import kofa.colours.tools.SrgbOut;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.color.ColorSpace;
@@ -10,12 +12,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class JpgOutput {
+    /**
+     * To be called with 'linear sRGB', applies the transfer function.
+     * @param filePrefix the base file name, ".jpg" will be appended if needed
+     * @param image linear Rec 709 image, all channels already in [0..1]
+     */
     public void write(String filePrefix, RgbImage image) {
         BufferedImage bufferedImage = asBufferedImage(image);
         writeJpg(bufferedImage, filePrefix);
     }
 
     private BufferedImage asBufferedImage(RgbImage image) {
+        image.transformAllPixels(SrgbOut.SRGB_OUT);
         WritableRaster raster = rasterFrom(image);
         ColorSpace sRgb = ColorSpace.getInstance(ColorSpace.CS_sRGB);
         ColorModel colourModel = new ComponentColorModel(sRgb, false, false, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);

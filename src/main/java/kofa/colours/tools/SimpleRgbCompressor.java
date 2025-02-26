@@ -7,7 +7,6 @@ import kofa.io.RgbImage;
 import kofa.maths.ThanatomanicCurve6;
 
 import static kofa.colours.tools.CurveSolver.findOptimalShoulderStart;
-import static kofa.colours.tools.SrgbOut.SRGB_OUT;
 
 public class SimpleRgbCompressor {
     private static final int lumaResolution = 4096;
@@ -19,8 +18,6 @@ public class SimpleRgbCompressor {
         toneMapUsingRGB(image);
 
         new GamutCompressor_xyY(lumaResolution, chromaResolution).compressGamut_in_xyY(image);
-
-        image.transformAllPixels(SRGB_OUT);
 
         new JpgOutput().write(baseName + "-" + "rgbToneMapped-xyYCompressed", image);
     }

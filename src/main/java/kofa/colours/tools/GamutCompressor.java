@@ -6,7 +6,6 @@ import kofa.io.ImageLoader;
 import kofa.io.JpgOutput;
 import kofa.io.RgbImage;
 
-import static kofa.colours.tools.SrgbOut.SRGB_OUT;
 import static kofa.maths.MathHelpers.vec3;
 
 public class GamutCompressor {
@@ -26,8 +25,6 @@ public class GamutCompressor {
         toneMapUsingRGB(image);
 
         GAMUT_COMPRESSOR_XY_Y.compressGamut_in_xyY(image);
-
-        image.transformAllPixels(SRGB_OUT);
 
         new JpgOutput().write(baseName + "-Yclipped-xyYCompressed", image);
     }
