@@ -3,7 +3,7 @@ package kofa.colours.tools;
 import kofa.colours.spaces.CIExyY;
 import kofa.colours.spaces.Rec2020;
 import kofa.io.ImageLoader;
-import kofa.io.PngOutput;
+import kofa.io.JpgOutput;
 import kofa.io.RgbImage;
 
 import static kofa.colours.tools.SrgbOut.SRGB_OUT;
@@ -29,7 +29,7 @@ public class GamutCompressor {
 
         image.transformAllPixels(SRGB_OUT);
 
-        new PngOutput().write(baseName + "-Yclipped-xyYCompressed", image);
+        new JpgOutput().write(baseName + "-Yclipped-xyYCompressed", image);
     }
 
     private static void toneMapUsingRGB(RgbImage image) {

@@ -34,9 +34,15 @@ public class AgxToneMapper {
         DEFAULT, GOLDEN, PUNCHY
     }
 
-    // color is in Rec709
+    // Rec2020 or 709 ???!
     public static double[] agx(double r, double g, double b, Look look) {
         // Input transform (inset)
+
+        /*
+        [[0.856627153315983, 0.0951212405381588, 0.0482516061458583],
+                            [0.137318972929847, 0.761241990602591, 0.101439036467562],
+                            [0.11189821299995, 0.0767994186031903, 0.811302368396859]])
+         */
 
         double insetR = 0.856627153315983  * r + 0.0951212405381588 * g + 0.0482516061458583   * b;
         double insetG = 0.137318972929847 * r + 0.761241990602591 * g + 0.101439036467562 * b;

@@ -3,7 +3,7 @@ package kofa.colours.tools;
 import com.google.common.util.concurrent.AtomicDouble;
 import kofa.colours.spaces.Rec2020;
 import kofa.io.ImageLoader;
-import kofa.io.PngOutput;
+import kofa.io.JpgOutput;
 import kofa.io.RgbImage;
 import kofa.maths.ThanatomanicCurve6;
 
@@ -23,7 +23,7 @@ public class SimpleXyzCompressor {
 
         image.transformAllPixels(SRGB_OUT);
 
-        new PngOutput().write(baseName + "-" + "yMapped", image);
+        new JpgOutput().write(baseName + "-" + "yMapped", image);
     }
 
     private static void toneMapUsingY(RgbImage image) {

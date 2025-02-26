@@ -4,7 +4,7 @@ import kofa.colours.spaces.Rec2020;
 
 import static kofa.maths.MathHelpers.*;
 
-// based on https://github.com/google/filament/blob/main/filament/src/ToneMapper.cpp#L263
+// based on https://github.com/google/filament/blob/main/filament/src/ToneMapper.cpp
 // https://iolite-engine.com/blog_posts/minimal_agx_implementation
 // and https://www.shadertoy.com/view/cd3XWr
 public class AgxToneMapperRec709 {

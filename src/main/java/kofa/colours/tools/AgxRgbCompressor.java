@@ -1,6 +1,7 @@
 package kofa.colours.tools;
 
 import kofa.io.ImageLoader;
+import kofa.io.JpgOutput;
 import kofa.io.PngOutput;
 import kofa.io.RgbImage;
 
@@ -9,18 +10,25 @@ import static kofa.colours.tools.SrgbOut.SRGB_OUT;
 public class AgxRgbCompressor {
     private static final int lumaResolution = 4096;
     private static final int chromaResolution = 4096;
+    public static final GamutCompressor_xyY GAMUT_COMPRESSOR_XY_Y = new GamutCompressor_xyY(lumaResolution, chromaResolution);
+
     public static void main(String[] args) {
         AgxToneMapper.Look look = AgxToneMapper.Look.valueOf(args[0]);
-        String baseName = args[1];
+        for (int i = 1; i < args.length; i++) {
+            process(args[i], look);
+        }
+    }
+
+    private static void process(String baseName, AgxToneMapper.Look look) {
         RgbImage image = new ImageLoader().loadImageFrom(baseName);
 
         toneMapUsingAgx(image, look);
 
-        new GamutCompressor_xyY(lumaResolution, chromaResolution).compressGamut_in_xyY(image);
+        GAMUT_COMPRESSOR_XY_Y.compressGamut_in_xyY(image);
 
         image.transformAllPixels(SRGB_OUT);
 
-        new PngOutput().write(baseName + "-Agx-" + look + "-ToneMapped-xyYCompressed", image);
+        new JpgOutput().write(baseName + "-Agx-" + look + "-ToneMapped-xyYCompressed", image);
     }
 
     private static void toneMapUsingAgx(RgbImage image, AgxToneMapper.Look look) {

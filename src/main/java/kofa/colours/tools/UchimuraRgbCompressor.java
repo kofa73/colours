@@ -1,7 +1,7 @@
 package kofa.colours.tools;
 
 import kofa.io.ImageLoader;
-import kofa.io.PngOutput;
+import kofa.io.JpgOutput;
 import kofa.io.RgbImage;
 
 import static kofa.colours.tools.SrgbOut.SRGB_OUT;
@@ -26,7 +26,7 @@ public class UchimuraRgbCompressor {
 
         image.transformAllPixels(SRGB_OUT);
 
-        new PngOutput().write(baseName + "-UchimuraToneMapped-xyYCompressed", image);
+        new JpgOutput().write(baseName + "-UchimuraToneMapped-xyYCompressed", image);
     }
 
     private static void toneMapUsingRGB(RgbImage image) {

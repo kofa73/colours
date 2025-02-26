@@ -2,7 +2,7 @@ package kofa.colours.tools;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import kofa.io.ImageLoader;
-import kofa.io.PngOutput;
+import kofa.io.JpgOutput;
 import kofa.io.RgbImage;
 import kofa.maths.ThanatomanicCurve6;
 
@@ -22,7 +22,7 @@ public class SimpleRgbCompressor {
 
         image.transformAllPixels(SRGB_OUT);
 
-        new PngOutput().write(baseName + "-" + "rgbToneMapped-xyYCompressed", image);
+        new JpgOutput().write(baseName + "-" + "rgbToneMapped-xyYCompressed", image);
     }
 
     private static void toneMapUsingRGB(RgbImage image) {
