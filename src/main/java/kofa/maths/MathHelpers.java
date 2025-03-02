@@ -3,7 +3,12 @@ package kofa.maths;
 public class MathHelpers {
     private static final double ln2 = Math.log(2);
 
-    public static double dot(double[] one, double[] other) {
+    public static double dot2(double[] one, double[] other) {
+        return one[0] * other[0]
+                + one[1] * other[1];
+    }
+
+    public static double dot3(double[] one, double[] other) {
         return one[0] * other[0]
                 + one[1] * other[1]
                 + one[2] * other[2];
@@ -128,4 +133,27 @@ public class MathHelpers {
         return add(mul(x, 1 - a), mul(y, a));
     }
 
+    public static double[] vec2(double x, double y) {
+        return new double[] {x, y};
+    }
+
+    public static double[] vec2(double fromX, double fromY, double toX, double toY) {
+        return vec2(toX - fromX, toY - fromY);
+    }
+
+    public static double len2(double[] v) {
+        return Math.sqrt(len2Squared(v));
+    }
+
+    public static double len2Squared(double[] v) {
+        return v[0] * v[0] + v[1] * v[1];
+    }
+
+    public static double len3(double[] v) {
+        return Math.sqrt(len3Squared(v));
+    }
+
+    public static double len3Squared(double[] v) {
+        return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+    }
 }

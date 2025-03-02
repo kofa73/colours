@@ -24,7 +24,7 @@ public class SimpleXyzCompressor {
     }
 
     private static void toneMapUsingY(RgbImage image) {
-        AtomicDouble maxY_holder = new AtomicDouble(0);
+        var maxY_holder = new AtomicDouble(0);
         image.forEachPixel((int row, int column, double red, double green, double blue) -> {
             findMaxY(red, green, blue, maxY_holder);
         });
@@ -33,7 +33,7 @@ public class SimpleXyzCompressor {
         double shoulderYStart = findOptimalShoulderStart(maxY);
 
         if (shoulderYStart != 1) {
-            CurveBasedYCompressor yCompressor = new CurveBasedYCompressor(shoulderYStart);
+            var yCompressor = new CurveBasedYCompressor(shoulderYStart);
             image.transformAllPixels(yCompressor);
         }
     }

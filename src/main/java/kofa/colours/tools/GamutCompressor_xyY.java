@@ -36,7 +36,7 @@ public class GamutCompressor_xyY {
     }
 
     public void compressGamut_in_xyY(RgbImage image) {
-        AtomicDouble maxGamutCompressionHolder = new AtomicDouble(1);
+        var maxGamutCompressionHolder = new AtomicDouble(1);
         image.forEachPixel((int row, int column, double red, double green, double blue) ->
                 updateMaxGamutCompression(red, green, blue, maxGamutCompressionHolder, boundaries)
         );

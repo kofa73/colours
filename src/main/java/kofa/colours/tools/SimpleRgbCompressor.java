@@ -24,7 +24,7 @@ public class SimpleRgbCompressor {
     }
 
     private static void toneMapUsingRGB(RgbImage image) {
-        AtomicDouble max_holder = new AtomicDouble(0);
+        var max_holder = new AtomicDouble(0);
         image.forEachPixel((int row, int column, double red, double green, double blue) -> {
             findMaxComponent(red, green, blue, max_holder);
         });
@@ -33,7 +33,7 @@ public class SimpleRgbCompressor {
         double shoulderStart = findOptimalShoulderStart(maxComponent);
 
         if (shoulderStart != 1) {
-            CurveBasedRgbCompressor rgbCompressor = new CurveBasedRgbCompressor(shoulderStart);
+            var rgbCompressor = new CurveBasedRgbCompressor(shoulderStart);
             image.transformAllPixels(rgbCompressor);
         }
     }

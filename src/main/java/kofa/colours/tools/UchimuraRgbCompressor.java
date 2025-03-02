@@ -26,7 +26,7 @@ public class UchimuraRgbCompressor {
     }
 
     private static void toneMapUsingRGB(RgbImage image) {
-        UchimuraPixelTransformer transformer = new UchimuraPixelTransformer();
+        var transformer = new UchimuraPixelTransformer();
         image.transformAllPixels(transformer);
     }
 

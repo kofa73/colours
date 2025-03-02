@@ -30,7 +30,7 @@ public class GamutCompressor {
     }
 
     private static void toneMapUsingRGB(RgbImage image) {
-        YClippingPixelTransformer transformer = new YClippingPixelTransformer();
+        var transformer = new YClippingPixelTransformer();
         image.transformAllPixels(transformer);
     }
 

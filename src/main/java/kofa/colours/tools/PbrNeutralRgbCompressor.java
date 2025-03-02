@@ -26,7 +26,7 @@ public class PbrNeutralRgbCompressor {
     }
 
     private static void toneMapUsingPbrNeutral(RgbImage image) {
-        PbrNeutralPixelTransformer transformer = new PbrNeutralPixelTransformer();
+        var transformer = new PbrNeutralPixelTransformer();
         image.transformAllPixels(transformer);
     }
 }

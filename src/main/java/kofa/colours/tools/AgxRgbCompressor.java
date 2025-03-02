@@ -27,7 +27,7 @@ public class AgxRgbCompressor {
     }
 
     private static void toneMapUsingAgx(RgbImage image, AgxToneMapper.Look look) {
-        AgxPixelTransformer transformer = new AgxPixelTransformer(look);
+        var transformer = new AgxPixelTransformer(look);
         image.transformAllPixels(transformer);
     }
 

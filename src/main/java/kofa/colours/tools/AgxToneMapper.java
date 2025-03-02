@@ -19,7 +19,7 @@ public class AgxToneMapper {
     public static final double PUNCHY_SAT = 1.4;
 
     private static double[] agxAscCdl(double[] color, double[] slope, double[] offset, double[] power, double sat) {
-        double luma = dot(color, lw);
+        double luma = dot3(color, lw);
         color = pow(add(mul(color, slope), offset), power);
         return add(luma, mul(sat, sub(color, luma)));
     }

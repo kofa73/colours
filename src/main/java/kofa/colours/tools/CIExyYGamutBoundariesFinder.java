@@ -58,8 +58,8 @@ public class CIExyYGamutBoundariesFinder {
         int count = 0;
         do {
             count++;
-            double x = distanceFromNeutral * cos + spaceParameters.whitePoint_x();
-            double y = distanceFromNeutral * sin + spaceParameters.whitePoint_y();
+            double x = distanceFromNeutral * cos + spaceParameters.whitePointX();
+            double y = distanceFromNeutral * sin + spaceParameters.whitePointY();
             xyY[0] = x;
             xyY[1] = y;
             xyY_to_XYZ(xyY, XYZ);
@@ -101,9 +101,9 @@ public class CIExyYGamutBoundariesFinder {
 
         //System.out.println("=== final result ===");
 
-        StringBuilder result = new StringBuilder();
-        StringBuilder outOfGamut = new StringBuilder();
-        StringBuilder notOnGamutBoundary = new StringBuilder();
+        var result = new StringBuilder();
+        var outOfGamut = new StringBuilder();
+        var notOnGamutBoundary = new StringBuilder();
         for (int indexY = 0; indexY < lumaResolution; indexY++) {
             double Y = 1f / lumaResolution * indexY;
             xyY[2] = Y;
@@ -111,8 +111,8 @@ public class CIExyYGamutBoundariesFinder {
             for (int indexPolar = 0; indexPolar < chromaResolution; indexPolar++) {
                 double angle = TWO_PI / chromaResolution * indexPolar;
                 double distanceFromNeutral = boundariesForLuma[indexPolar];
-                double x = (distanceFromNeutral * cos(angle) + spaceParameters.whitePoint_x());
-                double y = (distanceFromNeutral * sin(angle) + spaceParameters.whitePoint_y());
+                double x = (distanceFromNeutral * cos(angle) + spaceParameters.whitePointX());
+                double y = (distanceFromNeutral * sin(angle) + spaceParameters.whitePointY());
                 xyY[0] = x;
                 xyY[1] = y;
                 xyY_to_XYZ(xyY, XYZ);

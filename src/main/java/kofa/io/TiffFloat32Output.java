@@ -29,8 +29,8 @@ public class TiffFloat32Output {
 
     private static String tiffFilenameFrom(String filePrefix) {
         String file;
-        if (!filePrefix.toLowerCase().endsWith(".tiff")) {
-            file = filePrefix + ".tiff";
+        if (!filePrefix.toLowerCase().endsWith(".tif") && !filePrefix.toLowerCase().endsWith(".tiff")) {
+            file = filePrefix + ".tif";
         } else {
             file = filePrefix;
         }
