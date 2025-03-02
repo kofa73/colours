@@ -9,20 +9,22 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class PngOutput {
-    public void write(String filePrefix, RgbImage image) {
+public class Png16Output {
+    private Png16Output() {}
+
+    public static void write(String filePrefix, RgbImage image) {
         BufferedImage bufferedImage = asBufferedImage(image);
         writePng(bufferedImage, filePrefix);
     }
 
-    private BufferedImage asBufferedImage(RgbImage image) {
+    private static BufferedImage asBufferedImage(RgbImage image) {
         WritableRaster raster = rasterFrom(image);
         ColorSpace linearRgb = ColorSpace.getInstance(ColorSpace.CS_sRGB);
         ColorModel colourModel = new ComponentColorModel(linearRgb, false, false, Transparency.OPAQUE, DataBuffer.TYPE_USHORT);
         return new BufferedImage(colourModel, raster, colourModel.isAlphaPremultiplied(), null);
     }
 
-    private WritableRaster rasterFrom(RgbImage image) {
+    private static WritableRaster rasterFrom(RgbImage image) {
         WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_USHORT, image.width(), image.height(), 3, null);
         DataBufferUShort buffer = (DataBufferUShort) raster.getDataBuffer();
         short[][] bankData = buffer.getBankData();
@@ -56,7 +58,7 @@ public class PngOutput {
         return (short) value;
     }
 
-    private void writePng(BufferedImage image, String filePrefix) {
+    private static void writePng(BufferedImage image, String filePrefix) {
         String file = pngFilenameFrom(filePrefix);
         try {
             Files.deleteIfExists(Path.of(file));
@@ -67,7 +69,7 @@ public class PngOutput {
         }
     }
 
-    private String pngFilenameFrom(String filePrefix) {
+    private static String pngFilenameFrom(String filePrefix) {
         String file;
         if (!filePrefix.toLowerCase().endsWith(".png")) {
             file = filePrefix + ".png";

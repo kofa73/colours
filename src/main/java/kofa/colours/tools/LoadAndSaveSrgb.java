@@ -2,7 +2,7 @@ package kofa.colours.tools;
 
 import kofa.colours.gamutmapper.*;
 import kofa.io.ImageLoader;
-import kofa.io.PngOutput;
+import kofa.io.Png16Output;
 import kofa.io.RgbImage;
 
 import java.util.Arrays;
@@ -29,7 +29,7 @@ public class LoadAndSaveSrgb {
             if (gamutMapper != null) {
                 System.out.println("Using " + gamutMapper.name());
                 gamutMapper.mapToSrgb(image);
-                new PngOutput().write(baseName + "-" + gamutMapper.name(), image);
+                Png16Output.write(baseName + "-" + gamutMapper.name(), image);
             } else {
                 printHelpAndExit();
             }

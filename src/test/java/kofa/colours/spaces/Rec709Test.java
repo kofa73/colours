@@ -3,7 +3,7 @@ package kofa.colours.spaces;
 import org.junit.jupiter.api.Test;
 
 import static kofa.colours.model.CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER;
-import static kofa.colours.spaces.Buffer3.newBuffer;
+import static kofa.maths.MathHelpers.vec3;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 
@@ -12,7 +12,7 @@ class Rec709Test {
     void rec709_to_XYZ_and_back() {
         // given
         double[] rec709 = new double[] {1, 1, 1};
-        double[] XYZ = newBuffer();
+        double[] XYZ = vec3();
 
         // when
         Rec709.rec709_to_XYZ(rec709, XYZ);
@@ -35,7 +35,7 @@ class Rec709Test {
     void rec709_and_rec2020_direct() {
         // given values picked in darktable
         double[] rec709 = new double[]{89 / 255.0, 115 / 255.0, 177 / 255.0};
-        double[] rec2020 = newBuffer();
+        double[] rec2020 = vec3();
 
         // when
         Rec709.rec709toRec2020(rec709, rec2020);
@@ -51,7 +51,7 @@ class Rec709Test {
     void rec709_and_rec2020() {
         // given values picked in darktable
         double[] rec709 = new double[] {89 / 255.0, 115 / 255.0, 177 / 255.0};
-        double[] XYZ = newBuffer();
+        double[] XYZ = vec3();
 
         // when
         Rec709.rec709_to_XYZ(rec709, XYZ);
@@ -62,7 +62,7 @@ class Rec709Test {
         assertThat(XYZ[2]).isCloseTo(0.7201727329888512, offset(1e-6));
 
         // when
-        double[] rec2020 = newBuffer();
+        double[] rec2020 = vec3();
         Rec2020.XYZ_to_rec2020(XYZ, rec2020);
 
         // then

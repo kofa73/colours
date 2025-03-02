@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.AtomicDouble;
 import kofa.colours.spaces.CIExyY;
 import kofa.colours.spaces.Rec2020;
 import kofa.colours.spaces.Rec709;
+import kofa.colours.spaces.SpaceParameters;
 import kofa.io.RgbImage;
 import kofa.maths.ThanatomanicCurve6;
 
@@ -20,10 +21,18 @@ public class GamutCompressor_xyY {
     private final int lumaResolution;
     private final int chromaResolution;
 
-    public GamutCompressor_xyY(int lumaResolution, int chromaResolution) {
+    public static GamutCompressor_xyY forRec709(int lumaResolution, int chromaResolution) {
+        return new GamutCompressor_xyY(lumaResolution, chromaResolution, Rec709.PARAMS);
+    }
+
+    public static GamutCompressor_xyY forRec2020(int lumaResolution, int chromaResolution) {
+        return new GamutCompressor_xyY(lumaResolution, chromaResolution, Rec2020.PARAMS);
+    }
+
+    public GamutCompressor_xyY(int lumaResolution, int chromaResolution, SpaceParameters spaceParameters) {
         this.lumaResolution = lumaResolution;
         this.chromaResolution = chromaResolution;
-        boundaries = new CIExyYGamutBoundariesFinder(lumaResolution, chromaResolution).findRgbGamutBoundaries();
+        boundaries = CIExyYGamutBoundariesFinder.findRgbGamutBoundaries(lumaResolution, chromaResolution, spaceParameters);
     }
 
     public void compressGamut_in_xyY(RgbImage image) {
@@ -42,7 +51,7 @@ public class GamutCompressor_xyY {
 
     private void updateMaxGamutCompression(double red, double green, double blue, AtomicDouble maxGamutCompressionHolder, double[][] boundaries) {
         double[] valuesXYZ = rec2020_to_XYZ(red, green, blue);
-        if (valuesXYZ[1] > 0.01 && valuesXYZ[1] < 0.99) {
+        if (valuesXYZ[1] > 0.01 && valuesXYZ[1] < 1 - 0.01) {
             double[] values_xyY = vec3();
             CIExyY.XZY_to_xyY(valuesXYZ, values_xyY);
             int indexY = (int) min(round(values_xyY[2] * lumaResolution), lumaResolution);

@@ -6,6 +6,7 @@ import kofa.io.JpgOutput;
 import kofa.io.RgbImage;
 import kofa.maths.ThanatomanicCurve6;
 
+import static java.lang.Math.max;
 import static kofa.colours.tools.CurveSolver.findOptimalShoulderStart;
 
 public class SimpleRgbCompressor {
@@ -17,9 +18,9 @@ public class SimpleRgbCompressor {
 
         toneMapUsingRGB(image);
 
-        new GamutCompressor_xyY(lumaResolution, chromaResolution).compressGamut_in_xyY(image);
+        GamutCompressor_xyY.forRec709(lumaResolution, chromaResolution).compressGamut_in_xyY(image);
 
-        new JpgOutput().write(baseName + "-" + "rgbToneMapped-xyYCompressed", image);
+        JpgOutput.write(baseName + "-" + "rgbToneMapped-xyYCompressed", image);
     }
 
     private static void toneMapUsingRGB(RgbImage image) {
@@ -38,9 +39,7 @@ public class SimpleRgbCompressor {
     }
 
     private static void findMaxComponent(double red, double green, double blue, AtomicDouble maxHolder) {
-        maxHolder.getAndAccumulate(red, Math::max);
-        maxHolder.getAndAccumulate(green, Math::max);
-        maxHolder.getAndAccumulate(blue, Math::max);
+        maxHolder.getAndAccumulate(max(red, max(green, blue)), Math::max);
     }
 
     private static class CurveBasedRgbCompressor implements RgbImage.PixelTransformer {

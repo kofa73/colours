@@ -11,6 +11,7 @@ import java.nio.file.Path;
  * dcraw -D -4 -T 2024-11-04-11-00-04-P1060036.RW2
  */
 public class RawLoader {
+    private RawLoader() {}
 
     public static BufferedImage decodeRaw(Path rawFilePath) {
         // Build the command array

@@ -8,8 +8,7 @@ public class Rec2020 extends Rgb<Rec2020> {
     public static final Rec2020 BLACK = new Rec2020(0, 0, 0);
     public static final Rec2020 WHITE = new Rec2020(1, 1, 1);
 
-    // values of sRGB primaries from http://www.brucelindbloom.com/index.html?WorkingSpaceInfo.html
-    // white point from https://www.colour-science.org/api/0.3.1/html/colour.models.dataset.rec_2020.html#colour.models.dataset.rec_2020.REC_2020_COLOURSPACE
+    // https://www.colour-science.org/api/0.3.1/html/colour.models.dataset.rec_2020.html#colour.models.dataset.rec_2020.REC_2020_COLOURSPACE
     static final SpaceConversionMatrix<Rec2020, CIEXYZ> TO_XYZ = new SpaceConversionMatrix<>(
             CIEXYZ::new,
             calculateToXyzMatrix(

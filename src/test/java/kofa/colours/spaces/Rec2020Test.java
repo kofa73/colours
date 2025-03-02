@@ -3,7 +3,7 @@ package kofa.colours.spaces;
 import org.junit.jupiter.api.Test;
 
 import static kofa.colours.model.CIEXYZ.D65_WHITE_2DEGREE_STANDARD_OBSERVER;
-import static kofa.colours.spaces.Buffer3.newBuffer;
+import static kofa.maths.MathHelpers.vec3;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 
@@ -12,7 +12,7 @@ class Rec2020Test {
     void rec2020_to_XYZ_and_back() {
         // given
         double[] rec2020 = new double[] {1, 1, 1};
-        double[] XYZ = newBuffer();
+        double[] XYZ = vec3();
 
         // when
         Rec2020.rec2020_to_XYZ(rec2020, XYZ);
@@ -35,7 +35,7 @@ class Rec2020Test {
     void rec2020_and_rec709() {
         // given values picked in darktable
         double[] rec2020 = new double[] {101 / 255.0, 114 / 255.0, 170 / 255.0};
-        double[] valuesXYZ = newBuffer();
+        double[] valuesXYZ = vec3();
 
         // when
         Rec2020.rec2020_to_XYZ(rec2020, valuesXYZ);
@@ -45,14 +45,14 @@ class Rec2020Test {
         assertThat(valuesXYZ[2]).isCloseTo(0.719768499718504, offset(1e-6));
 
         // when
-        double[] rec709 = newBuffer();
+        double[] rec709 = vec3();
         Rec709.XYZ_to_rec709(valuesXYZ, rec709);
 
         // then we get values picked in darktable
         // rough comparison, 8-bit values
-        assertThat(rec709[0]).isCloseTo(89 / 255, offset(1e-2));
-        assertThat(rec709[1]).isCloseTo(115 / 255, offset(1e-3));
-        assertThat(rec709[2]).isCloseTo(177 / 255, offset(1e-3));
+        assertThat(rec709[0]).isCloseTo(89.0 / 255, offset(1e-2));
+        assertThat(rec709[1]).isCloseTo(115.0 / 255, offset(1e-3));
+        assertThat(rec709[2]).isCloseTo(177.0 / 255, offset(1e-3));
         // exact values based on other code
         assertThat((rec709[0])).isCloseTo(0.3464098892162477, offset(1e-6));
         assertThat((rec709[1])).isCloseTo(0.45157499402975027, offset(1e-6));

@@ -1,5 +1,8 @@
 package kofa.colours.spaces;
 
+import static kofa.colours.spaces.CIExyY.D65_WHITE_2DEG_x;
+import static kofa.colours.spaces.CIExyY.D65_WHITE_2DEG_y;
+
 public class Rec709 {
     /*
     public static void main(String[] args) {
@@ -12,6 +15,14 @@ public class Rec709 {
         fromXyzMatrix using MatrixUtils.inverse
     }
      */
+
+    public static final SpaceParameters PARAMS = new SpaceParameters(
+        D65_WHITE_2DEG_x, D65_WHITE_2DEG_y,
+            0.6400, 0.3300,
+            0.3000, 0.6000,
+            0.1500, 0.0600,
+            Rec709::XYZ_to_rec709
+    );
 
     public static void rec709_to_XYZ(double[] rgb, double[] xyz) {
         xyz[0] = 0.41238656325299233  * rgb[0] + 0.35759149092062525 * rgb[1] + 0.1804504912035636  * rgb[2];

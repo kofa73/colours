@@ -2,7 +2,7 @@ package kofa.colours.tools;
 
 import kofa.colours.spaces.CIExyY;
 import kofa.colours.spaces.Rec709;
-import kofa.io.PngOutput;
+import kofa.io.Png16Output;
 import kofa.io.RgbImage;
 import kofa.maths.ThanatomanicCurve6;
 
@@ -11,6 +11,8 @@ import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
 
 import static java.lang.Math.*;
+import static kofa.colours.tools.CIExyYGamutBoundariesFinder.findRgbGamutBoundariesForRec2020;
+import static kofa.colours.tools.CIExyYGamutBoundariesFinder.findRgbGamutBoundariesForRec709;
 import static kofa.maths.MathHelpers.vec3;
 
 public class TestImageGeneratorRec2020ToRec709SaturationSeries {
@@ -27,8 +29,8 @@ public class TestImageGeneratorRec2020ToRec709SaturationSeries {
 
         int polarSteps = 12;
         double polarStepSize = TWO_PI / polarSteps;
-        double[][] rec709GamutBoundaries = new CIExyYGamutBoundariesFinder(WIDTH, polarSteps).findRgbGamutBoundaries();
-        double[][] rec2020GamutBoundaries = CIExyYGamutBoundariesFinder.forRec2020(WIDTH, polarSteps).findRgbGamutBoundaries();
+        double[][] rec709GamutBoundaries = findRgbGamutBoundariesForRec709(WIDTH, polarSteps);
+        double[][] rec2020GamutBoundaries = findRgbGamutBoundariesForRec2020(WIDTH, polarSteps);
 
         double lumaStepSize = MAX_LUMA_Y / (WIDTH);
 
@@ -100,7 +102,7 @@ public class TestImageGeneratorRec2020ToRec709SaturationSeries {
             }
 
             image.transformAllPixels(SrgbOut.SRGB_OUT);
-            new PngOutput().write("/tmp/Rec2020-%03d-Rec709".formatted(percent), image);
+            Png16Output.write("/tmp/Rec2020-%03d-Rec709".formatted(percent), image);
         }
     }
 

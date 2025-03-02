@@ -12,17 +12,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class JpgOutput {
+    private JpgOutput() {}
+
     /**
      * To be called with 'linear sRGB', applies the transfer function.
      * @param filePrefix the base file name, ".jpg" will be appended if needed
      * @param image linear Rec 709 image, all channels already in [0..1]
      */
-    public void write(String filePrefix, RgbImage image) {
+    public static void write(String filePrefix, RgbImage image) {
         BufferedImage bufferedImage = asBufferedImage(image);
         writeJpg(bufferedImage, filePrefix);
     }
 
-    private BufferedImage asBufferedImage(RgbImage image) {
+    private static BufferedImage asBufferedImage(RgbImage image) {
         image.transformAllPixels(SrgbOut.SRGB_OUT);
         WritableRaster raster = rasterFrom(image);
         ColorSpace sRgb = ColorSpace.getInstance(ColorSpace.CS_sRGB);
@@ -30,7 +32,7 @@ public class JpgOutput {
         return new BufferedImage(colourModel, raster, colourModel.isAlphaPremultiplied(), null);
     }
 
-    private WritableRaster rasterFrom(RgbImage image) {
+    private static WritableRaster rasterFrom(RgbImage image) {
         WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, image.width(), image.height(), 3, null);
         DataBufferByte buffer = (DataBufferByte) raster.getDataBuffer();
         byte[] bankData = buffer.getData();
@@ -64,7 +66,7 @@ public class JpgOutput {
         return (byte) value;
     }
 
-    private void writeJpg(BufferedImage image, String filePrefix) {
+    private static void writeJpg(BufferedImage image, String filePrefix) {
         String file = jpgFilenameFrom(filePrefix);
         try {
             Files.deleteIfExists(Path.of(file));
@@ -75,7 +77,7 @@ public class JpgOutput {
         }
     }
 
-    private String jpgFilenameFrom(String filePrefix) {
+    private static String jpgFilenameFrom(String filePrefix) {
         String file;
         if (!filePrefix.toLowerCase().endsWith(".jpg") && !filePrefix.toLowerCase().endsWith(".jpeg")) {
             file = filePrefix + ".jpg";

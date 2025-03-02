@@ -18,9 +18,9 @@ public class SimpleXyzCompressor {
 
         toneMapUsingY(image);
 
-        new GamutCompressor_xyY(lumaResolution, chromaResolution).compressGamut_in_xyY(image);
+        GamutCompressor_xyY.forRec709(lumaResolution, chromaResolution).compressGamut_in_xyY(image);
 
-        new JpgOutput().write(baseName + "-" + "yMapped", image);
+        JpgOutput.write(baseName + "-" + "yMapped", image);
     }
 
     private static void toneMapUsingY(RgbImage image) {

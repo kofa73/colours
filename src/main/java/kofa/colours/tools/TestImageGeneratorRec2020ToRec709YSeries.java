@@ -2,7 +2,7 @@ package kofa.colours.tools;
 
 import kofa.colours.spaces.CIExyY;
 import kofa.colours.spaces.Rec709;
-import kofa.io.PngOutput;
+import kofa.io.Png16Output;
 import kofa.io.RgbImage;
 import kofa.maths.ThanatomanicCurve6;
 
@@ -10,7 +10,10 @@ import java.awt.*;
 import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
 
-import static java.lang.Math.*;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static kofa.colours.tools.CIExyYGamutBoundariesFinder.findRgbGamutBoundariesForRec2020;
+import static kofa.colours.tools.CIExyYGamutBoundariesFinder.findRgbGamutBoundariesForRec709;
 import static kofa.maths.MathHelpers.vec3;
 
 public class TestImageGeneratorRec2020ToRec709YSeries {
@@ -26,8 +29,8 @@ public class TestImageGeneratorRec2020ToRec709YSeries {
 
         int polarSteps = HEIGHT;
         double polarStepSize = TWO_PI / polarSteps;
-        double[][] rec709GamutBoundaries = new CIExyYGamutBoundariesFinder(100, polarSteps).findRgbGamutBoundaries();
-        double[][] rec2020GamutBoundaries = CIExyYGamutBoundariesFinder.forRec2020(100, polarSteps).findRgbGamutBoundaries();
+        double[][] rec709GamutBoundaries = findRgbGamutBoundariesForRec709(100, polarSteps);
+        double[][] rec2020GamutBoundaries = findRgbGamutBoundariesForRec2020(100, polarSteps);
 
         var curve = ThanatomanicCurve6.linearUntil(0.8);
         double[] XYZ = vec3();
@@ -68,7 +71,7 @@ public class TestImageGeneratorRec2020ToRec709YSeries {
             }
 
             image.transformAllPixels(SrgbOut.SRGB_OUT);
-            new PngOutput().write("/tmp/Rec2020-Y%02d-Rec709".formatted(percent), image);
+            Png16Output.write("/tmp/Rec2020-Y%02d-Rec709".formatted(percent), image);
         }
     }
 

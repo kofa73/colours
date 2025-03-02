@@ -17,13 +17,21 @@ repositories {
     mavenLocal()
 }
 
+testing {
+    suites {
+        named<JvmTestSuite>("test") {
+            useJUnitJupiter()
+        }
+    }
+}
+
 dependencies {
     implementation("org.apache.commons:commons-math3:3.6.1")
     implementation("org.hdrhistogram:HdrHistogram:2.2.2")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("com.github.wendykierp:JTransforms:3.1")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     testImplementation("org.assertj:assertj-core:3.21.0")
+    testImplementation(libs.bundles.junit.jupiter)
 }
 
 group = "kofa"

@@ -49,6 +49,10 @@ public class MathHelpers {
         return new double[]{Math.pow(vector[0], exponents[0]), Math.pow(vector[1], exponents[1]), Math.pow(vector[2], exponents[2])};
     }
 
+    public static double maxComponentValue(double[] vector) {
+        return Math.max(vector[0], Math.max(vector[1], vector[2]));
+    }
+
     public static double[] max(double[] vector, double minimumComponentValue) {
         return new double[]{
                 Math.max(vector[0], minimumComponentValue),
@@ -118,6 +122,10 @@ public class MathHelpers {
 
     public static double[] vec3() {
         return new double[3];
+    }
+
+    public static double[] mix(double[] x, double[] y, double a) {
+        return add(mul(x, 1 - a), mul(y, a));
     }
 
 }

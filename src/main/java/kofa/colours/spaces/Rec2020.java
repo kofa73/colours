@@ -1,5 +1,8 @@
 package kofa.colours.spaces;
 
+import static kofa.colours.spaces.CIExyY.D65_WHITE_2DEG_x;
+import static kofa.colours.spaces.CIExyY.D65_WHITE_2DEG_y;
+
 public class Rec2020 {
     public static void main(String[] args) {
         /*
@@ -12,6 +15,13 @@ public class Rec2020 {
         fromXyzMatrix using MatrixUtils.inverse
          */
     }
+    public static final SpaceParameters PARAMS = new SpaceParameters(
+            D65_WHITE_2DEG_x, D65_WHITE_2DEG_y,
+            0.708, 0.292,
+            0.170, 0.797,
+            0.131, 0.046,
+            Rec2020::XYZ_to_rec2020
+    );
 
     public static void rec2020_to_XYZ(double[] rgb, double[] xyz) {
         xyz[0] = 0.6369535067850743 * rgb[0] + 0.14461918466923313 * rgb[1] + 0.16885585392287336 * rgb[2];

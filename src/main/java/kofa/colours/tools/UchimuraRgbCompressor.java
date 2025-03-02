@@ -7,7 +7,7 @@ import kofa.io.RgbImage;
 public class UchimuraRgbCompressor {
     private static final int lumaResolution = 4096;
     private static final int chromaResolution = 4096;
-    public static final GamutCompressor_xyY GAMUT_COMPRESSOR_XY_Y = new GamutCompressor_xyY(lumaResolution, chromaResolution);
+    public static final GamutCompressor_xyY GAMUT_COMPRESSOR_XY_Y = GamutCompressor_xyY.forRec709(lumaResolution, chromaResolution);
 
     public static void main(String[] args) {
         for (String fileName : args) {
@@ -22,7 +22,7 @@ public class UchimuraRgbCompressor {
 
         GAMUT_COMPRESSOR_XY_Y.compressGamut_in_xyY(image);
 
-        new JpgOutput().write(baseName + "-UchimuraToneMapped-xyYCompressed", image);
+        JpgOutput.write(baseName + "-UchimuraToneMapped-xyYCompressed", image);
     }
 
     private static void toneMapUsingRGB(RgbImage image) {
